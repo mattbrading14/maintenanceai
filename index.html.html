@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MaintenanceAI — 146 Main St, Los Altos</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh}
+.app{max-width:960px;margin:0 auto;padding:1.25rem}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.logo{font-size:18px;font-weight:700;color:#0f172a}
+.property-tag{font-size:12px;background:#e8f5ee;color:#1a6b3c;padding:4px 12px;border-radius:99px;font-weight:600}
+.tabs{display:flex;gap:0;border-bottom:1px solid #e2e8f0;margin-bottom:1.25rem;overflow-x:auto}
+.tab{padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;color:#64748b;border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
+.tab.active{color:#0f172a;border-bottom-color:#0f172a}
+.tab:hover:not(.active){color:#0f172a}
+.panel{display:none}.panel.active{display:block}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.section-label{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem}
+textarea,input,select{width:100%;padding:9px 11px;font-size:13px;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#0f172a}
+textarea{resize:none}
+textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+@media(max-width:580px){.row2,.row3{grid-template-columns:1fr}}
+.btn-primary{padding:10px 18px;font-size:13px;font-weight:600;font-family:inherit;background:#0f172a;border:none;border-radius:8px;cursor:pointer;color:#fff;width:100%;margin-top:8px}
+.btn-primary:hover{background:#1e293b}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-sm{padding:5px 12px;font-size:12px;font-family:inherit;border-radius:8px;cursor:pointer;font-weight:600;border:none}
+.btn-approve{background:#f0fdf4;color:#15803d}
+.btn-deny{background:#fef2f2;color:#b91c1c}
+.btn-email{background:#eff6ff;color:#1d4ed8}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px}
+.badge-urgent{background:#fef2f2;color:#b91c1c}
+.badge-normal{background:#f0fdf4;color:#15803d}
+.badge-low{background:#fffbeb;color:#b45309}
+.badge-pending{background:#eff6ff;color:#1d4ed8}
+.badge-sent{background:#f0fdf4;color:#15803d}
+.badge-denied{background:#fef2f2;color:#b91c1c}
+.badge-emailed{background:#f5f3ff;color:#6d28d9}
+.wo-item{border:1px solid #e2e8f0;border-radius:10px;padding:.85rem 1rem;margin-bottom:.6rem;background:#fff}
+.wo-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.wo-title{font-size:13px;font-weight:600}
+.wo-meta{font-size:11px;color:#64748b;margin-top:2px}
+.wo-details{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin:8px 0;font-size:12px}
+.wo-detail-label{color:#64748b}
+.wo-detail-val{color:#0f172a;font-weight:500}
+.loading-row{display:flex;align-items:center;gap:8px;padding:.75rem 0;font-size:13px;color:#64748b}
+.spinner{width:14px;height:14px;border:2px solid #e2e8f0;border-top-color:#64748b;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.upload-zone{border:2px dashed #e2e8f0;border-radius:12px;padding:2.5rem 1rem;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc;position:relative}
+.upload-zone:hover{border-color:#94a3b8;background:#f1f5f9}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone-icon{font-size:32px;margin-bottom:.75rem}
+.upload-zone-title{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:.25rem}
+.upload-zone-sub{font-size:12px;color:#64748b}
+.preview-img{max-width:100%;border-radius:10px;border:1px solid #e2e8f0;margin-top:1rem}
+.match-card{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:.85rem 1rem;margin:.75rem 0;font-size:13px}
+.match-title{font-weight:600;color:#15803d;margin-bottom:4px;font-size:13px}
+.match-detail{color:#166534;font-size:12px}
+.pm-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.pm-row:last-child{border-bottom:none}
+.pm-head{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem}
+@media(max-width:580px){.metric-grid{grid-template-columns:1fr 1fr}}
+.metric{background:#f8fafc;border-radius:8px;padding:.85rem 1rem}
+.metric-label{font-size:11px;color:#64748b;margin-bottom:4px}
+.metric-val{font-size:22px;font-weight:700;color:#0f172a}
+.vendor-chip{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:12px;margin-bottom:6px}
+.empty{font-size:13px;color:#94a3b8;padding:1.5rem 0;text-align:center}
+.tenant-search{margin-bottom:8px}
+.history-zone{border:2px dashed #e2e8f0;border-radius:12px;padding:2rem 1rem;text-align:center;cursor:pointer;background:#f8fafc;position:relative}
+.history-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top-bar">
+    <div class="logo">MaintenanceAI</div>
+    <span class="property-tag">146 Main St, Los Altos</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('screenshot')">Screenshot request</button>
+    <button class="tab" onclick="switchTab('logcall')">Log a call</button>
+    <button class="tab" onclick="switchTab('queue')">Approval queue <span id="queue-count" style="font-size:10px;background:#eff6ff;color:#1d4ed8;padding:1px 6px;border-radius:99px;margin-left:4px">0</span></button>
+    <button class="tab" onclick="switchTab('pm')">Preventive maintenance</button>
+    <button class="tab" onclick="switchTab('history')">Maintenance history</button>
+    <button class="tab" onclick="switchTab('report')">Owner report</button>
+  </div>
+
+  <!-- SCREENSHOT TAB -->
+  <div id="tab-screenshot" class="panel active">
+    <div class="card">
+      <div class="section-label">Upload a screenshot of any tenant email, text, or voicemail transcript</div>
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" accept="image/*" onchange="handleScreenshot(this)"/>
+        <div class="upload-zone-icon">📸</div>
+        <div class="upload-zone-title">Tap to upload screenshot</div>
+        <div class="upload-zone-sub">Works with email screenshots, text message screenshots, voicemail transcripts</div>
+      </div>
+      <img id="preview-img" class="preview-img" style="display:none"/>
+      <div id="match-result"></div>
+      <div id="screenshot-result"></div>
+    </div>
+  </div>
+
+  <!-- LOG A CALL TAB -->
+  <div id="tab-logcall" class="panel">
+    <div class="card">
+      <div class="section-label">Call details</div>
+      <div class="row2">
+        <div>
+          <div class="section-label">Property</div>
+          <select id="lc-property">
+            <option>146 Main St, Los Altos</option>
+          </select>
+        </div>
+        <div>
+          <div class="section-label">Date & time of call</div>
+          <input type="datetime-local" id="lc-datetime"/>
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <div class="section-label">Tenant name</div>
+          <select id="lc-tenant" onchange="autoFillTenant()">
+            <option value="">— Select tenant —</option>
+          </select>
+        </div>
+        <div>
+          <div class="section-label">Unit</div>
+          <input id="lc-unit" placeholder="Auto-filled from tenant" readonly style="background:#f1f5f9"/>
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <div class="section-label">Tenant phone</div>
+          <input id="lc-tenant-phone" placeholder="Auto-filled from tenant" readonly style="background:#f1f5f9"/>
+        </div>
+        <div>
+          <div class="section-label">Tenant email</div>
+          <input id="lc-tenant-email" placeholder="Auto-filled from tenant" readonly style="background:#f1f5f9"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Service request details</div>
+      <div class="row2">
+        <div>
+          <div class="section-label">Service type</div>
+          <select id="lc-service" onchange="autoFillVendor()">
+            <option value="">— Select service type —</option>
+            <option value="plumbing">Plumbing</option>
+            <option value="hvac">HVAC</option>
+            <option value="electrical">Electrical</option>
+            <option value="locksmith">Locksmith</option>
+            <option value="fire">Fire Sprinkler System</option>
+            <option value="extinguisher">Fire Extinguishers</option>
+            <option value="hood">Kitchen Hood Fire System</option>
+            <option value="general">General / Handyman</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <div class="section-label">Priority</div>
+          <select id="lc-priority">
+            <option value="urgent">Urgent</option>
+            <option value="normal" selected>Normal</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div class="section-label">Issue description</div>
+        <textarea id="lc-description" rows="3" placeholder="Describe the issue — reported by tenant on call, or observed during building walkthrough..."></textarea>
+      </div>
+      <div style="margin-bottom:8px">
+        <div class="section-label">Access needed?</div>
+        <select id="lc-access">
+          <option value="yes">Yes — coordinate with tenant</option>
+          <option value="no">No — common area or exterior</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Vendor assignment</div>
+      <div class="row2">
+        <div>
+          <div class="section-label">Vendor</div>
+          <select id="lc-vendor" onchange="autoFillVendorDetails()">
+            <option value="">— Select vendor —</option>
+          </select>
+        </div>
+        <div>
+          <div class="section-label">Vendor contact</div>
+          <input id="lc-vendor-contact" placeholder="Auto-filled from vendor" readonly style="background:#f1f5f9"/>
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <div class="section-label">Vendor phone</div>
+          <input id="lc-vendor-phone" placeholder="Auto-filled from vendor" readonly style="background:#f1f5f9"/>
+        </div>
+        <div>
+          <div class="section-label">Vendor email</div>
+          <input id="lc-vendor-email" placeholder="Auto-filled from vendor" readonly style="background:#f1f5f9"/>
+        </div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div class="section-label">Notes for vendor</div>
+        <textarea id="lc-notes" rows="2" placeholder="Any specific instructions for the vendor..."></textarea>
+      </div>
+      <button class="btn-primary" onclick="submitCallLog()">Create work order</button>
+    </div>
+    <div id="call-result"></div>
+  </div>
+
+  <!-- APPROVAL QUEUE TAB -->
+  <div id="tab-queue" class="panel">
+    <div id="queue-list"><div class="empty">No work orders yet. Upload a screenshot to get started.</div></div>
+  </div>
+
+  <!-- PREVENTIVE MAINTENANCE TAB -->
+  <div id="tab-pm" class="panel">
+    <div class="card">
+      <div class="section-label">Add scheduled maintenance task</div>
+      <div class="row2">
+        <input id="pm-task" placeholder="Task (e.g. HVAC filter change)"/>
+        <select id="pm-freq"><option>Monthly</option><option>Quarterly</option><option selected>Bi-annually</option><option>Annually</option></select>
+      </div>
+      <div class="row2">
+        <select id="pm-vendor-select"></select>
+        <input id="pm-unit" placeholder="Unit(s) or 'All units'"/>
+      </div>
+      <input id="pm-next" type="date" style="margin-bottom:8px"/>
+      <button class="btn-primary" onclick="addPM()" style="margin-top:0">Add to schedule</button>
+    </div>
+    <div class="card">
+      <div class="section-label">Scheduled tasks</div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding-bottom:6px;border-bottom:1px solid #e2e8f0;margin-bottom:4px">
+        <span class="pm-head">Task</span><span class="pm-head">Frequency</span><span class="pm-head">Next due</span><span class="pm-head">Vendor</span><span></span>
+      </div>
+      <div id="pm-list"></div>
+    </div>
+  </div>
+
+  <!-- MAINTENANCE HISTORY TAB -->
+  <div id="tab-history" class="panel">
+    <div class="card">
+      <div class="section-label">Upload screenshot of past maintenance email to add to history</div>
+      <div class="history-zone">
+        <input type="file" accept="image/*" onchange="handleHistory(this)"/>
+        <div class="upload-zone-icon">📋</div>
+        <div class="upload-zone-title">Upload past maintenance screenshot</div>
+        <div class="upload-zone-sub">AI reads the date, work done, vendor, and unit — adds to history and auto-schedules next occurrence</div>
+      </div>
+      <div id="history-result"></div>
+    </div>
+    <div class="card">
+      <div class="section-label">Maintenance history — 146 Main St</div>
+      <div id="history-list"><div class="empty">No history yet. Upload past maintenance screenshots to build your record.</div></div>
+    </div>
+  </div>
+
+  <!-- OWNER REPORT TAB -->
+  <div id="tab-report" class="panel">
+    <div class="card">
+      <div class="section-label">Report settings</div>
+      <div class="row2" style="margin-bottom:8px">
+        <select id="rpt-month"><option>January</option><option>February</option><option selected>March</option><option>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option></select>
+        <input id="rpt-property" value="146 Main St, Los Altos"/>
+      </div>
+      <button class="btn-primary" onclick="generateReport()" id="rpt-btn" style="margin-top:0">Generate owner report</button>
+    </div>
+    <div id="report-output"></div>
+  </div>
+</div>
+
+<script>
+// ── REAL DATA ──────────────────────────────────────────────
+const TENANTS = [
+  {unit:"100",business:"Round Robin",contact:"Christy Drexel",office_phone:"6509480955",cell_phone:"4084384600",email:"encore.rrobin@yahoo.com"},
+  {unit:"101/102",business:"Peninsula Symphony",contact:"Chelsea Chambers",office_phone:"6509415291",cell_phone:"4087109440",email:"chelsea@peninsulasymphony.org"},
+  {unit:"103",business:"General Building",contact:"Matt Brading",office_phone:"",cell_phone:"4082347016",email:"matt@bradingassociates.com"},
+  {unit:"104",business:"Azool",contact:"Shabnam Jain",office_phone:"6509473800",cell_phone:"6507935152",email:"shabnam@azooljewels.com"},
+  {unit:"201",business:"Total Wealth Solutions",contact:"Imran Thanvi",office_phone:"",cell_phone:"5106732127",email:"imran7007@outlook.com"},
+  {unit:"202",business:"Michael Nusimow",contact:"Michael Nusimow",office_phone:"",cell_phone:"9175861476",email:"nusimow@gmail.com"},
+  {unit:"203",business:"Theresa Allocco, LCSW",contact:"Theresa Allocco",office_phone:"",cell_phone:"4082058302",email:"theresa@theresamallocco.com"},
+  {unit:"204/205",business:"European Fin.",contact:"Marianne Conway",office_phone:"6509413865",cell_phone:"8009456357",email:"eurobrkr@pacbell.net"},
+  {unit:"207",business:"Hartcom",contact:"Sara Hart",office_phone:"6508158848",cell_phone:"6508158848",email:"sarahart@hartcom.com"},
+  {unit:"208",business:"Zakus",contact:"Frank Tan",office_phone:"6509179158",cell_phone:"6505768669",email:"franktan@zakusinc.com"},
+  {unit:"209",business:"Fortis Lauren Group, Inc",contact:"Lauren Mcallister",office_phone:"6502071004",cell_phone:"",email:"laurennmcallister@gmail.com"},
+  {unit:"210",business:"Biotech Equipment Sales",contact:"Raymond Balewilz",office_phone:"650-793-1043",cell_phone:"",email:"medisales@msn.com"},
+  {unit:"211",business:"Anya Steinberg, M.D.",contact:"Anya Steinberg",office_phone:"650-254-2040",cell_phone:"",email:"a.steinbergmd@gmail.com"},
+  {unit:"212/213",business:"Fortis Lauren Group, Inc",contact:"Lauren Mcallister",office_phone:"6502071004",cell_phone:"",email:"laurennmcallister@gmail.com"},
+  {unit:"214",business:"Momar",contact:"Breeze Momar",office_phone:"6504955098",cell_phone:"",email:"bmo361@yahoo.com"},
+  {unit:"215",business:"Shelley Sinclair",contact:"Shelly Sinclair",office_phone:"5512652949",cell_phone:"",email:"ssinclairlep@icloud.com"},
+  {unit:"216",business:"Shelley Sinclair",contact:"Shelly Sinclair",office_phone:"5512652949",cell_phone:"",email:"ssinclairlep@icloud.com"},
+  {unit:"217",business:"Shelley Sinclair",contact:"Shelly Sinclair",office_phone:"5512652949",cell_phone:"",email:"ssinclairlep@icloud.com"}
+];
+
+const VENDORS = [
+  {name:"Nickell Fire Protection",trade:"Fire Sprinkler System",contact:"Jose Gonzalez",email:"jose@nickellfire.com",phone:"4084376039"},
+  {name:"Nickell Fire Protection",trade:"Fire Extinguishers",contact:"Jose Gonzalez",email:"jose@nickellfire.com",phone:"4084376039"},
+  {name:"Nickell Fire Protection",trade:"Kitchen Hood Fire System",contact:"Jose Gonzalez",email:"jose@nickellfire.com",phone:"4084376039"},
+  {name:"Gomez Sewer and Drain",trade:"Plumbing",contact:"Santos Gomez",email:"gomezseweranddrain@gmail.com",phone:"4083911591"},
+  {name:"O.C. McDonald",trade:"HVAC",contact:"Jayme Gutierrez",email:"jgutierrez@ocmcdonald.com",phone:"8312771731"},
+  {name:"Tri-City Lock Company",trade:"Locksmith",contact:"Dan Allen",email:"lockmandan@tri-citylock.com",phone:"6509642165"},
+  {name:"Zeus Electric",trade:"Electrical",contact:"Carlos Perez",email:"zeus.electric.cp@gmail.com",phone:"4087813142"}
+];
+
+let workOrders = [];
+let maintenanceHistory = [];
+let pmTasks = [
+  {task:"Fire extinguisher inspection",freq:"Annually",next:"2026-06-01",vendor:"Nickell Fire Protection",units:"All units"},
+  {task:"Fire sprinkler system check",freq:"Annually",next:"2026-06-01",vendor:"Nickell Fire Protection",units:"All units"},
+  {task:"HVAC filter change",freq:"Quarterly",next:"2026-04-01",vendor:"O.C. McDonald",units:"All units"},
+  {task:"Kitchen hood fire system",freq:"Bi-annually",next:"2026-09-01",vendor:"Nickell Fire Protection",units:"All units"}
+];
+
+// ── TENANT MATCHING ──────────────────────────────────────
+function matchTenant(text) {
+  const t = text.toLowerCase();
+  for (const tenant of TENANTS) {
+    if (t.includes(tenant.contact.toLowerCase())) return tenant;
+    if (t.includes(tenant.business.toLowerCase())) return tenant;
+    if (tenant.email && t.includes(tenant.email.toLowerCase())) return tenant;
+    const phones = [tenant.office_phone, tenant.cell_phone].filter(Boolean);
+    for (const p of phones) {
+      const digits = p.replace(/\D/g,'');
+      if (digits.length >= 10 && t.includes(digits.slice(-10))) return tenant;
+    }
+  }
+  return null;
+}
+
+function matchVendor(category) {
+  const cat = category.toLowerCase();
+  const map = {
+    plumbing: 'Plumbing', hvac: 'HVAC', electrical: 'Electrical',
+    locksmith: 'Locksmith', lock: 'Locksmith',
+    fire: 'Fire Sprinkler System', sprinkler: 'Fire Sprinkler System',
+    extinguisher: 'Fire Extinguishers', hood: 'Kitchen Hood Fire System'
+  };
+  for (const [k,v] of Object.entries(map)) {
+    if (cat.includes(k)) return VENDORS.find(vn => vn.trade === v) || VENDORS[0];
+  }
+  return VENDORS.find(v => v.trade === 'Plumbing');
+}
+
+// ── TAB SWITCHING ────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  const tabs = ['screenshot','logcall','queue','pm','history','report'];
+  document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if (name==='pm') renderPM();
+  if (name==='queue') renderQueue();
+  if (name==='history') renderHistory();
+  if (name==='logcall') initCallLog();
+}
+
+function initCallLog() {
+  // Populate tenant dropdown — Unit 103 (General Building) first
+  const ts = document.getElementById('lc-tenant');
+  if (ts.options.length <= 1) {
+    const general = TENANTS.find(t => t.unit === '103');
+    if (general) {
+      const opt = document.createElement('option');
+      opt.value = general.unit;
+      opt.textContent = `${general.contact} — Unit ${general.unit} (${general.business}) ★ Walkthrough`;
+      ts.appendChild(opt);
+    }
+    TENANTS.filter(t => t.unit !== '103').forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.unit;
+      opt.textContent = `${t.contact} — Unit ${t.unit} (${t.business})`;
+      ts.appendChild(opt);
+    });
+  }
+  // Populate vendor dropdown
+  const vs = document.getElementById('lc-vendor');
+  if (vs.options.length <= 1) {
+    const seen = new Set();
+    VENDORS.forEach(v => {
+      if (!seen.has(v.name)) {
+        seen.add(v.name);
+        const opt = document.createElement('option');
+        opt.value = v.name;
+        opt.textContent = `${v.name} (${v.trade})`;
+        vs.appendChild(opt);
+      }
+    });
+  }
+  // Set default datetime to now
+  const dt = document.getElementById('lc-datetime');
+  if (!dt.value) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    dt.value = now.toISOString().slice(0,16);
+  }
+}
+
+function autoFillTenant() {
+  const unit = document.getElementById('lc-tenant').value;
+  const tenant = TENANTS.find(t => t.unit === unit);
+  if (tenant) {
+    document.getElementById('lc-unit').value = `Unit ${tenant.unit} — ${tenant.business}`;
+    document.getElementById('lc-tenant-phone').value = tenant.cell_phone || tenant.office_phone || '—';
+    document.getElementById('lc-tenant-email').value = tenant.email || '—';
+  } else {
+    document.getElementById('lc-unit').value = '';
+    document.getElementById('lc-tenant-phone').value = '';
+    document.getElementById('lc-tenant-email').value = '';
+  }
+}
+
+function autoFillVendor() {
+  const service = document.getElementById('lc-service').value;
+  if (!service) return;
+  const vendor = matchVendor(service);
+  if (vendor) {
+    document.getElementById('lc-vendor').value = vendor.name;
+    document.getElementById('lc-vendor-contact').value = vendor.contact;
+    document.getElementById('lc-vendor-phone').value = formatPhone(vendor.phone);
+    document.getElementById('lc-vendor-email').value = vendor.email;
+  }
+}
+
+function autoFillVendorDetails() {
+  const name = document.getElementById('lc-vendor').value;
+  const vendor = VENDORS.find(v => v.name === name);
+  if (vendor) {
+    document.getElementById('lc-vendor-contact').value = vendor.contact;
+    document.getElementById('lc-vendor-phone').value = formatPhone(vendor.phone);
+    document.getElementById('lc-vendor-email').value = vendor.email;
+  }
+}
+
+function submitCallLog() {
+  const tenantUnit = document.getElementById('lc-tenant').value;
+  const tenant = TENANTS.find(t => t.unit === tenantUnit);
+  const vendorName = document.getElementById('lc-vendor').value;
+  const vendor = VENDORS.find(v => v.name === vendorName) || {name: vendorName || 'TBD', contact:'', email:'', phone:''};
+  const description = document.getElementById('lc-description').value.trim();
+  const service = document.getElementById('lc-service').value;
+  const priority = document.getElementById('lc-priority').value;
+  const access = document.getElementById('lc-access').value;
+  const notes = document.getElementById('lc-notes').value.trim();
+  const datetime = document.getElementById('lc-datetime').value;
+
+  if (!tenant) { alert('Please select a tenant.'); return; }
+  if (!description) { alert('Please enter an issue description.'); return; }
+  if (!service) { alert('Please select a service type.'); return; }
+
+  const wo = {
+    id: 'WO-' + Math.floor(1000 + Math.random()*9000),
+    issue_summary: description.length > 50 ? description.substring(0,50)+'...' : description,
+    category: service,
+    priority,
+    priority_reason: 'Reported via phone call',
+    recommended_action: description,
+    estimated_time: '1-2 hours',
+    access_needed: access === 'yes',
+    notes_for_vendor: notes,
+    tenant: tenant.contact,
+    unit: tenant.unit,
+    business: tenant.business,
+    tenant_email: tenant.email,
+    date: new Date(datetime).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    vendor,
+    status: 'pending',
+    source: tenantUnit === '103' ? 'Building walkthrough' : 'Phone call'
+  };
+
+  workOrders.unshift(wo);
+  updateQueueCount();
+
+  const bc = priority==='urgent'?'badge-urgent':priority==='normal'?'badge-normal':'badge-low';
+  document.getElementById('call-result').innerHTML = `
+    <div style="border:1px solid #86efac;border-radius:12px;padding:1rem;margin-top:.75rem;background:#fff">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <span style="font-size:13px;font-weight:600">Work order created: ${wo.id}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="badge" style="${wo.source==='Building walkthrough'?'background:#e8f5ee;color:#1a6b3c':'background:#f0f9ff;color:#0369a1'}">${wo.source}</span>
+          <span class="badge ${bc}">${priority} priority</span>
+        </div>
+      </div>
+      <div class="wo-details" style="grid-template-columns:1fr 1fr 1fr;gap:8px 16px;margin-bottom:10px">
+        <div><div class="wo-detail-label">Tenant</div><div class="wo-detail-val">${tenant.contact} · Unit ${tenant.unit}</div></div>
+        <div><div class="wo-detail-label">Business</div><div class="wo-detail-val">${tenant.business}</div></div>
+        <div><div class="wo-detail-label">Service type</div><div class="wo-detail-val">${service}</div></div>
+        <div style="grid-column:1/-1"><div class="wo-detail-label">Issue description</div><div class="wo-detail-val">${description}</div></div>
+        <div><div class="wo-detail-label">Access needed</div><div class="wo-detail-val">${access==='yes'?'Yes — coordinate with tenant':'No'}</div></div>
+        ${notes?`<div style="grid-column:1/-1"><div class="wo-detail-label">Notes for vendor</div><div class="wo-detail-val">${notes}</div></div>`:''}
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:.75rem 1rem;margin-bottom:.75rem">
+        <div style="font-size:12px;font-weight:600;margin-bottom:2px">Vendor: ${vendor.name} — ${vendor.contact}</div>
+        <div style="font-size:11px;color:#64748b">${vendor.email} · ${formatPhone(vendor.phone)}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn-sm btn-approve" onclick="approveWO('${wo.id}','call-result')">Approve & dispatch</button>
+        <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','call-result')">Approve & email vendor</button>
+        <button class="btn-sm btn-deny" onclick="denyWO('${wo.id}','call-result')">Deny</button>
+      </div>
+      <div id="action-${wo.id}" style="margin-top:8px;font-size:12px"></div>
+    </div>`;
+
+  // Reset form
+  document.getElementById('lc-description').value = '';
+  document.getElementById('lc-notes').value = '';
+}
+
+// ── SCREENSHOT HANDLER ───────────────────────────────────
+async function handleScreenshot(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    const preview = document.getElementById('preview-img');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+
+    document.getElementById('match-result').innerHTML = '';
+    document.getElementById('screenshot-result').innerHTML = `<div class="loading-row"><div class="spinner"></div>AI reading screenshot...</div>`;
+
+    try {
+      // Step 1: Extract text from image
+      const extractRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 800,
+          messages: [{
+            role: 'user',
+            content: [
+              {type:'image', source:{type:'base64', media_type:file.type, data:base64}},
+              {type:'text', text:`Extract all text from this screenshot of a tenant maintenance request (email, text, or voicemail). Also identify any names, phone numbers, email addresses, and business names visible. Return as JSON only, no markdown:
+{"extracted_text":"full text","names":[],"phones":[],"emails":[],"businesses":[]}`}
+            ]
+          }]
+        })
+      });
+      const extractData = await extractRes.json();
+      const extracted = JSON.parse(extractData.content[0].text.replace(/```json|```/g,'').trim());
+
+      // Step 2: Match tenant
+      const allText = [extracted.extracted_text, ...extracted.names, ...extracted.phones, ...extracted.emails, ...extracted.businesses].join(' ');
+      const matchedTenant = matchTenant(allText);
+
+      if (matchedTenant) {
+        document.getElementById('match-result').innerHTML = `
+          <div class="match-card">
+            <div class="match-title">Tenant matched — Unit ${matchedTenant.unit}</div>
+            <div class="match-detail">${matchedTenant.contact} · ${matchedTenant.business} · ${matchedTenant.email}</div>
+          </div>`;
+      }
+
+      // Step 3: Create work order
+      document.getElementById('screenshot-result').innerHTML = `<div class="loading-row"><div class="spinner"></div>Creating work order...</div>`;
+
+      const woRes = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 600,
+          messages: [{
+            role: 'user',
+            content: `This is a maintenance request from a tenant at 146 Main St, Los Altos.
+${matchedTenant ? `Tenant: ${matchedTenant.contact}, Unit ${matchedTenant.unit}, Business: ${matchedTenant.business}` : 'Tenant: Unknown'}
+Message: "${extracted.extracted_text}"
+
+Reply ONLY with valid JSON, no markdown:
+{"issue_summary":"6-8 word description","category":"plumbing|hvac|electrical|locksmith|fire|general","priority":"urgent|normal|low","priority_reason":"one sentence","recommended_action":"what vendor should do","estimated_time":"e.g. 1-2 hours","access_needed":true,"notes_for_vendor":"specific instructions or empty string"}`
+          }]
+        })
+      });
+      const woData = await woRes.json();
+      const wo = JSON.parse(woData.content[0].text.replace(/```json|```/g,'').trim());
+
+      wo.id = 'WO-' + Math.floor(1000 + Math.random()*9000);
+      wo.tenant = matchedTenant ? matchedTenant.contact : 'Unknown';
+      wo.unit = matchedTenant ? matchedTenant.unit : 'Unknown';
+      wo.business = matchedTenant ? matchedTenant.business : '';
+      wo.tenant_email = matchedTenant ? matchedTenant.email : '';
+      wo.date = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      wo.vendor = matchVendor(wo.category);
+      wo.status = 'pending';
+      workOrders.unshift(wo);
+      updateQueueCount();
+      renderScreenshotResult(wo);
+
+    } catch(e) {
+      document.getElementById('screenshot-result').innerHTML = `<div class="loading-row" style="color:#b91c1c">Error reading screenshot. Please try again.</div>`;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderScreenshotResult(wo) {
+  const bc = wo.priority==='urgent'?'badge-urgent':wo.priority==='normal'?'badge-normal':'badge-low';
+  document.getElementById('screenshot-result').innerHTML = `
+  <div style="border:1px solid #86efac;border-radius:12px;padding:1rem;margin-top:.75rem;background:#fff">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+      <span style="font-size:13px;font-weight:600">Work order created: ${wo.id}</span>
+      <span class="badge ${bc}">${wo.priority} priority</span>
+    </div>
+    <div class="wo-details" style="grid-template-columns:1fr 1fr 1fr;gap:8px 16px;margin-bottom:10px">
+      <div><div class="wo-detail-label">Tenant</div><div class="wo-detail-val">${wo.tenant} · Unit ${wo.unit}</div></div>
+      <div><div class="wo-detail-label">Business</div><div class="wo-detail-val">${wo.business||'—'}</div></div>
+      <div><div class="wo-detail-label">Category</div><div class="wo-detail-val">${wo.category}</div></div>
+      <div><div class="wo-detail-label">Issue</div><div class="wo-detail-val">${wo.issue_summary}</div></div>
+      <div><div class="wo-detail-label">Action needed</div><div class="wo-detail-val">${wo.recommended_action}</div></div>
+      <div><div class="wo-detail-label">Est. time</div><div class="wo-detail-val">${wo.estimated_time}</div></div>
+      <div style="grid-column:1/-1"><div class="wo-detail-label">Notes for vendor</div><div class="wo-detail-val">${wo.notes_for_vendor||'—'}</div></div>
+    </div>
+    <div style="background:#f8fafc;border-radius:8px;padding:.75rem 1rem;margin-bottom:.75rem">
+      <div style="font-size:12px;font-weight:600;margin-bottom:2px">Vendor: ${wo.vendor.name} — ${wo.vendor.contact}</div>
+      <div style="font-size:11px;color:#64748b">${wo.vendor.email} · ${formatPhone(wo.vendor.phone)}</div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn-sm btn-approve" onclick="approveWO('${wo.id}','screenshot')">Approve & dispatch</button>
+      <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','screenshot')">Approve & email vendor</button>
+      <button class="btn-sm btn-deny" onclick="denyWO('${wo.id}','screenshot')">Deny</button>
+    </div>
+    <div id="action-${wo.id}" style="margin-top:8px;font-size:12px"></div>
+  </div>`;
+}
+
+// ── HISTORY SCREENSHOT ───────────────────────────────────
+async function handleHistory(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    document.getElementById('history-result').innerHTML = `<div class="loading-row"><div class="spinner"></div>AI reading past maintenance record...</div>`;
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 600,
+          messages: [{
+            role: 'user',
+            content: [
+              {type:'image', source:{type:'base64', media_type:file.type, data:base64}},
+              {type:'text', text:`This is a screenshot of a past maintenance email or record for 146 Main St, Los Altos. Extract the maintenance history details and determine when this should next be scheduled. Reply ONLY with valid JSON, no markdown:
+{"task":"what was done","unit":"unit number or All units","vendor":"vendor name if visible or Unknown","date_completed":"date as YYYY-MM-DD or approximate","frequency":"Monthly|Quarterly|Bi-annually|Annually","next_due":"YYYY-MM-DD based on frequency","notes":"any additional details"}`}
+            ]
+          }]
+        })
+      });
+      const data = await res.json();
+      const record = JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+      record.id = 'HIST-' + Math.floor(1000 + Math.random()*9000);
+      maintenanceHistory.unshift(record);
+
+      // Auto-add to PM scheduler
+      pmTasks.push({
+        task: record.task,
+        freq: record.frequency,
+        next: record.next_due,
+        vendor: record.vendor,
+        units: record.unit
+      });
+
+      document.getElementById('history-result').innerHTML = `
+        <div class="match-card" style="margin-top:.75rem">
+          <div class="match-title">History record added + scheduled</div>
+          <div class="match-detail">${record.task} · ${record.unit} · Completed: ${record.date_completed} · Next due: ${record.next_due}</div>
+        </div>`;
+      renderHistory();
+    } catch(e) {
+      document.getElementById('history-result').innerHTML = `<div class="loading-row" style="color:#b91c1c">Error reading screenshot. Try again.</div>`;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  if (!maintenanceHistory.length) { el.innerHTML = `<div class="empty">No history yet. Upload past maintenance screenshots to build your record.</div>`; return; }
+  el.innerHTML = maintenanceHistory.map(r => `
+    <div style="padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px">
+      <div style="font-weight:600">${r.task} — ${r.unit}</div>
+      <div style="font-size:11px;color:#64748b;margin-top:2px">Completed: ${r.date_completed} · Vendor: ${r.vendor} · Next due: ${r.next_due} (${r.frequency})</div>
+      ${r.notes ? `<div style="font-size:11px;color:#94a3b8;margin-top:2px">${r.notes}</div>` : ''}
+    </div>`).join('');
+}
+
+// ── WORK ORDER ACTIONS ───────────────────────────────────
+function approveWO(id, ctx) {
+  const wo = workOrders.find(w => w.id===id);
+  if (!wo) return;
+  wo.status = 'approved';
+  updateQueueCount();
+  const el = document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
+  if (el) el.innerHTML = `<span style="color:#15803d">Approved — work order sent to ${wo.vendor.name}</span>`;
+  if (ctx==='queue') renderQueue();
+}
+
+function emailWO(id, ctx) {
+  const wo = workOrders.find(w => w.id===id);
+  if (!wo) return;
+  wo.status = 'emailed';
+  updateQueueCount();
+
+  const subject = encodeURIComponent(`Work Order ${wo.id} — ${wo.issue_summary} — 146 Main St, Los Altos`);
+  const body = encodeURIComponent(
+`Dear ${wo.vendor.contact},
+
+A new work order has been created and requires your attention at 146 Main St, Los Altos.
+
+Work Order: ${wo.id}
+Date: ${wo.date}
+Tenant: ${wo.tenant} — Unit ${wo.unit}${wo.business ? ` (${wo.business})` : ''}
+Issue: ${wo.issue_summary}
+Category: ${wo.category}
+Priority: ${wo.priority}
+
+Recommended Action: ${wo.recommended_action}
+Estimated Time: ${wo.estimated_time}
+Unit Access Required: ${wo.access_needed ? 'Yes — please coordinate with tenant' : 'No'}
+${wo.notes_for_vendor ? `\nNotes: ${wo.notes_for_vendor}` : ''}
+${wo.tenant_email ? `\nTenant Contact: ${wo.tenant_email}` : ''}
+
+Please confirm receipt and your availability.
+
+Thank you,
+MaintenanceAI
+146 Main St Property Management`);
+
+  window.open(`mailto:${wo.vendor.email}?subject=${subject}&body=${body}`);
+
+  const el = document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
+  if (el) el.innerHTML = `<span style="color:#6d28d9">Email opened to ${wo.vendor.contact} at ${wo.vendor.email}</span>`;
+  if (ctx==='queue') renderQueue();
+}
+
+function denyWO(id, ctx) {
+  const wo = workOrders.find(w => w.id===id);
+  if (!wo) return;
+  wo.status = 'denied';
+  updateQueueCount();
+  const el = document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
+  if (el) el.innerHTML = `<span style="color:#b91c1c">Denied — no vendor notified.</span>`;
+  if (ctx==='queue') renderQueue();
+}
+
+function updateQueueCount() {
+  document.getElementById('queue-count').textContent = workOrders.filter(w => w.status==='pending').length;
+}
+
+function renderQueue() {
+  const el = document.getElementById('queue-list');
+  if (!workOrders.length) { el.innerHTML = `<div class="empty">No work orders yet.</div>`; return; }
+  el.innerHTML = workOrders.map(wo => {
+    const bc = wo.priority==='urgent'?'badge-urgent':wo.priority==='normal'?'badge-normal':'badge-low';
+    const sc = wo.status==='approved'||wo.status==='emailed'?'badge-sent':wo.status==='denied'?'badge-denied':'badge-pending';
+    const sl = wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':'Pending approval';
+    return `<div class="wo-item">
+      <div class="wo-top">
+        <div><div class="wo-title">${wo.id} — ${wo.issue_summary}</div><div class="wo-meta">${wo.tenant} · Unit ${wo.unit}${wo.business?' · '+wo.business:''} · ${wo.date}</div></div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="badge ${bc}">${wo.priority}</span><span class="badge ${sc}">${sl}</span></div>
+      </div>
+      <div class="wo-details">
+        <div><div class="wo-detail-label">Category</div><div class="wo-detail-val">${wo.category}</div></div>
+        <div><div class="wo-detail-label">Vendor</div><div class="wo-detail-val">${wo.vendor.name}</div></div>
+        <div><div class="wo-detail-label">Action</div><div class="wo-detail-val">${wo.recommended_action}</div></div>
+        <div><div class="wo-detail-label">Est. time</div><div class="wo-detail-val">${wo.estimated_time}</div></div>
+      </div>
+      ${wo.status==='pending'?`<div style="display:flex;gap:6px;margin-top:6px">
+        <button class="btn-sm btn-approve" onclick="approveWO('${wo.id}','queue')">Approve</button>
+        <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','queue')">Approve & email vendor</button>
+        <button class="btn-sm btn-deny" onclick="denyWO('${wo.id}','queue')">Deny</button>
+      </div>`:''}
+      <div id="qaction-${wo.id}" style="margin-top:6px;font-size:12px"></div>
+    </div>`;
+  }).join('');
+}
+
+// ── PM SCHEDULER ─────────────────────────────────────────
+function renderPM() {
+  // Populate vendor dropdown
+  const sel = document.getElementById('pm-vendor-select');
+  const unique = [...new Set(VENDORS.map(v => v.name))];
+  sel.innerHTML = unique.map(n => `<option>${n}</option>`).join('');
+
+  const list = document.getElementById('pm-list');
+  if (!pmTasks.length) { list.innerHTML = `<div class="empty">No scheduled tasks yet.</div>`; return; }
+  list.innerHTML = pmTasks.map((t,i) => {
+    const d = new Date(t.next); const today = new Date();
+    const due = d<today?'badge-urgent':d-today<7*86400000?'badge-low':'badge-normal';
+    const dl = d<today?'Overdue':d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return `<div class="pm-row">
+      <span style="font-size:13px;font-weight:500">${t.task}<br><span style="font-size:11px;color:#64748b;font-weight:400">${t.units}</span></span>
+      <span class="badge" style="background:#f5f3ff;color:#6d28d9;align-self:center">${t.freq}</span>
+      <span class="badge ${due}" style="align-self:center">${dl}</span>
+      <span style="font-size:12px;color:#64748b">${t.vendor}</span>
+      <button class="btn-sm btn-approve" onclick="dispatchPM(${i})">Dispatch</button>
+    </div>`;
+  }).join('');
+}
+
+function addPM() {
+  const task = document.getElementById('pm-task').value.trim();
+  const freq = document.getElementById('pm-freq').value;
+  const vendor = document.getElementById('pm-vendor-select').value;
+  const unit = document.getElementById('pm-unit').value.trim() || 'All units';
+  const next = document.getElementById('pm-next').value;
+  if (!task || !next) { alert('Please enter a task and next due date.'); return; }
+  pmTasks.push({task,freq,vendor,units:unit,next});
+  document.getElementById('pm-task').value='';
+  document.getElementById('pm-next').value='';
+  renderPM();
+}
+
+function dispatchPM(i) {
+  const t = pmTasks[i];
+  const vendor = VENDORS.find(v => v.name === t.vendor) || VENDORS[0];
+  const wo = {
+    id:'WO-'+Math.floor(1000+Math.random()*9000),
+    issue_summary:`${t.task} (scheduled)`,
+    category:'general', priority:'normal',
+    priority_reason:'Scheduled preventive maintenance',
+    recommended_action:t.task, estimated_time:'1-2 hours',
+    access_needed:true, notes_for_vendor:'Scheduled maintenance — coordinate unit access',
+    tenant:'All tenants', unit:t.units, business:'',tenant_email:'',
+    date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    vendor, status:'approved'
+  };
+  workOrders.unshift(wo); updateQueueCount();
+  const nextMap={Monthly:1,Quarterly:3,'Bi-annually':6,Annually:12};
+  const d = new Date(t.next); d.setMonth(d.getMonth()+(nextMap[t.freq]||12));
+  pmTasks[i].next = d.toISOString().split('T')[0];
+  renderPM();
+  alert(`Dispatched to ${vendor.name}. Next scheduled: ${pmTasks[i].next}`);
+}
+
+// ── OWNER REPORT ─────────────────────────────────────────
+async function generateReport() {
+  const month = document.getElementById('rpt-month').value;
+  const property = document.getElementById('rpt-property').value.trim();
+  const btn = document.getElementById('rpt-btn');
+  btn.disabled=true; btn.textContent='Generating...';
+  document.getElementById('report-output').innerHTML=`<div class="loading-row"><div class="spinner"></div>AI compiling owner report...</div>`;
+
+  const approved = workOrders.filter(w=>w.status==='approved'||w.status==='emailed');
+  const woSummary = approved.length ? approved.map(w=>`${w.id}: ${w.issue_summary} (Unit ${w.unit}, Vendor: ${w.vendor.name})`).join('\n') : 'No work orders this period.';
+  const pmSummary = pmTasks.map(t=>`${t.task} — ${t.freq}, next: ${t.next}, vendor: ${t.vendor}`).join('\n');
+  const histSummary = maintenanceHistory.length ? maintenanceHistory.map(h=>`${h.task} completed ${h.date_completed}, next due ${h.next_due}`).join('\n') : 'No history recorded.';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:700,
+        messages:[{role:'user',content:`Write a professional monthly maintenance report for the property owner.
+
+Property: ${property}
+Period: ${month} 2026
+
+Work orders completed:
+${woSummary}
+
+Preventive maintenance schedule:
+${pmSummary}
+
+Maintenance history:
+${histSummary}
+
+Write in plain professional paragraphs, no markdown, no bullet points. Include summary, notable work, preventive maintenance status, and recommendations. Under 250 words.`}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content[0].text;
+    document.getElementById('report-output').innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <div><div style="font-size:15px;font-weight:700">${property} — ${month} 2026</div><div style="font-size:12px;color:#64748b;margin-top:2px">Generated ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div></div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">Work orders</div><div class="metric-val">${workOrders.length}</div></div>
+        <div class="metric"><div class="metric-label">Dispatched</div><div class="metric-val">${approved.length}</div></div>
+        <div class="metric"><div class="metric-label">Pending</div><div class="metric-val">${workOrders.filter(w=>w.status==='pending').length}</div></div>
+        <div class="metric"><div class="metric-label">Scheduled tasks</div><div class="metric-val">${pmTasks.length}</div></div>
+      </div>
+      <div style="background:#f8fafc;border-radius:8px;padding:1rem;margin-bottom:1rem">
+        <div class="section-label" style="margin-bottom:.5rem">Owner summary</div>
+        <div style="font-size:13px;line-height:1.8;white-space:pre-wrap">${text}</div>
+      </div>
+      ${workOrders.length?`<div class="section-label" style="margin-bottom:.5rem">Work order log</div>${workOrders.map(w=>{
+        const sc=w.status==='emailed'||w.status==='approved'?'badge-sent':w.status==='denied'?'badge-denied':'badge-pending';
+        const sl=w.status==='emailed'?'Emailed':w.status==='approved'?'Approved':w.status==='denied'?'Denied':'Pending';
+        return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px"><div><span style="font-weight:500">${w.id} — ${w.issue_summary}</span><span style="font-size:11px;color:#64748b;margin-left:8px">Unit ${w.unit}</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#64748b">${w.vendor.name}</span><span class="badge ${sc}">${sl}</span></div></div>`;
+      }).join('')}`:''}
+    </div>`;
+  } catch(e) {
+    document.getElementById('report-output').innerHTML=`<div class="loading-row" style="color:#b91c1c">Error generating report.</div>`;
+  }
+  btn.disabled=false; btn.textContent='Generate owner report';
+}
+
+// ── UTILS ────────────────────────────────────────────────
+function formatPhone(p) {
+  const d = p.replace(/\D/g,'');
+  return d.length===10 ? `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}` : p;
+}
+
+renderPM();
+</script>
+</body>
+</html>
