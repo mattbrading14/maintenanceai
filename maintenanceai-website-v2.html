@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MaintenanceAI — Maintenance Automation for Property Managers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#0c1a12;--green:#1a6b3c;--green-mid:#2d8a52;--green-light:#e8f5ee;--green-pale:#f4fbf7;--amber:#c8702a;--amber-light:#fdf3ea;--stone:#f7f5f0;--muted:#6b7a6e;--border:#d8e4db;--white:#ffffff}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white);overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--green);letter-spacing:-0.5px}
+.nav-links{display:flex;gap:1.75rem;list-style:none}
+.nav-links a{font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{background:var(--green);color:white;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;transition:background .2s}
+.nav-cta:hover{background:var(--green-mid)}
+@media(max-width:700px){.nav-links{display:none}}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:8rem 2rem 4rem;background:var(--stone);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(26,107,60,0.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(200,112,42,0.06) 0%,transparent 70%);pointer-events:none}
+.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+@media(max-width:768px){.hero-inner{grid-template-columns:1fr}.hero-visual{display:none}}
+.hero-tag{display:inline-block;background:var(--green-light);color:var(--green);font-size:12px;font-weight:600;padding:5px 14px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(2.4rem,5vw,3.6rem);line-height:1.1;letter-spacing:-1px;margin-bottom:1.25rem}
+.hero h1 em{font-style:italic;color:var(--green)}
+.hero-sub{font-size:17px;line-height:1.7;color:var(--muted);margin-bottom:2rem;font-weight:300;max-width:480px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-main{background:var(--green);color:white;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;display:inline-block;transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-main:hover{background:var(--green-mid);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--green);padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;display:inline-block;border:1.5px solid var(--green);transition:all .2s}
+.btn-ghost:hover{background:var(--green-light)}
+.mock-card{background:white;border-radius:16px;border:1px solid var(--border);padding:1.5rem;box-shadow:0 8px 40px rgba(12,26,18,0.08)}
+.mock-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.mock-title{font-size:13px;font-weight:600}
+.mock-badge{font-size:10px;font-weight:600;background:#fef2f2;color:#b91c1c;padding:3px 8px;border-radius:99px}
+.mock-row{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid #f5f5f5}
+.mock-label{color:var(--muted)}.mock-val{font-weight:600}
+.mock-actions{display:flex;gap:8px;margin-top:1rem}
+.mock-approve{flex:1;padding:8px;font-size:12px;font-weight:600;background:#f0fdf4;color:#15803d;border:none;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.mock-deny{flex:1;padding:8px;font-size:12px;font-weight:600;background:#fef2f2;color:#b91c1c;border:none;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.mock-float{position:absolute;top:-20px;right:-20px;background:white;border:1px solid var(--border);border-radius:12px;padding:.75rem 1rem;box-shadow:0 4px 20px rgba(0,0,0,0.08);font-size:12px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.mock-float-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px}
+
+/* PROOF */
+.proof{padding:2.5rem 2rem;background:white;border-bottom:1px solid var(--border)}
+.proof-inner{max-width:900px;margin:0 auto;text-align:center}
+.proof p{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
+.proof-items{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap}
+.proof-item{font-size:14px;font-weight:600;color:var(--muted);opacity:.6}
+
+/* SECTIONS */
+.section{padding:6rem 2rem}
+.section-inner{max-width:1000px;margin:0 auto}
+.section-tag{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.75rem}
+.section h2{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,2.8rem);line-height:1.15;letter-spacing:-0.5px;margin-bottom:1rem}
+.section-sub{font-size:16px;color:var(--muted);line-height:1.7;max-width:560px;margin-bottom:3.5rem;font-weight:300}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem}
+.step{background:var(--stone);border-radius:16px;padding:1.75rem;border:1px solid var(--border);transition:transform .2s,box-shadow .2s}
+.step:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(12,26,18,0.08)}
+.step-num{font-family:'DM Serif Display',serif;font-size:48px;color:var(--green-light);line-height:1;margin-bottom:.75rem;-webkit-text-stroke:1px var(--border)}
+.step h3{font-size:15px;font-weight:600;margin-bottom:.5rem}
+.step p{font-size:13px;color:var(--muted);line-height:1.6}
+.step-icon{font-size:24px;margin-bottom:.75rem}
+
+/* TUNE UP SECTION */
+.tuneup-section{padding:6rem 2rem;background:var(--ink);color:white;position:relative;overflow:hidden}
+.tuneup-section::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(26,107,60,0.15) 0%,transparent 70%);pointer-events:none}
+.tuneup-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
+@media(max-width:768px){.tuneup-inner{grid-template-columns:1fr}}
+.tuneup-tag{display:inline-block;background:rgba(26,107,60,0.3);color:#6ee7a0;font-size:12px;font-weight:600;padding:5px 14px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
+.tuneup-section h2{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,2.8rem);line-height:1.15;letter-spacing:-0.5px;margin-bottom:1rem;color:white}
+.tuneup-section h2 em{font-style:italic;color:#6ee7a0}
+.tuneup-sub{font-size:16px;line-height:1.7;color:rgba(255,255,255,0.6);margin-bottom:2rem;font-weight:300}
+.tuneup-items{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:2rem}
+.tuneup-item{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8)}
+.tuneup-check{width:20px;height:20px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:10px;color:#6ee7a0;flex-shrink:0;font-weight:700}
+.tuneup-cta{display:inline-block;background:var(--green);color:white;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+.tuneup-cta:hover{background:var(--green-mid);transform:translateY(-1px)}
+
+
+/* PRICING */
+.pricing-section{padding:6rem 2rem;background:var(--stone)}
+.pricing-inner{max-width:1000px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
+@media(max-width:700px){.pricing-grid{grid-template-columns:1fr}}
+.price-card{background:white;border-radius:20px;padding:2rem;border:1px solid var(--border);position:relative;transition:transform .2s,box-shadow .2s}
+.price-card:hover{transform:translateY(-4px);box-shadow:0 16px 50px rgba(12,26,18,0.1)}
+.price-card.featured{border:2px solid var(--green);background:var(--ink)}
+.featured-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--green);color:white;font-size:11px;font-weight:700;padding:4px 14px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.price-tier{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem}
+.price-card:not(.featured) .price-tier{color:var(--muted)}
+.price-card.featured .price-tier{color:#6ee7a0}
+.price-amount{font-family:'DM Serif Display',serif;font-size:3rem;line-height:1;margin-bottom:.25rem}
+.price-card:not(.featured) .price-amount{color:var(--ink)}
+.price-card.featured .price-amount{color:white}
+.price-per{font-size:13px;margin-bottom:1.25rem}
+.price-card:not(.featured) .price-per{color:var(--muted)}
+.price-card.featured .price-per{color:rgba(255,255,255,0.5)}
+.price-features{list-style:none;margin-bottom:1.75rem}
+.price-features li{font-size:13px;padding:6px 0;border-bottom:1px solid;display:flex;align-items:center;gap:8px}
+.price-card:not(.featured) .price-features li{border-color:#f0f0f0;color:var(--ink)}
+.price-card.featured .price-features li{border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85)}
+.check{width:16px;height:16px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:var(--green);font-weight:700}
+.price-card.featured .check{background:rgba(45,138,82,0.3);color:#6ee7a0}
+.price-btn{display:block;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+.price-card:not(.featured) .price-btn{background:var(--green-light);color:var(--green)}
+.price-card:not(.featured) .price-btn:hover{background:var(--green);color:white}
+.price-card.featured .price-btn{background:var(--green);color:white}
+.price-card.featured .price-btn:hover{background:var(--green-mid)}
+.tuneup-pill{display:inline-flex;align-items:center;gap:6px;background:var(--amber-light);color:var(--amber);font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;margin-top:8px;border:1px solid rgba(200,112,42,0.2)}
+
+/* COMPARE */
+.compare-section{padding:6rem 2rem;background:white}
+.compare-inner{max-width:960px;margin:0 auto}
+.compare-table{width:100%;border-collapse:collapse;margin-top:3rem;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+.compare-table th{padding:1rem 1.25rem;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:left;background:var(--ink);color:white}
+.compare-table td{padding:.9rem 1.25rem;font-size:13px;border-bottom:1px solid var(--border)}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table tr:nth-child(even) td{background:var(--stone)}
+.compare-table tr.highlight-row td{background:var(--green-light);font-weight:600;color:var(--green)}
+.yes{color:#15803d;font-weight:600}.no{color:#b91c1c}.partial{color:#b45309}
+
+/* CONTACT */
+.contact-section{padding:6rem 2rem;background:var(--stone)}
+.contact-inner{max-width:600px;margin:0 auto;text-align:center}
+.contact-inner h2{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,2.8rem);margin-bottom:1rem;letter-spacing:-0.5px}
+.contact-inner p{font-size:16px;color:var(--muted);margin-bottom:2.5rem;line-height:1.7;font-weight:300}
+.contact-form{background:white;border-radius:20px;padding:2.5rem;border:1px solid var(--border);text-align:left}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:500px){.form-row{grid-template-columns:1fr}}
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;border:1px solid var(--border);border-radius:8px;color:var(--ink);background:var(--stone);transition:border .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--green)}
+.form-group textarea{height:100px;resize:none}
+.form-submit{width:100%;padding:14px;background:var(--green);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .2s;margin-top:4px}
+.form-submit:hover{background:var(--green-mid)}
+.form-success{display:none;text-align:center;padding:2rem;font-size:15px;color:var(--green);font-weight:500}
+
+footer{background:var(--ink);color:rgba(255,255,255,0.5);padding:2.5rem 2rem;text-align:center;font-size:13px}
+footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;font-size:18px;display:block;margin-bottom:.5rem}
+
+.fade-up{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">MaintenanceAI</div>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How it works</a></li>
+    <li><a href="#tuneup">Home Tune Up</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#compare">Compare</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Get early access</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-content fade-up">
+      <span class="hero-tag">Now in Beta</span>
+      <h1>Maintenance requests,<br><em>handled automatically</em></h1>
+      <p class="hero-sub">Forward a tenant email. AI reads it, creates a work order, and dispatches the right vendor — all waiting for your one-click approval. No portals. No manual entry.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-main">Request beta access</a>
+        <a href="#how-it-works" class="btn-ghost">See how it works</a>
+      </div>
+    </div>
+    <div class="hero-visual fade-up" style="transition-delay:.2s">
+      <div style="position:relative">
+        <div class="mock-float"><span class="mock-float-dot"></span>New request from Unit 4B</div>
+        <div class="mock-card">
+          <div class="mock-header">
+            <span class="mock-title">WO-4821 — Leaking pipe under sink</span>
+            <span class="mock-badge">Urgent</span>
+          </div>
+          <div class="mock-row"><span class="mock-label">Tenant</span><span class="mock-val">Sarah Mendez · Unit 4B</span></div>
+          <div class="mock-row"><span class="mock-label">Category</span><span class="mock-val">Plumbing</span></div>
+          <div class="mock-row"><span class="mock-label">Vendor</span><span class="mock-val">Mario's Plumbing</span></div>
+          <div class="mock-row"><span class="mock-label">Est. time</span><span class="mock-val">1–2 hours</span></div>
+          <div class="mock-row" style="border:none"><span class="mock-label">Access needed</span><span class="mock-val">Yes — schedule with tenant</span></div>
+          <div class="mock-actions">
+            <button class="mock-approve">Approve & dispatch</button>
+            <button class="mock-deny">Deny</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<div class="proof">
+  <div class="proof-inner">
+    <p>Built for property managers tired of</p>
+    <div class="proof-items">
+      <span class="proof-item">Missed tenant emails</span>
+      <span class="proof-item">Manual work orders</span>
+      <span class="proof-item">Chasing vendors</span>
+      <span class="proof-item">Last-minute owner reports</span>
+      <span class="proof-item">Expensive software</span>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how-it-works">
+  <div class="section-inner">
+    <div class="fade-up">
+      <p class="section-tag">How it works</p>
+      <h2>From tenant email to<br>vendor dispatch in seconds</h2>
+      <p class="section-sub">No portals to set up. No tenant registration. Works with how your tenants already communicate.</p>
+    </div>
+    <div class="steps">
+      <div class="step fade-up">
+        <div class="step-num">01</div>
+        <div class="step-icon">📧</div>
+        <h3>Tenant sends an email or text</h3>
+        <p>Your tenant emails or texts their maintenance issue — no app, no portal, no login required from them.</p>
+      </div>
+      <div class="step fade-up" style="transition-delay:.1s">
+        <div class="step-num">02</div>
+        <div class="step-icon">🤖</div>
+        <h3>AI reads and creates a work order</h3>
+        <p>MaintenanceAI reads the message, categorizes the issue, sets priority, and recommends the right vendor by trade.</p>
+      </div>
+      <div class="step fade-up" style="transition-delay:.2s">
+        <div class="step-num">03</div>
+        <div class="step-icon">✅</div>
+        <h3>You approve with one click</h3>
+        <p>Review the structured work order and approve or deny. Nothing goes to a vendor without your sign-off.</p>
+      </div>
+      <div class="step fade-up" style="transition-delay:.3s">
+        <div class="step-num">04</div>
+        <div class="step-icon">🔧</div>
+        <h3>Vendor is automatically dispatched</h3>
+        <p>The right vendor receives the job details instantly. No phone tag, no manual emails, no missed requests.</p>
+      </div>
+      <div class="step fade-up" style="transition-delay:.4s">
+        <div class="step-num">05</div>
+        <div class="step-icon">📅</div>
+        <h3>Preventive maintenance runs itself</h3>
+        <p>Annual HVAC checks, smoke detector tests, roof inspections — scheduled once, dispatched automatically when due.</p>
+      </div>
+      <div class="step fade-up" style="transition-delay:.5s">
+        <div class="step-num">06</div>
+        <div class="step-icon">📊</div>
+        <h3>Owner reports write themselves</h3>
+        <p>AI generates a professional monthly maintenance summary for your property owners — no manual reporting needed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOME TUNE UP -->
+<section class="tuneup-section" id="tuneup">
+  <div class="tuneup-inner">
+    <div class="fade-up">
+      <span class="tuneup-tag">Featured service</span>
+      <h2>Introducing the<br><em>Home Tune Up</em></h2>
+      <p class="tuneup-sub">A complete preventive maintenance service for your rental units — covering filters, detectors, vents, and appliance treatments in one visit. Automatically suggested by MaintenanceAI when it's time.</p>
+      <div class="tuneup-items">
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Furnace filter replacement</div>
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Smoke & CO2 detector batteries</div>
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Dryer vent vacuuming</div>
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Bathroom fan vent cleaning</div>
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Refrigerator water filter</div>
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Refrigerator coil cleaning</div>
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Range hood filter cleaning</div>
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Dishwasher treatment</div>
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Garbage disposal treatment</div>
+        <div class="tuneup-item"><span class="tuneup-check">✓</span>Washing machine treatment</div>
+      </div>
+      <a href="#contact" class="tuneup-cta">Book a Home Tune Up</a>
+    </div>
+    <div class="fade-up" style="transition-delay:.2s">
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.75rem 1.75rem">
+        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600">How it works with MaintenanceAI</div>
+        <div style="font-size:15px;color:rgba(255,255,255,0.85);line-height:1.8;font-weight:300">MaintenanceAI tracks when each unit is due for a Tune Up and automatically suggests it in your dashboard. One click schedules a certified technician — and it logs in your owner report as completed preventive maintenance.</div>
+        <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.7)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6ee7a0;font-weight:700;flex-shrink:0">1</span>MaintenanceAI detects it has been 90 days since last Tune Up</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.7)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6ee7a0;font-weight:700;flex-shrink:0">2</span>Suggested service card appears in your dashboard</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.7)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6ee7a0;font-weight:700;flex-shrink:0">3</span>You approve — certified technician is dispatched</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.7)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6ee7a0;font-weight:700;flex-shrink:0">4</span>Logged in owner report as preventive maintenance completed</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="pricing-inner">
+    <div class="fade-up">
+      <p class="section-tag">Pricing</p>
+      <h2>Simple, honest pricing</h2>
+      <p class="section-sub">No annual contracts. No per-unit minimums. Cancel anytime. Beta users get 3 months free on any plan.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card fade-up">
+        <div class="price-tier">Starter</div>
+        <div class="price-amount">$29</div>
+        <div class="price-per">/month · up to 50 units</div>
+        <ul class="price-features">
+          <li><span class="check">✓</span>AI email & text reading</li>
+          <li><span class="check">✓</span>50 work orders/month</li>
+          <li><span class="check">✓</span>Vendor dispatch</li>
+          <li><span class="check">✓</span>PM scheduler</li>
+          <li><span class="check">✓</span>1 property owner report</li>
+        </ul>
+        <div class="tuneup-pill">🔧 Home Tune Up available</div>
+        <a href="#contact" class="price-btn" style="margin-top:1rem">Get started</a>
+      </div>
+      <div class="price-card featured fade-up" style="transition-delay:.1s">
+        <span class="featured-tag">Most popular</span>
+        <div class="price-tier">Professional</div>
+        <div class="price-amount">$79</div>
+        <div class="price-per">/month · up to 200 units</div>
+        <ul class="price-features">
+          <li><span class="check">✓</span>Everything in Starter</li>
+          <li><span class="check">✓</span>Unlimited work orders</li>
+          <li><span class="check">✓</span>Gmail auto-sync</li>
+          <li><span class="check">✓</span>Up to 5 property reports</li>
+          <li><span class="check">✓</span>Full vendor directory</li>
+        </ul>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(200,112,42,0.2);color:#f8b56a;font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;margin-top:8px;border:1px solid rgba(200,112,42,0.3)">🔧 Home Tune Up included</div>
+        <a href="#contact" class="price-btn" style="margin-top:1rem">Get started</a>
+      </div>
+      <div class="price-card fade-up" style="transition-delay:.2s">
+        <div class="price-tier">Portfolio</div>
+        <div class="price-amount">$199</div>
+        <div class="price-per">/month · up to 500 units</div>
+        <ul class="price-features">
+          <li><span class="check">✓</span>Everything in Professional</li>
+          <li><span class="check">✓</span>Unlimited properties</li>
+          <li><span class="check">✓</span>HOA board reports</li>
+          <li><span class="check">✓</span>Custom vendor routing</li>
+          <li><span class="check">✓</span>Priority support</li>
+        </ul>
+        <div class="tuneup-pill">🔧 Home Tune Up priority scheduling</div>
+        <a href="#contact" class="price-btn" style="margin-top:1rem">Get started</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="compare-section" id="compare">
+  <div class="compare-inner">
+    <div class="fade-up">
+      <p class="section-tag">Compare</p>
+      <h2>How we stack up</h2>
+      <p class="section-sub">Enterprise platforms are built for large management companies. MaintenanceAI is built for you.</p>
+    </div>
+    <div class="fade-up" style="overflow-x:auto">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>MaintenanceAI</th>
+            <th>AppFolio / Buildium</th>
+            <th>Yardi Breeze</th>
+            <th>STAN AI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Starting price</td><td class="yes">$29/month</td><td class="no">$200+/month</td><td class="no">$100–$400 min</td><td class="no">Enterprise only</td></tr>
+          <tr><td>Reads raw tenant emails</td><td class="yes">Yes — any email</td><td class="no">Portal only</td><td class="no">Portal only</td><td class="partial">Partial</td></tr>
+          <tr><td>No tenant portal required</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+          <tr><td>AI work order creation</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="yes">Yes</td></tr>
+          <tr><td>Manager approval before dispatch</td><td class="yes">Yes</td><td class="partial">Limited</td><td class="partial">Limited</td><td class="no">No</td></tr>
+          <tr><td>Preventive maintenance scheduler</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td></tr>
+          <tr><td>AI-written owner reports</td><td class="yes">Yes</td><td class="partial">Manual exports</td><td class="partial">Manual exports</td><td class="no">No</td></tr>
+          <tr><td>Home Tune Up service</td><td class="yes">Yes — built in</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
+          <tr class="highlight-row"><td>Built for under 500 units</td><td>Yes — designed for this</td><td>No — enterprise focus</td><td>No — $100 minimum</td><td>No — large operators</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="contact-inner">
+    <div class="fade-up">
+      <p class="section-tag">Get early access</p>
+      <h2>Join the beta</h2>
+      <p>We're onboarding a small group of property managers, HOA managers, and landlords. Beta users get 3 months free and direct input on the product roadmap.</p>
+    </div>
+    <div class="contact-form fade-up">
+      <div class="form-row">
+        <div class="form-group"><label>First name</label><input type="text" placeholder="John"/></div>
+        <div class="form-group"><label>Last name</label><input type="text" placeholder="Smith"/></div>
+      </div>
+      <div class="form-group"><label>Email address</label><input type="email" placeholder="you@email.com"/></div>
+      <div class="form-group">
+        <label>I manage</label>
+        <select><option>Residential rental properties</option><option>HOA / community association</option><option>Both</option><option>Commercial properties</option></select>
+      </div>
+      <div class="form-group">
+        <label>How many units?</label>
+        <select><option>Under 25 units</option><option>25–50 units</option><option>50–200 units</option><option>200–500 units</option><option>500+ units</option></select>
+      </div>
+      <div class="form-group">
+        <label>Interested in Home Tune Up?</label>
+        <select><option>Yes — tell me more</option><option>Maybe later</option><option>No thanks</option></select>
+      </div>
+      <div class="form-group"><label>Anything else? (optional)</label><textarea placeholder="Tell us about your current maintenance workflow..."></textarea></div>
+      <button class="form-submit" onclick="submitForm()">Request beta access</button>
+      <div class="form-success" id="form-success">Thanks! We'll be in touch within 24 hours with your beta access details.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <strong>MaintenanceAI</strong>
+  <p>AI-powered maintenance automation for property managers · Currently in beta</p>
+  <p style="margin-top:.5rem;font-size:12px">Including the Home Tune Up — preventive maintenance made simple</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+function submitForm() {
+  document.querySelector('.contact-form').style.opacity = '0.4';
+  setTimeout(() => {
+    document.querySelectorAll('.contact-form .form-group, .contact-form .form-row, .form-submit').forEach(el => el.style.display='none');
+    const s = document.getElementById('form-success');
+    s.style.display='block';
+    document.querySelector('.contact-form').style.opacity='1';
+  }, 600);
+}
+
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.boxShadow = window.scrollY > 20 ? '0 2px 20px rgba(12,26,18,0.08)' : 'none';
+});
+</script>
+</body>
+</html>
