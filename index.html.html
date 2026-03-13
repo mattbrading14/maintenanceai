@@ -857,7 +857,7 @@ async function generateReport() {
   document.getElementById('report-output').innerHTML=`<div class="loading-row"><div class="spinner"></div>AI compiling owner report...</div>`;
 
   const approved = workOrders.filter(w=>w.status==='approved'||w.status==='emailed');
-  const woSummary = approved.length ? approved.map(w=>`${w.id}: ${w.issue_summary} (Unit ${w.unit}, Vendor: ${w.vendor.name})`).join('\n') : 'No work orders this period.';
+  const woSummary = workOrders.length ? workOrders.map(w=>`${w.id}: ${w.issue_summary} (Unit ${w.unit}, Vendor: ${w.vendor.name}, Status: ${w.status})`).join('\n') : 'No work orders this period.';
   const pmSummary = pmTasks.map(t=>`${t.task} — ${t.freq}, next: ${t.next}, vendor: ${t.vendor}`).join('\n');
   const histSummary = maintenanceHistory.length ? maintenanceHistory.map(h=>`${h.task} completed ${h.date_completed}, next due ${h.next_due}`).join('\n') : 'No history recorded.';
 
@@ -892,7 +892,7 @@ Write in plain professional paragraphs, no markdown, no bullet points. Include s
       </div>
       <div class="metric-grid">
         <div class="metric"><div class="metric-label">Work orders</div><div class="metric-val">${workOrders.length}</div></div>
-        <div class="metric"><div class="metric-label">Dispatched</div><div class="metric-val">${approved.length}</div></div>
+        <div class="metric"><div class="metric-label">Approved</div><div class="metric-val">${workOrders.filter(w=>w.status==='approved'||w.status==='emailed').length}</div></div>
         <div class="metric"><div class="metric-label">Pending</div><div class="metric-val">${workOrders.filter(w=>w.status==='pending').length}</div></div>
         <div class="metric"><div class="metric-label">Scheduled tasks</div><div class="metric-val">${pmTasks.length}</div></div>
       </div>
