@@ -543,8 +543,15 @@ async function handleScreenshot(input) {
             role: 'user',
             content: [
               {type:'image', source:{type:'base64', media_type:file.type, data:base64}},
-              {type:'text', text:`Extract all text from this screenshot of a tenant maintenance request (email, text, or voicemail). Also identify any names, phone numbers, email addresses, and business names visible. Return as JSON only, no markdown:
-{"extracted_text":"full text","names":[],"phones":[],"emails":[],"businesses":[]}`}
+              {type:'text', text:`This is a screenshot that may contain a single message or an email/text thread with multiple messages. Your job is to extract the most relevant maintenance request.
+
+Instructions:
+- If it's a thread, focus on the MOST RECENT inbound message from a tenant or the original request — ignore replies from the property manager
+- Extract all names, phone numbers, email addresses, and business names visible
+- Identify the core maintenance issue being reported
+
+Return JSON only, no markdown:
+{"extracted_text":"the main maintenance request message text only","names":[],"phones":[],"emails":[],"businesses":[],"is_thread":true or false,"message_count":"number of messages visible if thread"}`}
             ]
           }]
         })
@@ -559,8 +566,13 @@ async function handleScreenshot(input) {
       if (matchedTenant) {
         document.getElementById('match-result').innerHTML = `
           <div class="match-card">
-            <div class="match-title">Tenant matched — Unit ${matchedTenant.unit}</div>
+            <div class="match-title">Tenant matched — Unit ${matchedTenant.unit}${extracted.is_thread ? ' <span style="font-size:11px;font-weight:400">(read from email thread)</span>' : ''}</div>
             <div class="match-detail">${matchedTenant.contact} · ${matchedTenant.business} · ${matchedTenant.email}</div>
+          </div>`;
+      } else {
+        document.getElementById('match-result').innerHTML = `
+          <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:12px;color:#92400e">
+            <strong>Tenant not auto-matched</strong> — name, phone, or email not found in your tenant list. You can still review and approve the work order below.
           </div>`;
       }
 
@@ -577,6 +589,7 @@ async function handleScreenshot(input) {
             role: 'user',
             content: `This is a maintenance request from a tenant at 146 Main St, Los Altos.
 ${matchedTenant ? `Tenant: ${matchedTenant.contact}, Unit ${matchedTenant.unit}, Business: ${matchedTenant.business}` : 'Tenant: Unknown'}
+${extracted.is_thread ? `Note: extracted from an email thread of ${extracted.message_count} messages — focus on the original request.` : ''}
 Message: "${extracted.extracted_text}"
 
 Reply ONLY with valid JSON, no markdown:
