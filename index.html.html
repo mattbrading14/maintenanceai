@@ -524,14 +524,30 @@ async function handleScreenshot(input) {
   const reader = new FileReader();
   reader.onload = async (e) => {
     const base64 = e.target.result.split(',')[1];
-    const preview = document.getElementById('preview-img');
-    preview.src = e.target.result;
-    preview.style.display = 'block';
+    const mimeType = file.type || 'image/jpeg';
 
-    document.getElementById('match-result').innerHTML = '';
-    document.getElementById('screenshot-result').innerHTML = `<div class="loading-row"><div class="spinner"></div>AI reading screenshot...</div>`;
+    // Convert image to JPEG via canvas to handle HEIC and large files
+    const img = new Image();
+    img.onload = async () => {
+      const canvas = document.createElement('canvas');
+      const maxSize = 1200;
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      const convertedBase64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
 
-    try {
+      const preview = document.getElementById('preview-img');
+      preview.src = canvas.toDataURL('image/jpeg', 0.85);
+      preview.style.display = 'block';
+      document.getElementById('match-result').innerHTML = '';
+      document.getElementById('screenshot-result').innerHTML = `<div class="loading-row"><div class="spinner"></div>AI reading screenshot...</div>`;
+
+      try {
       // Step 1: Extract text from image
       const extractRes = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -542,7 +558,7 @@ async function handleScreenshot(input) {
           messages: [{
             role: 'user',
             content: [
-              {type:'image', source:{type:'base64', media_type:file.type, data:base64}},
+              {type:'image', source:{type:'base64', media_type:'image/jpeg', data:convertedBase64}},
               {type:'text', text:`This is a screenshot that may contain a single message or an email/text thread with multiple messages. Your job is to extract the most relevant maintenance request.
 
 Instructions:
@@ -612,9 +628,15 @@ Reply ONLY with valid JSON, no markdown:
       updateQueueCount();
       renderScreenshotResult(wo);
 
-    } catch(e) {
-      document.getElementById('screenshot-result').innerHTML = `<div class="loading-row" style="color:#b91c1c">Error reading screenshot. Please try again.</div>`;
-    }
+      } catch(e) {
+        console.error('Screenshot error:', e);
+        document.getElementById('screenshot-result').innerHTML = `<div class="loading-row" style="color:#b91c1c">Error: ${e.message || 'Unknown error'}. Check console for details.</div>`;
+      }
+    };
+    img.onerror = () => {
+      document.getElementById('screenshot-result').innerHTML = `<div class="loading-row" style="color:#b91c1c">Could not read image file. Please try a different screenshot.</div>`;
+    };
+    img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
