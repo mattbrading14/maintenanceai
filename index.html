@@ -1030,9 +1030,12 @@ function renderQueue() {
     const sc = wo.status==='approved'||wo.status==='emailed'?'badge-sent':wo.status==='denied'?'badge-denied':wo.status==='owner_pending'?'badge-low':'badge-pending';
     const sl = wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':wo.status==='owner_pending'?'Awaiting owner approval':'Pending approval';
     const inReport = !wo.excludeFromReport;
+    const safeId = wo.id.replace('-','_');
     return '<div class="wo-item" id="woitem-' + wo.id + '" style="border-left:3px solid ' + (inReport ? '#22c55e' : '#e2e8f0') + '">' +
+
+      // Header
       '<div class="wo-top">' +
-        '<div><div class="wo-title">' + wo.id + ' — ' + wo.issue_summary + '</div>' +
+        '<div><div class="wo-title">' + wo.id + ' — ' + (wo.issue_summary || '<span style="color:#f59e0b;font-style:italic">No title — click Edit to add</span>') + '</div>' +
         (wo.description ? '<div style="font-size:11px;color:#64748b;margin-top:2px;line-height:1.4">' + wo.description.substring(0,100) + (wo.description.length>100?'...':'') + '</div>' : '') +
         '<div class="wo-meta">' + wo.tenant + ' · Unit ' + wo.unit + (wo.business?' · '+wo.business:'') + ' · ' + wo.date + '</div></div>' +
         '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">' +
@@ -1040,28 +1043,86 @@ function renderQueue() {
           '<span class="badge ' + sc + '">' + sl + '</span>' +
         '</div>' +
       '</div>' +
+
+      // Details
       '<div class="wo-details">' +
         '<div><div class="wo-detail-label">Category</div><div class="wo-detail-val">' + wo.category + '</div></div>' +
         '<div><div class="wo-detail-label">Vendor</div><div class="wo-detail-val">' + wo.vendor.name + '</div></div>' +
         '<div><div class="wo-detail-label">Action</div><div class="wo-detail-val">' + wo.recommended_action + '</div></div>' +
         '<div><div class="wo-detail-label">Est. time</div><div class="wo-detail-val">' + wo.estimated_time + '</div></div>' +
       '</div>' +
+
+      // Edit panel (hidden by default)
+      '<div id="edit-' + safeId + '" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-top:8px;border:1px solid #e2e8f0">' +
+        '<div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Edit work order</div>' +
+        '<div style="margin-bottom:8px">' +
+          '<div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">Title</div>' +
+          '<input id="edit-title-' + safeId + '" value="' + (wo.issue_summary||'') + '" placeholder="Short title for owner report" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a"/>' +
+        '</div>' +
+        '<div style="margin-bottom:8px">' +
+          '<div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">Description (optional)</div>' +
+          '<textarea id="edit-desc-' + safeId + '" rows="2" placeholder="Full details for the record..." style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a;resize:none">' + (wo.description||wo.recommended_action||'') + '</textarea>' +
+        '</div>' +
+        '<div style="margin-bottom:8px">' +
+          '<div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">Priority</div>' +
+          '<select id="edit-priority-' + safeId + '" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a">' +
+            '<option value="urgent"' + (wo.priority==='urgent'?' selected':'') + '>Urgent</option>' +
+            '<option value="normal"' + (wo.priority==='normal'?' selected':'') + '>Normal</option>' +
+            '<option value="low"' + (wo.priority==='low'?' selected':'') + '>Low</option>' +
+          '</select>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px">' +
+          '<button onclick="saveWOEdit(\'' + wo.id + '\')" style="padding:7px 16px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save changes</button>' +
+          '<button onclick="cancelWOEdit(\'' + wo.id + '\')" style="padding:7px 16px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>' +
+        '</div>' +
+      '</div>' +
+
+      // Action buttons
       '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">' +
         '<button class="btn-sm btn-pdf" onclick="downloadWOPDF(\'' + wo.id + '\')">Download WO PDF</button>' +
         '<button class="btn-sm btn-email" onclick="emailWO(\'' + wo.id + '\',\'queue\')">Approve &amp; email vendor</button>' +
         '<button class="btn-sm btn-deny" onclick="denyWO(\'' + wo.id + '\',\'queue\')">Deny</button>' +
+        '<button onclick="toggleEditWO(\'' + wo.id + '\')" style="padding:5px 12px;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;font-family:inherit;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd">Edit</button>' +
       '</div>' +
+
+      // Footer controls
       '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9">' +
-        '<div style="display:flex;align-items:center;gap:8px">' +
-          '<button onclick="toggleReportInclude(\'' + wo.id + '\',' + !inReport + ')" style="padding:4px 12px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;border:1px solid ' + (inReport ? '#86efac' : '#e2e8f0') + ';background:' + (inReport ? '#f0fdf4' : '#f8fafc') + ';color:' + (inReport ? '#15803d' : '#64748b') + '">' +
-            (inReport ? '✓ In owner report' : '○ Excluded from report') +
-          '</button>' +
-        '</div>' +
+        '<button onclick="toggleReportInclude(\'' + wo.id + '\',' + !inReport + ')" style="padding:4px 12px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;border:1px solid ' + (inReport ? '#86efac' : '#e2e8f0') + ';background:' + (inReport ? '#f0fdf4' : '#f8fafc') + ';color:' + (inReport ? '#15803d' : '#64748b') + '">' +
+          (inReport ? '✓ In owner report' : '○ Excluded from report') +
+        '</button>' +
         '<button onclick="deleteWO(\'' + wo.id + '\')" style="padding:4px 12px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5">Delete</button>' +
       '</div>' +
       '<div id="qaction-' + wo.id + '" style="margin-top:6px;font-size:12px"></div>' +
     '</div>';
   }).join('');
+}
+
+function toggleEditWO(id) {
+  const safeId = id.replace('-','_');
+  const panel = document.getElementById('edit-' + safeId);
+  if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function cancelWOEdit(id) {
+  const safeId = id.replace('-','_');
+  const panel = document.getElementById('edit-' + safeId);
+  if (panel) panel.style.display = 'none';
+}
+
+function saveWOEdit(id) {
+  const wo = workOrders.find(w => w.id === id);
+  if (!wo) return;
+  const safeId = id.replace('-','_');
+  const newTitle = document.getElementById('edit-title-' + safeId).value.trim();
+  const newDesc = document.getElementById('edit-desc-' + safeId).value.trim();
+  const newPriority = document.getElementById('edit-priority-' + safeId).value;
+  if (!newTitle) { alert('Please enter a title.'); return; }
+  wo.issue_summary = newTitle;
+  wo.description = newDesc;
+  wo.priority = newPriority;
+  wo.recommended_action = newDesc || newTitle;
+  saveData();
+  renderQueue();
 }
 
 function deleteWO(id) {
