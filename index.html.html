@@ -214,6 +214,40 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
         <div class="section-label">Notes for vendor</div>
         <textarea id="lc-notes" rows="2" placeholder="Any specific instructions for the vendor..."></textarea>
       </div>
+
+      <div style="margin-bottom:8px">
+        <div class="section-label">Attach photos <span style="font-weight:400;text-transform:none;font-size:11px;color:#94a3b8">(optional — taken during walkthrough)</span></div>
+        <div style="border:2px dashed #e2e8f0;border-radius:10px;padding:1.25rem;text-align:center;background:#f8fafc;position:relative;cursor:pointer" onclick="document.getElementById('lc-photos').click()">
+          <input type="file" id="lc-photos" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this)"/>
+          <div style="font-size:22px;margin-bottom:.4rem">📷</div>
+          <div style="font-size:13px;font-weight:600;color:#0f172a">Tap to add photos</div>
+          <div style="font-size:11px;color:#64748b">Add multiple photos of the issue</div>
+        </div>
+        <div id="photo-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+      </div>
+
+      <div style="margin-bottom:8px">
+        <div class="section-label">Owner approval <span style="font-weight:400;text-transform:none;font-size:11px;color:#94a3b8">(optional)</span></div>
+        <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:.85rem 1rem">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <input type="checkbox" id="lc-owner-approval" style="width:16px;height:16px;flex-shrink:0" onchange="toggleOwnerApproval()"/>
+            <label for="lc-owner-approval" style="font-size:13px;font-weight:500;color:#92400e;cursor:pointer">Send to property owner for approval before dispatching vendor</label>
+          </div>
+          <div id="owner-approval-fields" style="display:none">
+            <div class="row2" style="margin-bottom:0">
+              <div>
+                <div class="section-label">Owner name</div>
+                <input id="lc-owner-name" placeholder="Owner name"/>
+              </div>
+              <div>
+                <div class="section-label">Owner email</div>
+                <input id="lc-owner-email" placeholder="owner@email.com"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <button class="btn-primary" onclick="submitCallLog()">Create work order</button>
     </div>
     <div id="call-result"></div>
@@ -454,6 +488,11 @@ function submitCallLog() {
   const notes = document.getElementById('lc-notes').value.trim();
   const datetime = document.getElementById('lc-datetime').value;
 
+  const ownerApproval = document.getElementById('lc-owner-approval').checked;
+  const ownerName = document.getElementById('lc-owner-name').value.trim();
+  const ownerEmail = document.getElementById('lc-owner-email').value.trim();
+  const photos = [...uploadedPhotos];
+
   if (!tenant) { alert('Please select a tenant.'); return; }
   if (!description) { alert('Please enter an issue description.'); return; }
   if (!service) { alert('Please select a service type.'); return; }
@@ -474,20 +513,32 @@ function submitCallLog() {
     tenant_email: tenant.email,
     date: new Date(datetime).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
     vendor,
-    status: 'pending',
-    source: tenantUnit === '103' ? 'Building walkthrough' : 'Phone call'
+    status: ownerApproval ? 'owner_pending' : 'pending',
+    source: tenantUnit === '103' ? 'Building walkthrough' : 'Phone call',
+    photos,
+    ownerName,
+    ownerEmail
   };
 
   workOrders.unshift(wo);
   updateQueueCount();
 
   const bc = priority==='urgent'?'badge-urgent':priority==='normal'?'badge-normal':'badge-low';
+  const sourceColor = wo.source==='Building walkthrough'?'background:#e8f5ee;color:#1a6b3c':'background:#f0f9ff;color:#0369a1';
+  const photoHtml = photos.length ? `
+    <div style="margin-bottom:.75rem">
+      <div class="wo-detail-label" style="margin-bottom:6px">Photos attached (${photos.length})</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">
+        ${photos.map(p=>`<img src="${p.dataUrl}" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0"/>`).join('')}
+      </div>
+    </div>` : '';
+
   document.getElementById('call-result').innerHTML = `
     <div style="border:1px solid #86efac;border-radius:12px;padding:1rem;margin-top:.75rem;background:#fff">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
         <span style="font-size:13px;font-weight:600">Work order created: ${wo.id}</span>
         <div style="display:flex;gap:6px;align-items:center">
-          <span class="badge" style="${wo.source==='Building walkthrough'?'background:#e8f5ee;color:#1a6b3c':'background:#f0f9ff;color:#0369a1'}">${wo.source}</span>
+          <span class="badge" style="${sourceColor}">${wo.source}</span>
           <span class="badge ${bc}">${priority} priority</span>
         </div>
       </div>
@@ -499,11 +550,18 @@ function submitCallLog() {
         <div><div class="wo-detail-label">Access needed</div><div class="wo-detail-val">${access==='yes'?'Yes — coordinate with tenant':'No'}</div></div>
         ${notes?`<div style="grid-column:1/-1"><div class="wo-detail-label">Notes for vendor</div><div class="wo-detail-val">${notes}</div></div>`:''}
       </div>
+      ${photoHtml}
       <div style="background:#f8fafc;border-radius:8px;padding:.75rem 1rem;margin-bottom:.75rem">
         <div style="font-size:12px;font-weight:600;margin-bottom:2px">Vendor: ${vendor.name} — ${vendor.contact}</div>
         <div style="font-size:11px;color:#64748b">${vendor.email} · ${formatPhone(vendor.phone)}</div>
       </div>
-      <div style="display:flex;gap:6px">
+      ${ownerApproval && ownerEmail ? `
+      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:.75rem 1rem;margin-bottom:.75rem;font-size:12px">
+        <div style="font-weight:600;color:#92400e;margin-bottom:4px">Owner approval required — ${ownerName}</div>
+        <div style="color:#92400e">${ownerEmail}</div>
+      </div>` : ''}
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${ownerApproval && ownerEmail ? `<button class="btn-sm" style="background:#fffbeb;color:#92400e" onclick="emailOwner('${wo.id}','call-result')">Email owner for approval</button>` : ''}
         <button class="btn-sm btn-approve" onclick="approveWO('${wo.id}','call-result')">Approve & dispatch</button>
         <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','call-result')">Approve & email vendor</button>
         <button class="btn-sm btn-deny" onclick="denyWO('${wo.id}','call-result')">Deny</button>
@@ -514,6 +572,12 @@ function submitCallLog() {
   // Reset form
   document.getElementById('lc-description').value = '';
   document.getElementById('lc-notes').value = '';
+  document.getElementById('lc-owner-approval').checked = false;
+  document.getElementById('owner-approval-fields').style.display = 'none';
+  document.getElementById('lc-owner-name').value = '';
+  document.getElementById('lc-owner-email').value = '';
+  document.getElementById('photo-previews').innerHTML = '';
+  uploadedPhotos = [];
 }
 
 // ── SCREENSHOT HANDLER ───────────────────────────────────
@@ -745,6 +809,43 @@ function approveWO(id, ctx) {
   if (ctx==='queue') renderQueue();
 }
 
+function emailOwner(id, ctx) {
+  const wo = workOrders.find(w => w.id===id);
+  if (!wo) return;
+  if (!wo.ownerEmail) { alert('No owner email on file for this work order.'); return; }
+  const subject = encodeURIComponent(`Owner Approval Needed — ${wo.issue_summary} — 146 Main St, Los Altos`);
+  const photoNote = wo.photos && wo.photos.length ? `\n\nNote: ${wo.photos.length} photo(s) were taken during the walkthrough. Please reply to this email to request them or call Matt Brading at (408) 234-7016.` : '';
+  const body = encodeURIComponent(
+`Dear ${wo.ownerName || 'Owner'},
+
+A maintenance issue has been identified at 146 Main St, Los Altos that requires your approval before we proceed.
+
+Work Order: ${wo.id}
+Date: ${wo.date}
+Unit: ${wo.unit}${wo.business ? ` — ${wo.business}` : ''}
+Issue: ${wo.issue_summary}
+Category: ${wo.category}
+Priority: ${wo.priority.toUpperCase()}
+
+Recommended Action: ${wo.recommended_action}
+Estimated Time: ${wo.estimated_time}
+Proposed Vendor: ${wo.vendor.name} — ${wo.vendor.contact}
+${wo.notes_for_vendor ? `\nNotes: ${wo.notes_for_vendor}` : ''}${photoNote}
+
+Please reply with your approval or any questions.
+
+Thank you,
+Matt Brading
+Brading Associates, LLC
+(408) 234-7016
+matt@bradingassociates.com`);
+  window.open(`mailto:${wo.ownerEmail}?subject=${subject}&body=${body}`);
+  wo.status = 'owner_pending';
+  const el = document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
+  if (el) el.innerHTML = `<span style="color:#92400e">Approval request emailed to ${wo.ownerName} at ${wo.ownerEmail}</span>`;
+  if (ctx==='queue') renderQueue();
+}
+
 function emailWO(id, ctx) {
   const wo = workOrders.find(w => w.id===id);
   if (!wo) return;
@@ -752,6 +853,7 @@ function emailWO(id, ctx) {
   updateQueueCount();
 
   const subject = encodeURIComponent(`Work Order ${wo.id} — ${wo.issue_summary} — 146 Main St, Los Altos`);
+  const photoNote = wo.photos && wo.photos.length ? `\n\nNote: ${wo.photos.length} photo(s) of the issue have been taken and will be sent separately. Please contact Matt Brading at (408) 234-7016 to receive them.` : '';
   const body = encodeURIComponent(
 `Dear ${wo.vendor.contact},
 
@@ -768,7 +870,7 @@ Recommended Action: ${wo.recommended_action}
 Estimated Time: ${wo.estimated_time}
 Unit Access Required: ${wo.access_needed ? 'Yes — please coordinate with tenant' : 'No'}
 ${wo.notes_for_vendor ? `\nNotes: ${wo.notes_for_vendor}` : ''}
-${wo.tenant_email ? `\nTenant Contact: ${wo.tenant_email}` : ''}
+${wo.tenant_email ? `\nTenant Contact: ${wo.tenant_email}` : ''}${photoNote}
 
 Please confirm receipt and your availability.
 
@@ -802,8 +904,8 @@ function renderQueue() {
   if (!workOrders.length) { el.innerHTML = `<div class="empty">No work orders yet.</div>`; return; }
   el.innerHTML = workOrders.map(wo => {
     const bc = wo.priority==='urgent'?'badge-urgent':wo.priority==='normal'?'badge-normal':'badge-low';
-    const sc = wo.status==='approved'||wo.status==='emailed'?'badge-sent':wo.status==='denied'?'badge-denied':'badge-pending';
-    const sl = wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':'Pending approval';
+    const sc = wo.status==='approved'||wo.status==='emailed'?'badge-sent':wo.status==='denied'?'badge-denied':wo.status==='owner_pending'?'badge-low':'badge-pending';
+    const sl = wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':wo.status==='owner_pending'?'Awaiting owner approval':'Pending approval';
     return `<div class="wo-item">
       <div class="wo-top">
         <div><div class="wo-title">${wo.id} — ${wo.issue_summary}</div><div class="wo-meta">${wo.tenant} · Unit ${wo.unit}${wo.business?' · '+wo.business:''} · ${wo.date}</div></div>
@@ -825,7 +927,36 @@ function renderQueue() {
   }).join('');
 }
 
-// ── PM SCHEDULER ─────────────────────────────────────────
+// ── PHOTO UPLOAD ─────────────────────────────────────────
+let uploadedPhotos = [];
+
+function handlePhotoUpload(input) {
+  const files = Array.from(input.files);
+  const previews = document.getElementById('photo-previews');
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      uploadedPhotos.push({name: file.name, dataUrl: e.target.result});
+      const img = document.createElement('div');
+      img.style.cssText = 'position:relative;display:inline-block';
+      img.innerHTML = `
+        <img src="${e.target.result}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0"/>
+        <span onclick="removePhoto(${uploadedPhotos.length-1},this)" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;font-weight:700">✕</span>`;
+      previews.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removePhoto(index, el) {
+  uploadedPhotos.splice(index, 1);
+  el.parentElement.remove();
+}
+
+function toggleOwnerApproval() {
+  const checked = document.getElementById('lc-owner-approval').checked;
+  document.getElementById('owner-approval-fields').style.display = checked ? 'block' : 'none';
+}
 function renderPM() {
   // Populate vendor dropdown
   const sel = document.getElementById('pm-vendor-select');
