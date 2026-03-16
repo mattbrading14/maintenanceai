@@ -562,6 +562,7 @@ function submitCallLog() {
       </div>` : ''}
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         ${ownerApproval && ownerEmail ? `<button class="btn-sm" style="background:#fffbeb;color:#92400e" onclick="emailOwner('${wo.id}','call-result')">Email owner for approval</button>` : ''}
+        ${photos.length ? `<button class="btn-sm" style="background:#f0f9ff;color:#0369a1" onclick="downloadPhotos('${wo.id}')">Download photos (${photos.length})</button>` : ''}
         <button class="btn-sm btn-approve" onclick="approveWO('${wo.id}','call-result')">Approve & dispatch</button>
         <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','call-result')">Approve & email vendor</button>
         <button class="btn-sm btn-deny" onclick="denyWO('${wo.id}','call-result')">Deny</button>
@@ -953,6 +954,24 @@ function removePhoto(index, el) {
   el.parentElement.remove();
 }
 
+function downloadPhotos(woId) {
+  const wo = workOrders.find(w => w.id === woId);
+  if (!wo || !wo.photos || !wo.photos.length) return;
+  const win = window.open('', '_blank');
+  win.document.write(`<html><head><title>Photos — ${wo.id}</title>
+  <style>body{font-family:system-ui,sans-serif;padding:2rem;max-width:800px;margin:0 auto}
+  h2{font-size:18px;margin-bottom:.5rem}p{font-size:13px;color:#64748b;margin-bottom:1.5rem}
+  img{max-width:100%;border-radius:8px;margin-bottom:1rem;border:1px solid #e2e8f0;display:block}
+  .meta{font-size:12px;color:#94a3b8;margin-bottom:2rem}
+  @media print{button{display:none}}</style></head><body>
+  <h2>Work Order Photos — ${wo.id}</h2>
+  <div class="meta">${wo.issue_summary} · Unit ${wo.unit} · ${wo.date}</div>
+  <button onclick="window.print()" style="margin-bottom:1.5rem;padding:8px 16px;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-size:13px">Print / Save as PDF</button>
+  ${wo.photos.map((p,i) => `<div><div style="font-size:12px;font-weight:600;margin-bottom:6px;color:#64748b">Photo ${i+1}</div><img src="${p.dataUrl}"/></div>`).join('')}
+  </body></html>`);
+  win.document.close();
+}
+
 function toggleOwnerApproval() {
   const checked = document.getElementById('lc-owner-approval').checked;
   document.getElementById('owner-approval-fields').style.display = checked ? 'block' : 'none';
@@ -1037,7 +1056,7 @@ async function generateReport() {
 Property: ${property}
 Period: ${month} 2026
 
-Work orders completed:
+Work orders:
 ${woSummary}
 
 Preventive maintenance schedule:
@@ -1050,8 +1069,26 @@ Write in plain professional paragraphs, no markdown, no bullet points. Include s
       })
     });
     const data = await res.json();
-    const text = data.content[0].text;
-    document.getElementById('report-output').innerHTML = `
+    const text = data.content && data.content[0] && data.content[0].text
+      ? data.content[0].text
+      : generateFallbackReport(property, month, woSummary, pmSummary);
+    renderReport(property, month, text);
+  } catch(e) {
+    const text = generateFallbackReport(property, month, woSummary, pmSummary);
+    renderReport(property, month, text);
+  }
+  btn.disabled=false; btn.textContent='Generate owner report';
+}
+
+function generateFallbackReport(property, month, woSummary, pmSummary) {
+  const total = workOrders.length;
+  const approved = workOrders.filter(w=>w.status==='approved'||w.status==='emailed').length;
+  const pending = workOrders.filter(w=>w.status==='pending').length;
+  return `This report covers maintenance activity at ${property} for the month of ${month} 2026. A total of ${total} work order${total!==1?'s were':' was'} logged during this period, of which ${approved} ${approved!==1?'have':'has'} been approved and dispatched to vendors${pending>0?` and ${pending} remain pending approval`:''}. ${total>0?'Work completed this period includes: '+workOrders.map(w=>w.issue_summary).join(', ')+'.':''} The preventive maintenance schedule remains active with ${pmTasks.length} recurring task${pmTasks.length!==1?'s':''} on file. All scheduled maintenance items are being tracked and vendors have been assigned accordingly. It is recommended that any pending work orders be reviewed and approved promptly to ensure timely resolution for tenants.`;
+}
+
+function renderReport(property, month, text) {
+  document.getElementById('report-output').innerHTML = `
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
         <div><div style="font-size:15px;font-weight:700">${property} — ${month} 2026</div><div style="font-size:12px;color:#64748b;margin-top:2px">Generated ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div></div>
@@ -1072,11 +1109,6 @@ Write in plain professional paragraphs, no markdown, no bullet points. Include s
         return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px"><div><span style="font-weight:500">${w.id} — ${w.issue_summary}</span><span style="font-size:11px;color:#64748b;margin-left:8px">Unit ${w.unit}</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#64748b">${w.vendor.name}</span><span class="badge ${sc}">${sl}</span></div></div>`;
       }).join('')}`:''}
     </div>`;
-  } catch(e) {
-    document.getElementById('report-output').innerHTML=`<div class="loading-row" style="color:#b91c1c">Error generating report.</div>`;
-  }
-  btn.disabled=false; btn.textContent='Generate owner report';
-}
 
 // ── UTILS ────────────────────────────────────────────────
 function formatPhone(p) {
