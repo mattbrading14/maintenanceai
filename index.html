@@ -550,7 +550,9 @@ function submitCallLog() {
 
   workOrders.unshift(wo);
   updateQueueCount();
-  saveData();?'badge-urgent':priority==='normal'?'badge-normal':'badge-low';
+  saveData();
+
+  const bc = priority==='urgent'?'badge-urgent':priority==='normal'?'badge-normal':'badge-low';
   const sourceColor = wo.source==='Building walkthrough'?'background:#e8f5ee;color:#1a6b3c':'background:#f0f9ff;color:#0369a1';
   const photoHtml = photos.length ? `
     <div style="margin-bottom:.75rem">
@@ -1119,7 +1121,12 @@ function generateFallbackReport(property, month, woSummary, pmSummary) {
   const total = workOrders.length;
   const approved = workOrders.filter(w=>w.status==='approved'||w.status==='emailed').length;
   const pending = workOrders.filter(w=>w.status==='pending').length;
-  return `This report covers maintenance activity at ${property} for the month of ${month} 2026. A total of ${total} work order${total!==1?'s were':' was'} logged during this period, of which ${approved} ${approved!==1?'have':'has'} been approved and dispatched to vendors${pending>0?` and ${pending} remain pending approval`:''}. ${total>0?'Work completed this period includes: '+workOrders.map(w=>w.issue_summary).join(', ')+'.':''} The preventive maintenance schedule remains active with ${pmTasks.length} recurring task${pmTasks.length!==1?'s':''} on file. All scheduled maintenance items are being tracked and vendors have been assigned accordingly. It is recommended that any pending work orders be reviewed and approved promptly to ensure timely resolution for tenants.`;
+  const woWord = total !== 1 ? 's were' : ' was';
+  const approvedWord = approved !== 1 ? 'have' : 'has';
+  const pendingNote = pending > 0 ? ' and ' + pending + ' remain pending approval' : '';
+  const woList = total > 0 ? 'Work completed this period includes: ' + workOrders.map(w=>w.issue_summary).join(', ') + '.' : '';
+  const taskWord = pmTasks.length !== 1 ? 's' : '';
+  return 'This report covers maintenance activity at ' + property + ' for the month of ' + month + ' 2026. A total of ' + total + ' work order' + woWord + ' logged during this period, of which ' + approved + ' ' + approvedWord + ' been approved and dispatched to vendors' + pendingNote + '. ' + woList + ' The preventive maintenance schedule remains active with ' + pmTasks.length + ' recurring task' + taskWord + ' on file. All scheduled maintenance items are being tracked and vendors have been assigned accordingly. It is recommended that any pending work orders be reviewed and approved promptly to ensure timely resolution for tenants.';
 }
 
 function renderReport(property, month, text) {
