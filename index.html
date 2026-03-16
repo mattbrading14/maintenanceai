@@ -256,6 +256,14 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
 
   <!-- APPROVAL QUEUE TAB -->
   <div id="tab-queue" class="panel">
+    <div class="card" style="margin-bottom:.75rem;background:#f8fafc">
+      <div style="font-size:13px;color:#64748b;line-height:1.6">
+        <span style="font-weight:600;color:#0f172a">Managing work orders:</span>
+        Use the <span style="font-weight:600">checkbox</span> to include or exclude from the owner report.
+        Use the <span style="font-weight:600">🗑 trash icon</span> to permanently delete.
+        All changes save automatically.
+      </div>
+    </div>
     <div id="queue-list"><div class="empty">No work orders yet. Upload a screenshot to get started.</div></div>
   </div>
 
@@ -1008,19 +1016,17 @@ function updateQueueCount() {
 
 function renderQueue() {
   const el = document.getElementById('queue-list');
-  if (!workOrders.length) { el.innerHTML = `<div class="empty">No work orders yet.</div>`; return; }
+  if (!workOrders.length) { el.innerHTML = '<div class="empty">No work orders yet.</div>'; return; }
   el.innerHTML = workOrders.map(wo => {
     const bc = wo.priority==='urgent'?'badge-urgent':wo.priority==='normal'?'badge-normal':'badge-low';
     const sc = wo.status==='approved'||wo.status==='emailed'?'badge-sent':wo.status==='denied'?'badge-denied':wo.status==='owner_pending'?'badge-low':'badge-pending';
     const sl = wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':wo.status==='owner_pending'?'Awaiting owner approval':'Pending approval';
-    return '<div class="wo-item" id="woitem-' + wo.id + '">' +
+    const inReport = !wo.excludeFromReport;
+    return '<div class="wo-item" id="woitem-' + wo.id + '" style="border-left:3px solid ' + (inReport ? '#22c55e' : '#e2e8f0') + '">' +
       '<div class="wo-top">' +
-        '<div style="display:flex;align-items:flex-start;gap:8px">' +
-          '<input type="checkbox" title="Include in owner report" ' + (wo.excludeFromReport ? '' : 'checked') + ' onchange="toggleReportInclude(\'' + wo.id + '\',this.checked)" style="margin-top:3px;width:15px;height:15px;flex-shrink:0"/>' +
-          '<div><div class="wo-title">' + wo.id + ' — ' + wo.issue_summary + '</div><div class="wo-meta">' + wo.tenant + ' · Unit ' + wo.unit + (wo.business?' · '+wo.business:'') + ' · ' + wo.date + '</div></div>' +
-        '</div>' +
+        '<div><div class="wo-title">' + wo.id + ' — ' + wo.issue_summary + '</div>' +
+        '<div class="wo-meta">' + wo.tenant + ' · Unit ' + wo.unit + (wo.business?' · '+wo.business:'') + ' · ' + wo.date + '</div></div>' +
         '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">' +
-          '<button onclick="deleteWO(\'' + wo.id + '\')" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:16px;padding:0;line-height:1" title="Delete work order">🗑</button>' +
           '<span class="badge ' + bc + '">' + wo.priority + '</span>' +
           '<span class="badge ' + sc + '">' + sl + '</span>' +
         '</div>' +
@@ -1031,12 +1037,19 @@ function renderQueue() {
         '<div><div class="wo-detail-label">Action</div><div class="wo-detail-val">' + wo.recommended_action + '</div></div>' +
         '<div><div class="wo-detail-label">Est. time</div><div class="wo-detail-val">' + wo.estimated_time + '</div></div>' +
       '</div>' +
-      '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">' +
+      '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">' +
         '<button class="btn-sm btn-pdf" onclick="downloadWOPDF(\'' + wo.id + '\')">Download WO PDF</button>' +
         '<button class="btn-sm btn-email" onclick="emailWO(\'' + wo.id + '\',\'queue\')">Approve &amp; email vendor</button>' +
         '<button class="btn-sm btn-deny" onclick="denyWO(\'' + wo.id + '\',\'queue\')">Deny</button>' +
       '</div>' +
-      '<div style="font-size:11px;color:#94a3b8;margin-top:6px">' + (wo.excludeFromReport ? 'Excluded from owner report' : 'Included in owner report') + '</div>' +
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9">' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<button onclick="toggleReportInclude(\'' + wo.id + '\',' + !inReport + ')" style="padding:4px 12px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;border:1px solid ' + (inReport ? '#86efac' : '#e2e8f0') + ';background:' + (inReport ? '#f0fdf4' : '#f8fafc') + ';color:' + (inReport ? '#15803d' : '#64748b') + '">' +
+            (inReport ? '✓ In owner report' : '○ Excluded from report') +
+          '</button>' +
+        '</div>' +
+        '<button onclick="deleteWO(\'' + wo.id + '\')" style="padding:4px 12px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5">Delete</button>' +
+      '</div>' +
       '<div id="qaction-' + wo.id + '" style="margin-top:6px;font-size:12px"></div>' +
     '</div>';
   }).join('');
@@ -1055,12 +1068,7 @@ function toggleReportInclude(id, include) {
   if (!wo) return;
   wo.excludeFromReport = !include;
   saveData();
-  const el = document.getElementById('woitem-' + id);
-  if (el) {
-    const note = el.querySelector('[style*="Included in"]') || el.lastElementChild.previousElementSibling;
-    const noteDiv = el.querySelector('div[style*="color:#94a3b8;margin-top:6px"]');
-    if (noteDiv) noteDiv.textContent = include ? 'Included in owner report' : 'Excluded from owner report';
-  }
+  renderQueue();
 }
 
 
@@ -1342,7 +1350,21 @@ ${pmSummary}
 Maintenance history:
 ${histSummary}
 
-Write in plain professional paragraphs, no markdown, no bullet points. Include summary, notable work, preventive maintenance status, and recommendations. Under 250 words.`}]
+Write a short, easy-to-read monthly maintenance report for the property owner. Use this exact format:
+
+OVERVIEW
+One or two sentences summarizing the month.
+
+WORK COMPLETED
+- One bullet per work order. Format: [WO ID] [Issue] — [Vendor] ([Status])
+
+PREVENTIVE MAINTENANCE
+- One bullet per upcoming scheduled task with next due date.
+
+RECOMMENDATIONS
+One sentence with any action items for the owner.
+
+Keep it concise — no long paragraphs. Owner should be able to read it in 30 seconds.`}]
       })
     });
     const data = await res.json();
@@ -1358,15 +1380,20 @@ Write in plain professional paragraphs, no markdown, no bullet points. Include s
 }
 
 function generateFallbackReport(property, month, woSummary, pmSummary) {
-  const total = workOrders.length;
-  const approved = workOrders.filter(w=>w.status==='approved'||w.status==='emailed').length;
-  const pending = workOrders.filter(w=>w.status==='pending').length;
-  const woWord = total !== 1 ? 's were' : ' was';
-  const approvedWord = approved !== 1 ? 'have' : 'has';
-  const pendingNote = pending > 0 ? ' and ' + pending + ' remain pending approval' : '';
-  const woList = total > 0 ? 'Work completed this period includes: ' + workOrders.map(w=>w.issue_summary).join(', ') + '.' : '';
-  const taskWord = pmTasks.length !== 1 ? 's' : '';
-  return 'This report covers maintenance activity at ' + property + ' for the month of ' + month + ' 2026. A total of ' + total + ' work order' + woWord + ' logged during this period, of which ' + approved + ' ' + approvedWord + ' been approved and dispatched to vendors' + pendingNote + '. ' + woList + ' The preventive maintenance schedule remains active with ' + pmTasks.length + ' recurring task' + taskWord + ' on file. All scheduled maintenance items are being tracked and vendors have been assigned accordingly. It is recommended that any pending work orders be reviewed and approved promptly to ensure timely resolution for tenants.';
+  const total = workOrders.filter(w => !w.excludeFromReport).length;
+  const approved = workOrders.filter(w => !w.excludeFromReport && (w.status==='approved'||w.status==='emailed')).length;
+  const pending = workOrders.filter(w => !w.excludeFromReport && w.status==='pending').length;
+  const reportWOs = workOrders.filter(w => !w.excludeFromReport);
+  const woLines = reportWOs.length ? reportWOs.map(w => {
+    const sl = w.status==='emailed'?'Emailed to vendor':w.status==='approved'?'Approved':w.status==='denied'?'Denied':'Pending';
+    return '• ' + w.id + ' — ' + w.issue_summary + ' (' + w.vendor.name + ') — ' + sl;
+  }).join('\n') : '• No work orders this period';
+  const pmLines = pmTasks.map(t => '• ' + t.task + ' — Next due: ' + t.next + ' (' + t.vendor + ')').join('\n');
+  return 'OVERVIEW\n' +
+    total + ' work order' + (total!==1?'s':'') + ' this period. ' + approved + ' approved and dispatched' + (pending>0?', '+pending+' pending approval':'') + '.\n\n' +
+    'WORK COMPLETED\n' + woLines + '\n\n' +
+    'PREVENTIVE MAINTENANCE\n' + pmLines + '\n\n' +
+    'RECOMMENDATIONS\nPlease review any pending work orders and approve promptly to ensure timely resolution for tenants.';
 }
 
 function renderReport(property, month, text) {
