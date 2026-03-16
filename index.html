@@ -347,6 +347,31 @@ const VENDORS = [
   {name:"Zeus Electric",trade:"Electrical",contact:"Carlos Perez",email:"zeus.electric.cp@gmail.com",phone:"4087813142"}
 ];
 
+// ── PERSISTENT STORAGE ───────────────────────────────────
+const STORAGE_KEY = 'maintenanceai_146main';
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      workOrders,
+      maintenanceHistory,
+      pmTasks
+    }));
+  } catch(e) { console.warn('Save failed:', e); }
+}
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const data = JSON.parse(saved);
+      if (data.workOrders) workOrders = data.workOrders;
+      if (data.maintenanceHistory) maintenanceHistory = data.maintenanceHistory;
+      if (data.pmTasks) pmTasks = data.pmTasks;
+    }
+  } catch(e) { console.warn('Load failed:', e); }
+}
+
 let workOrders = [];
 let maintenanceHistory = [];
 let pmTasks = [
@@ -355,6 +380,9 @@ let pmTasks = [
   {task:"HVAC filter change",freq:"Quarterly",next:"2026-04-01",vendor:"O.C. McDonald",units:"All units"},
   {task:"Kitchen hood fire system",freq:"Bi-annually",next:"2026-09-01",vendor:"Nickell Fire Protection",units:"All units"}
 ];
+
+// Load saved data immediately
+loadData();
 
 // ── TENANT MATCHING ──────────────────────────────────────
 function matchTenant(text) {
@@ -522,8 +550,7 @@ function submitCallLog() {
 
   workOrders.unshift(wo);
   updateQueueCount();
-
-  const bc = priority==='urgent'?'badge-urgent':priority==='normal'?'badge-normal':'badge-low';
+  saveData();?'badge-urgent':priority==='normal'?'badge-normal':'badge-low';
   const sourceColor = wo.source==='Building walkthrough'?'background:#e8f5ee;color:#1a6b3c':'background:#f0f9ff;color:#0369a1';
   const photoHtml = photos.length ? `
     <div style="margin-bottom:.75rem">
@@ -691,6 +718,7 @@ Reply ONLY with valid JSON, no markdown:
       wo.status = 'pending';
       workOrders.unshift(wo);
       updateQueueCount();
+      saveData();
       renderScreenshotResult(wo);
 
       } catch(e) {
@@ -774,6 +802,7 @@ async function handleHistory(input) {
         vendor: record.vendor,
         units: record.unit
       });
+      saveData();
 
       document.getElementById('history-result').innerHTML = `
         <div class="match-card" style="margin-top:.75rem">
@@ -805,6 +834,7 @@ function approveWO(id, ctx) {
   if (!wo) return;
   wo.status = 'approved';
   updateQueueCount();
+  saveData();
   const el = document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
   if (el) el.innerHTML = `<span style="color:#15803d">Approved — work order sent to ${wo.vendor.name}</span>`;
   if (ctx==='queue') renderQueue();
@@ -842,6 +872,7 @@ Brading Associates, LLC
 matt@bradingassociates.com`);
   window.open(`mailto:${wo.ownerEmail}?subject=${subject}&body=${body}`);
   wo.status = 'owner_pending';
+  saveData();
   const el = document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
   if (el) el.innerHTML = `<span style="color:#92400e">Approval request emailed to ${wo.ownerName} at ${wo.ownerEmail}</span>`;
   if (ctx==='queue') renderQueue();
@@ -852,6 +883,7 @@ function emailWO(id, ctx) {
   if (!wo) return;
   wo.status = 'emailed';
   updateQueueCount();
+  saveData();
 
   const subject = encodeURIComponent(`Work Order ${wo.id} — ${wo.issue_summary} — 146 Main St, Los Altos`);
   const photoNote = wo.photos && wo.photos.length ? `\n\nNote: ${wo.photos.length} photo(s) of the issue have been taken and will be sent separately. Please contact Matt Brading at (408) 234-7016 to receive them.` : '';
@@ -891,6 +923,7 @@ function denyWO(id, ctx) {
   if (!wo) return;
   wo.status = 'denied';
   updateQueueCount();
+  saveData();
   const el = document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
   if (el) el.innerHTML = `<span style="color:#b91c1c">Denied — no vendor notified.</span>`;
   if (ctx==='queue') renderQueue();
@@ -1008,6 +1041,7 @@ function addPM() {
   pmTasks.push({task,freq,vendor,units:unit,next});
   document.getElementById('pm-task').value='';
   document.getElementById('pm-next').value='';
+  saveData();
   renderPM();
 }
 
@@ -1029,6 +1063,7 @@ function dispatchPM(i) {
   const nextMap={Monthly:1,Quarterly:3,'Bi-annually':6,Annually:12};
   const d = new Date(t.next); d.setMonth(d.getMonth()+(nextMap[t.freq]||12));
   pmTasks[i].next = d.toISOString().split('T')[0];
+  saveData();
   renderPM();
   alert(`Dispatched to ${vendor.name}. Next scheduled: ${pmTasks[i].next}`);
 }
