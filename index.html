@@ -363,10 +363,10 @@ const VENDORS = [
 // ── CLOUD STORAGE (cross-device sync) ────────────────────
 const STORAGE_KEY = 'maintenanceai_146main';
 const DEFAULT_PM = [
-  {task:"Fire extinguisher inspection",freq:"Annually",next:"2026-06-01",vendor:"Nickell Fire Protection",units:"All units"},
-  {task:"Fire sprinkler system check",freq:"Annually",next:"2026-06-01",vendor:"Nickell Fire Protection",units:"All units"},
-  {task:"HVAC filter change",freq:"Quarterly",next:"2026-04-01",vendor:"O.C. McDonald",units:"All units"},
-  {task:"Kitchen hood fire system",freq:"Bi-annually",next:"2026-09-01",vendor:"Nickell Fire Protection",units:"All units"}
+  {task:"Fire extinguisher inspection",freq:"Annually",next:"2027-03-12",vendor:"Nickell Fire Protection",units:"All units"},
+  {task:"Fire sprinkler system check",freq:"Annually",next:"2026-09-23",vendor:"Nickell Fire Protection",units:"All units"},
+  {task:"HVAC filter change",freq:"Quarterly",next:"2026-03-31",vendor:"O.C. McDonald",units:"All units"},
+  {task:"Kitchen hood fire system",freq:"Bi-annually",next:"2027-09-23",vendor:"Nickell Fire Protection",units:"All units"}
 ];
 
 async function saveData() {
@@ -1114,7 +1114,7 @@ function renderPM() {
       <span class="badge" style="background:#f5f3ff;color:#6d28d9;align-self:center">${t.freq}</span>
       <span class="badge ${due}" style="align-self:center">${dl}</span>
       <span style="font-size:12px;color:#64748b">${t.vendor}</span>
-      <button class="btn-sm btn-approve" onclick="dispatchPM(${i})">Dispatch</button>
+      <button class="btn-sm btn-email" onclick="dispatchPM(${i})">Approve &amp; email vendor</button>
     </div>`;
   }).join('');
 }
@@ -1136,24 +1136,54 @@ function addPM() {
 function dispatchPM(i) {
   const t = pmTasks[i];
   const vendor = VENDORS.find(v => v.name === t.vendor) || VENDORS[0];
+  const woId = 'WO-' + Math.floor(1000 + Math.random()*9000);
+  const today = new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   const wo = {
-    id:'WO-'+Math.floor(1000+Math.random()*9000),
-    issue_summary:`${t.task} (scheduled)`,
-    category:'general', priority:'normal',
-    priority_reason:'Scheduled preventive maintenance',
-    recommended_action:t.task, estimated_time:'1-2 hours',
-    access_needed:true, notes_for_vendor:'Scheduled maintenance — coordinate unit access',
-    tenant:'All tenants', unit:t.units, business:'',tenant_email:'',
-    date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
-    vendor, status:'approved'
+    id: woId,
+    issue_summary: t.task + ' (scheduled)',
+    category: 'general',
+    priority: 'normal',
+    priority_reason: 'Scheduled preventive maintenance',
+    recommended_action: t.task,
+    estimated_time: '1-2 hours',
+    access_needed: true,
+    notes_for_vendor: 'Scheduled preventive maintenance — please coordinate unit access with tenants',
+    tenant: 'All tenants',
+    unit: t.units,
+    business: '',
+    tenant_email: '',
+    date: today,
+    vendor: vendor,
+    status: 'emailed',
+    source: 'Preventive maintenance'
   };
-  workOrders.unshift(wo); updateQueueCount();
-  const nextMap={Monthly:1,Quarterly:3,'Bi-annually':6,Annually:12};
-  const d = new Date(t.next); d.setMonth(d.getMonth()+(nextMap[t.freq]||12));
+  workOrders.unshift(wo);
+  updateQueueCount();
+  const nextMap = {Monthly:1, Quarterly:3, 'Bi-annually':6, Annually:12};
+  const d = new Date(t.next);
+  d.setMonth(d.getMonth() + (nextMap[t.freq] || 12));
   pmTasks[i].next = d.toISOString().split('T')[0];
   saveData();
   renderPM();
-  alert(`Dispatched to ${vendor.name}. Next scheduled: ${pmTasks[i].next}`);
+
+  // Open email to vendor
+  const subject = encodeURIComponent('Scheduled Maintenance — ' + t.task + ' — 146 Main St, Los Altos');
+  const body = encodeURIComponent(
+'Dear ' + vendor.contact + ',\n\n' +
+'This is a scheduled preventive maintenance work order for 146 Main St, Los Altos.\n\n' +
+'Work Order: ' + woId + '\n' +
+'Date: ' + today + '\n' +
+'Task: ' + t.task + '\n' +
+'Frequency: ' + t.freq + '\n' +
+'Units: ' + t.units + '\n' +
+'Next scheduled after this visit: ' + pmTasks[i].next + '\n\n' +
+'Please confirm your availability and coordinate access with tenants as needed.\n\n' +
+'Thank you,\n' +
+'Matt Brading\n' +
+'Brading Associates, LLC\n' +
+'(408) 234-7016\n' +
+'matt@bradingassociates.com');
+  window.open('mailto:' + vendor.email + '?subject=' + subject + '&body=' + body);
 }
 
 // ── OWNER REPORT ─────────────────────────────────────────
