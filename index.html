@@ -275,7 +275,33 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
       <button class="btn-primary" onclick="addPM()" style="margin-top:0">Add to schedule</button>
     </div>
     <div class="card">
-      <div class="section-label">Scheduled tasks</div>
+      <div class="section-label">Log a completed past maintenance task</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px">Use this to record maintenance that happened before you started using this app — it will show in your owner report</div>
+      <div class="row2">
+        <div>
+          <div class="section-label">Task completed</div>
+          <select id="pm-log-task">
+            <option value="">— Select task —</option>
+          </select>
+        </div>
+        <div>
+          <div class="section-label">Date completed</div>
+          <input type="date" id="pm-log-date"/>
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <div class="section-label">Vendor who did the work</div>
+          <select id="pm-log-vendor"></select>
+        </div>
+        <div>
+          <div class="section-label">Notes (optional)</div>
+          <input id="pm-log-notes" placeholder="e.g. All units inspected, 3 extinguishers replaced"/>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="logCompletedPM()" style="margin-top:0">Log as completed — add to owner report</button>
+      <div id="pm-log-result" style="margin-top:8px;font-size:12px"></div>
+    </div>
       <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding-bottom:6px;border-bottom:1px solid #e2e8f0;margin-bottom:4px">
         <span class="pm-head">Task</span><span class="pm-head">Frequency</span><span class="pm-head">Next due</span><span class="pm-head">Vendor</span><span></span>
       </div>
@@ -972,28 +998,57 @@ function renderQueue() {
     const bc = wo.priority==='urgent'?'badge-urgent':wo.priority==='normal'?'badge-normal':'badge-low';
     const sc = wo.status==='approved'||wo.status==='emailed'?'badge-sent':wo.status==='denied'?'badge-denied':wo.status==='owner_pending'?'badge-low':'badge-pending';
     const sl = wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':wo.status==='owner_pending'?'Awaiting owner approval':'Pending approval';
-    return `<div class="wo-item">
-      <div class="wo-top">
-        <div><div class="wo-title">${wo.id} — ${wo.issue_summary}</div><div class="wo-meta">${wo.tenant} · Unit ${wo.unit}${wo.business?' · '+wo.business:''} · ${wo.date}</div></div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="badge ${bc}">${wo.priority}</span><span class="badge ${sc}">${sl}</span></div>
-      </div>
-      <div class="wo-details">
-        <div><div class="wo-detail-label">Category</div><div class="wo-detail-val">${wo.category}</div></div>
-        <div><div class="wo-detail-label">Vendor</div><div class="wo-detail-val">${wo.vendor.name}</div></div>
-        <div><div class="wo-detail-label">Action</div><div class="wo-detail-val">${wo.recommended_action}</div></div>
-        <div><div class="wo-detail-label">Est. time</div><div class="wo-detail-val">${wo.estimated_time}</div></div>
-      </div>
-      ${wo.status==='pending'?`<div style="display:flex;gap:6px;margin-top:6px">
-        <button class="btn-sm btn-pdf" onclick="downloadWOPDF('${wo.id}')">Download WO PDF</button>
-        <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','queue')">Approve &amp; email vendor</button>
-        <button class="btn-sm btn-deny" onclick="denyWO('${wo.id}','queue')">Deny</button>
-      </div>`:''}
-      <div id="qaction-${wo.id}" style="margin-top:6px;font-size:12px"></div>
-    </div>`;
+    return '<div class="wo-item" id="woitem-' + wo.id + '">' +
+      '<div class="wo-top">' +
+        '<div style="display:flex;align-items:flex-start;gap:8px">' +
+          '<input type="checkbox" title="Include in owner report" ' + (wo.excludeFromReport ? '' : 'checked') + ' onchange="toggleReportInclude(\'' + wo.id + '\',this.checked)" style="margin-top:3px;width:15px;height:15px;flex-shrink:0"/>' +
+          '<div><div class="wo-title">' + wo.id + ' — ' + wo.issue_summary + '</div><div class="wo-meta">' + wo.tenant + ' · Unit ' + wo.unit + (wo.business?' · '+wo.business:'') + ' · ' + wo.date + '</div></div>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">' +
+          '<button onclick="deleteWO(\'' + wo.id + '\')" style="background:none;border:none;cursor:pointer;color:#94a3b8;font-size:16px;padding:0;line-height:1" title="Delete work order">🗑</button>' +
+          '<span class="badge ' + bc + '">' + wo.priority + '</span>' +
+          '<span class="badge ' + sc + '">' + sl + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="wo-details">' +
+        '<div><div class="wo-detail-label">Category</div><div class="wo-detail-val">' + wo.category + '</div></div>' +
+        '<div><div class="wo-detail-label">Vendor</div><div class="wo-detail-val">' + wo.vendor.name + '</div></div>' +
+        '<div><div class="wo-detail-label">Action</div><div class="wo-detail-val">' + wo.recommended_action + '</div></div>' +
+        '<div><div class="wo-detail-label">Est. time</div><div class="wo-detail-val">' + wo.estimated_time + '</div></div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">' +
+        '<button class="btn-sm btn-pdf" onclick="downloadWOPDF(\'' + wo.id + '\')">Download WO PDF</button>' +
+        '<button class="btn-sm btn-email" onclick="emailWO(\'' + wo.id + '\',\'queue\')">Approve &amp; email vendor</button>' +
+        '<button class="btn-sm btn-deny" onclick="denyWO(\'' + wo.id + '\',\'queue\')">Deny</button>' +
+      '</div>' +
+      '<div style="font-size:11px;color:#94a3b8;margin-top:6px">' + (wo.excludeFromReport ? 'Excluded from owner report' : 'Included in owner report') + '</div>' +
+      '<div id="qaction-' + wo.id + '" style="margin-top:6px;font-size:12px"></div>' +
+    '</div>';
   }).join('');
 }
 
-// ── PHOTO UPLOAD ─────────────────────────────────────────
+function deleteWO(id) {
+  if (!confirm('Delete work order ' + id + '? This cannot be undone.')) return;
+  workOrders = workOrders.filter(w => w.id !== id);
+  saveData();
+  updateQueueCount();
+  renderQueue();
+}
+
+function toggleReportInclude(id, include) {
+  const wo = workOrders.find(w => w.id === id);
+  if (!wo) return;
+  wo.excludeFromReport = !include;
+  saveData();
+  const el = document.getElementById('woitem-' + id);
+  if (el) {
+    const note = el.querySelector('[style*="Included in"]') || el.lastElementChild.previousElementSibling;
+    const noteDiv = el.querySelector('div[style*="color:#94a3b8;margin-top:6px"]');
+    if (noteDiv) noteDiv.textContent = include ? 'Included in owner report' : 'Excluded from owner report';
+  }
+}
+
+
 let uploadedPhotos = [];
 
 function handlePhotoUpload(input) {
@@ -1098,24 +1153,39 @@ function toggleOwnerApproval() {
   document.getElementById('owner-approval-fields').style.display = checked ? 'block' : 'none';
 }
 function renderPM() {
-  // Populate vendor dropdown
+  // Populate vendor dropdown for adding tasks
   const sel = document.getElementById('pm-vendor-select');
-  const unique = [...new Set(VENDORS.map(v => v.name))];
-  sel.innerHTML = unique.map(n => `<option>${n}</option>`).join('');
+  if (sel) {
+    const unique = [...new Set(VENDORS.map(v => v.name))];
+    sel.innerHTML = unique.map(n => '<option>' + n + '</option>').join('');
+  }
+  // Populate log completed dropdowns
+  const logTask = document.getElementById('pm-log-task');
+  if (logTask) {
+    const current = logTask.value;
+    logTask.innerHTML = '<option value="">— Select task —</option>' + pmTasks.map(t => '<option value="' + t.task + '">' + t.task + '</option>').join('');
+    if (current) logTask.value = current;
+  }
+  const logVendor = document.getElementById('pm-log-vendor');
+  if (logVendor && logVendor.options.length === 0) {
+    const unique = [...new Set(VENDORS.map(v => v.name))];
+    logVendor.innerHTML = unique.map(n => '<option>' + n + '</option>').join('');
+  }
 
   const list = document.getElementById('pm-list');
-  if (!pmTasks.length) { list.innerHTML = `<div class="empty">No scheduled tasks yet.</div>`; return; }
+  if (!list) return;
+  if (!pmTasks.length) { list.innerHTML = '<div class="empty">No scheduled tasks yet.</div>'; return; }
   list.innerHTML = pmTasks.map((t,i) => {
     const d = new Date(t.next); const today = new Date();
     const due = d<today?'badge-urgent':d-today<7*86400000?'badge-low':'badge-normal';
     const dl = d<today?'Overdue':d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    return `<div class="pm-row">
-      <span style="font-size:13px;font-weight:500">${t.task}<br><span style="font-size:11px;color:#64748b;font-weight:400">${t.units}</span></span>
-      <span class="badge" style="background:#f5f3ff;color:#6d28d9;align-self:center">${t.freq}</span>
-      <span class="badge ${due}" style="align-self:center">${dl}</span>
-      <span style="font-size:12px;color:#64748b">${t.vendor}</span>
-      <button class="btn-sm btn-email" onclick="dispatchPM(${i})">Approve &amp; email vendor</button>
-    </div>`;
+    return '<div class="pm-row">' +
+      '<span style="font-size:13px;font-weight:500">' + t.task + '<br><span style="font-size:11px;color:#64748b;font-weight:400">' + t.units + '</span></span>' +
+      '<span class="badge" style="background:#f5f3ff;color:#6d28d9;align-self:center">' + t.freq + '</span>' +
+      '<span class="badge ' + due + '" style="align-self:center">' + dl + '</span>' +
+      '<span style="font-size:12px;color:#64748b">' + t.vendor + '</span>' +
+      '<button class="btn-sm btn-email" onclick="dispatchPM(' + i + ')">Approve &amp; email vendor</button>' +
+    '</div>';
   }).join('');
 }
 
@@ -1186,6 +1256,44 @@ function dispatchPM(i) {
   window.open('mailto:' + vendor.email + '?subject=' + subject + '&body=' + body);
 }
 
+function logCompletedPM() {
+  const task = document.getElementById('pm-log-task').value;
+  const date = document.getElementById('pm-log-date').value;
+  const vendor = document.getElementById('pm-log-vendor').value;
+  const notes = document.getElementById('pm-log-notes').value.trim();
+  if (!task) { alert('Please select a task.'); return; }
+  if (!date) { alert('Please enter the date it was completed.'); return; }
+  const vendorObj = VENDORS.find(v => v.name === vendor) || VENDORS[0];
+  const displayDate = new Date(date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const wo = {
+    id: 'WO-' + Math.floor(1000 + Math.random()*9000),
+    issue_summary: task + ' — completed ' + displayDate,
+    category: 'general',
+    priority: 'normal',
+    priority_reason: 'Preventive maintenance completed',
+    recommended_action: task,
+    estimated_time: 'Completed',
+    access_needed: false,
+    notes_for_vendor: notes || 'Logged as completed maintenance',
+    tenant: 'All tenants',
+    unit: 'All units',
+    business: '',
+    tenant_email: '',
+    date: displayDate,
+    vendor: vendorObj,
+    status: 'approved',
+    source: 'Completed maintenance log',
+    excludeFromReport: false
+  };
+  workOrders.unshift(wo);
+  saveData();
+  updateQueueCount();
+  document.getElementById('pm-log-result').innerHTML = '<span style="color:#15803d">Logged — ' + task + ' on ' + displayDate + ' added to your approval queue and owner report.</span>';
+  document.getElementById('pm-log-task').value = '';
+  document.getElementById('pm-log-date').value = '';
+  document.getElementById('pm-log-notes').value = '';
+}
+
 // ── OWNER REPORT ─────────────────────────────────────────
 async function generateReport() {
   const month = document.getElementById('rpt-month').value;
@@ -1194,10 +1302,11 @@ async function generateReport() {
   btn.disabled=true; btn.textContent='Generating...';
   document.getElementById('report-output').innerHTML=`<div class="loading-row"><div class="spinner"></div>AI compiling owner report...</div>`;
 
-  const approved = workOrders.filter(w=>w.status==='approved'||w.status==='emailed');
-  const woSummary = workOrders.length ? workOrders.map(w=>`${w.id}: ${w.issue_summary} (Unit ${w.unit}, Vendor: ${w.vendor.name}, Status: ${w.status})`).join('\n') : 'No work orders this period.';
-  const pmSummary = pmTasks.map(t=>`${t.task} — ${t.freq}, next: ${t.next}, vendor: ${t.vendor}`).join('\n');
-  const histSummary = maintenanceHistory.length ? maintenanceHistory.map(h=>`${h.task} completed ${h.date_completed}, next due ${h.next_due}`).join('\n') : 'No history recorded.';
+  const reportWOs = workOrders.filter(w => !w.excludeFromReport);
+  const approved = reportWOs.filter(w=>w.status==='approved'||w.status==='emailed');
+  const woSummary = reportWOs.length ? reportWOs.map(w => w.id + ': ' + w.issue_summary + ' (Unit ' + w.unit + ', Vendor: ' + w.vendor.name + ', Status: ' + w.status + ')').join('\n') : 'No work orders this period.';
+  const pmSummary = pmTasks.map(t => t.task + ' — ' + t.freq + ', next: ' + t.next + ', vendor: ' + t.vendor).join('\n');
+  const histSummary = maintenanceHistory.length ? maintenanceHistory.map(h => h.task + ' completed ' + h.date_completed + ', next due ' + h.next_due).join('\n') : 'No history recorded.';
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages',{
@@ -1246,11 +1355,12 @@ function generateFallbackReport(property, month, woSummary, pmSummary) {
 }
 
 function renderReport(property, month, text) {
-  const total = workOrders.length;
-  const approved = workOrders.filter(w=>w.status==='approved'||w.status==='emailed').length;
-  const pending = workOrders.filter(w=>w.status==='pending').length;
-  window._lastReport = {property, month, text, total, approved, pending, workOrders: workOrders.slice(), pmTasks: pmTasks.slice()};
-  const woRows = workOrders.map(w => {
+  const reportWOs = workOrders.filter(w => !w.excludeFromReport);
+  const total = reportWOs.length;
+  const approved = reportWOs.filter(w=>w.status==='approved'||w.status==='emailed').length;
+  const pending = reportWOs.filter(w=>w.status==='pending').length;
+  window._lastReport = {property, month, text, total, approved, pending, workOrders: reportWOs, pmTasks: pmTasks.slice()};
+  const woRows = reportWOs.map(w => {
     const sc = w.status==='emailed'||w.status==='approved'?'badge-sent':w.status==='denied'?'badge-denied':'badge-pending';
     const sl = w.status==='emailed'?'Emailed':w.status==='approved'?'Approved':w.status==='denied'?'Denied':'Pending';
     return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px;gap:8px"><div style="flex:1"><span style="font-weight:500">' + w.id + ' — ' + w.issue_summary + '</span><span style="font-size:11px;color:#64748b;margin-left:8px">Unit ' + w.unit + '</span></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><span style="font-size:11px;color:#64748b">' + w.vendor.name + '</span><span class="badge ' + sc + '">' + sl + '</span></div></div>';
