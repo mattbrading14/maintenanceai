@@ -175,8 +175,12 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
         </div>
       </div>
       <div style="margin-bottom:8px">
+        <div class="section-label">Work order title <span style="color:#b91c1c">*</span></div>
+        <input id="lc-title" placeholder="e.g. Broken door handle — Unit 103, Front entrance"/>
+      </div>
+      <div style="margin-bottom:8px">
         <div class="section-label">Issue description</div>
-        <textarea id="lc-description" rows="3" placeholder="Describe the issue — reported by tenant on call, or observed during building walkthrough..."></textarea>
+        <textarea id="lc-description" rows="3" placeholder="Describe the issue in detail — reported by tenant on call, or observed during building walkthrough..."></textarea>
       </div>
       <div style="margin-bottom:8px">
         <div class="section-label">Access needed?</div>
@@ -588,6 +592,7 @@ function submitCallLog() {
   const tenant = TENANTS.find(t => t.unit === tenantUnit);
   const vendorName = document.getElementById('lc-vendor').value;
   const vendor = VENDORS.find(v => v.name === vendorName) || {name: vendorName || 'TBD', contact:'', email:'', phone:''};
+  const title = document.getElementById('lc-title').value.trim();
   const description = document.getElementById('lc-description').value.trim();
   const service = document.getElementById('lc-service').value;
   const priority = document.getElementById('lc-priority').value;
@@ -601,16 +606,17 @@ function submitCallLog() {
   const photos = [...uploadedPhotos];
 
   if (!tenant) { alert('Please select a tenant.'); return; }
-  if (!description) { alert('Please enter an issue description.'); return; }
+  if (!title) { alert('Please enter a work order title.'); return; }
   if (!service) { alert('Please select a service type.'); return; }
 
   const wo = {
     id: 'WO-' + Math.floor(1000 + Math.random()*9000),
-    issue_summary: description.length > 120 ? description.substring(0,120)+'...' : description,
+    issue_summary: title,
+    description: description,
     category: service,
     priority,
     priority_reason: 'Reported via phone call',
-    recommended_action: description,
+    recommended_action: description || title,
     estimated_time: '1-2 hours',
     access_needed: access === 'yes',
     notes_for_vendor: notes,
@@ -651,10 +657,11 @@ function submitCallLog() {
         </div>
       </div>
       <div class="wo-details" style="grid-template-columns:1fr 1fr 1fr;gap:8px 16px;margin-bottom:10px">
+        <div style="grid-column:1/-1"><div class="wo-detail-label">Title</div><div class="wo-detail-val" style="font-size:14px;font-weight:700;color:#0f172a">${title}</div></div>
         <div><div class="wo-detail-label">Tenant</div><div class="wo-detail-val">${tenant.contact} · Unit ${tenant.unit}</div></div>
         <div><div class="wo-detail-label">Business</div><div class="wo-detail-val">${tenant.business}</div></div>
         <div><div class="wo-detail-label">Service type</div><div class="wo-detail-val">${service}</div></div>
-        <div style="grid-column:1/-1"><div class="wo-detail-label">Issue description</div><div class="wo-detail-val">${description}</div></div>
+        ${description?`<div style="grid-column:1/-1"><div class="wo-detail-label">Description</div><div class="wo-detail-val">${description}</div></div>`:''}
         <div><div class="wo-detail-label">Access needed</div><div class="wo-detail-val">${access==='yes'?'Yes — coordinate with tenant':'No'}</div></div>
         ${notes?`<div style="grid-column:1/-1"><div class="wo-detail-label">Notes for vendor</div><div class="wo-detail-val">${notes}</div></div>`:''}
       </div>
@@ -679,6 +686,7 @@ function submitCallLog() {
     </div>`;
 
   // Reset form
+  document.getElementById('lc-title').value = '';
   document.getElementById('lc-description').value = '';
   document.getElementById('lc-notes').value = '';
   document.getElementById('lc-owner-approval').checked = false;
@@ -1025,6 +1033,7 @@ function renderQueue() {
     return '<div class="wo-item" id="woitem-' + wo.id + '" style="border-left:3px solid ' + (inReport ? '#22c55e' : '#e2e8f0') + '">' +
       '<div class="wo-top">' +
         '<div><div class="wo-title">' + wo.id + ' — ' + wo.issue_summary + '</div>' +
+        (wo.description ? '<div style="font-size:11px;color:#64748b;margin-top:2px;line-height:1.4">' + wo.description.substring(0,100) + (wo.description.length>100?'...':'') + '</div>' : '') +
         '<div class="wo-meta">' + wo.tenant + ' · Unit ' + wo.unit + (wo.business?' · '+wo.business:'') + ' · ' + wo.date + '</div></div>' +
         '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">' +
           '<span class="badge ' + bc + '">' + wo.priority + '</span>' +
@@ -1364,7 +1373,7 @@ PREVENTIVE MAINTENANCE
 RECOMMENDATIONS
 One sentence with any action items for the owner.
 
-Keep it concise — no long paragraphs. Owner should be able to read it in 30 seconds.`}]
+Keep it concise — owners should scan the titles quickly and only read descriptions if needed.`}]
       })
     });
     const data = await res.json();
@@ -1386,7 +1395,8 @@ function generateFallbackReport(property, month, woSummary, pmSummary) {
   const reportWOs = workOrders.filter(w => !w.excludeFromReport);
   const woLines = reportWOs.length ? reportWOs.map(w => {
     const sl = w.status==='emailed'?'Emailed to vendor':w.status==='approved'?'Approved':w.status==='denied'?'Denied':'Pending';
-    return '• ' + w.id + ' — ' + w.issue_summary + ' (' + w.vendor.name + ') — ' + sl;
+    const desc = w.description ? '\n   ' + w.description : '';
+    return '• ' + w.id + ' — ' + w.issue_summary + ' (' + w.vendor.name + ') — ' + sl + desc;
   }).join('\n') : '• No work orders this period';
   const pmLines = pmTasks.map(t => '• ' + t.task + ' — Next due: ' + t.next + ' (' + t.vendor + ')').join('\n');
   return 'OVERVIEW\n' +
