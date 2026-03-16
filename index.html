@@ -436,6 +436,21 @@ let pmTasks = [...DEFAULT_PM];
 
 // Load saved data immediately
 loadData().then(() => {
+  // Force update PM dates to correct values — overrides any stale saved dates
+  const correctDates = {
+    'Fire extinguisher inspection': '2027-03-12',
+    'Fire sprinkler system check': '2026-09-23',
+    'HVAC filter change': '2026-03-31',
+    'Kitchen hood fire system': '2027-09-23'
+  };
+  let updated = false;
+  pmTasks.forEach(t => {
+    if (correctDates[t.task] && t.next !== correctDates[t.task]) {
+      t.next = correctDates[t.task];
+      updated = true;
+    }
+  });
+  if (updated) saveData();
   updateQueueCount();
   renderPM();
 });
