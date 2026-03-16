@@ -28,9 +28,10 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
 .btn-primary:hover{background:#1e293b}
 .btn-primary:disabled{opacity:.45;cursor:not-allowed}
 .btn-sm{padding:5px 12px;font-size:12px;font-family:inherit;border-radius:8px;cursor:pointer;font-weight:600;border:none}
-.btn-approve{background:#f0fdf4;color:#15803d}
-.btn-deny{background:#fef2f2;color:#b91c1c}
-.btn-email{background:#eff6ff;color:#1d4ed8}
+.btn-approve{background:#f0fdf4;color:#15803d;border:1px solid #86efac}
+.btn-deny{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}
+.btn-email{background:#0f172a;color:#ffffff;border:1px solid #0f172a}
+.btn-pdf{background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd}
 .badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px}
 .badge-urgent{background:#fef2f2;color:#b91c1c}
 .badge-normal{background:#f0fdf4;color:#15803d}
@@ -620,10 +621,10 @@ function submitCallLog() {
       </div>` : ''}
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         ${ownerApproval && ownerEmail ? `<button class="btn-sm" style="background:#fffbeb;color:#92400e" onclick="emailOwner('${wo.id}','call-result')">Email owner for approval</button>` : ''}
-        ${photos.length ? `<button class="btn-sm" style="background:#f0f9ff;color:#0369a1" onclick="downloadPhotos('${wo.id}')">Download photos (${photos.length})</button>` : ''}
-        <button class="btn-sm btn-approve" onclick="approveWO('${wo.id}','call-result')">Approve & dispatch</button>
-        <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','call-result')">Approve & email vendor</button>
-        <button class="btn-sm btn-deny" onclick="denyWO('${wo.id}','call-result')">Deny</button>
+        ${photos.length ? '<button class="btn-sm btn-pdf" onclick="downloadPhotos(\'' + wo.id + '\')">Download photos (' + photos.length + ')</button>' : ''}
+        <button class="btn-sm btn-pdf" onclick="downloadWOPDF(\'' + wo.id + '\')">Download WO PDF</button>
+        <button class="btn-sm btn-email" onclick="emailWO(\'' + wo.id + '\',\'call-result\')">Approve &amp; email vendor</button>
+        <button class="btn-sm btn-deny" onclick="denyWO(\'' + wo.id + '\',\'call-result\')">Deny</button>
       </div>
       <div id="action-${wo.id}" style="margin-top:8px;font-size:12px"></div>
     </div>`;
@@ -787,8 +788,8 @@ function renderScreenshotResult(wo) {
       <div style="font-size:11px;color:#64748b">${wo.vendor.email} · ${formatPhone(wo.vendor.phone)}</div>
     </div>
     <div style="display:flex;gap:6px">
-      <button class="btn-sm btn-approve" onclick="approveWO('${wo.id}','screenshot')">Approve & dispatch</button>
-      <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','screenshot')">Approve & email vendor</button>
+      <button class="btn-sm btn-pdf" onclick="downloadWOPDF('${wo.id}')">Download WO PDF</button>
+      <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','screenshot')">Approve &amp; email vendor</button>
       <button class="btn-sm btn-deny" onclick="denyWO('${wo.id}','screenshot')">Deny</button>
     </div>
     <div id="action-${wo.id}" style="margin-top:8px;font-size:12px"></div>
@@ -983,8 +984,8 @@ function renderQueue() {
         <div><div class="wo-detail-label">Est. time</div><div class="wo-detail-val">${wo.estimated_time}</div></div>
       </div>
       ${wo.status==='pending'?`<div style="display:flex;gap:6px;margin-top:6px">
-        <button class="btn-sm btn-approve" onclick="approveWO('${wo.id}','queue')">Approve</button>
-        <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','queue')">Approve & email vendor</button>
+        <button class="btn-sm btn-pdf" onclick="downloadWOPDF('${wo.id}')">Download WO PDF</button>
+        <button class="btn-sm btn-email" onclick="emailWO('${wo.id}','queue')">Approve &amp; email vendor</button>
         <button class="btn-sm btn-deny" onclick="denyWO('${wo.id}','queue')">Deny</button>
       </div>`:''}
       <div id="qaction-${wo.id}" style="margin-top:6px;font-size:12px"></div>
@@ -1018,21 +1019,77 @@ function removePhoto(index, el) {
   el.parentElement.remove();
 }
 
+function downloadWOPDF(woId) {
+  const wo = workOrders.find(w => w.id === woId);
+  if (!wo) return;
+  const win = window.open('', '_blank');
+  const sl = wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':'Pending approval';
+  const color = (wo.status==='approved'||wo.status==='emailed') ? '#15803d' : wo.status==='denied' ? '#b91c1c' : '#1d4ed8';
+  win.document.write('<!DOCTYPE html><html><head><title>Work Order ' + wo.id + '</title>' +
+    '<style>' +
+    'body{font-family:Arial,sans-serif;padding:40px;max-width:720px;margin:0 auto;color:#0f172a}' +
+    'h1{font-size:20px;font-weight:700;margin-bottom:2px}' +
+    '.subtitle{font-size:12px;color:#64748b;margin-bottom:24px}' +
+    '.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:20px}' +
+    'table{width:100%;border-collapse:collapse;margin-bottom:20px}' +
+    'td{padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;vertical-align:top}' +
+    'td:first-child{font-weight:600;color:#64748b;width:38%}' +
+    '.section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin:20px 0 8px;border-bottom:2px solid #e2e8f0;padding-bottom:6px}' +
+    '.footer{margin-top:32px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center}' +
+    '.print-btn{margin-bottom:24px;padding:10px 22px;background:#0f172a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}' +
+    '@media print{.print-btn{display:none!important}}' +
+    '</style></head><body>' +
+    '<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>' +
+    '<h1>Work Order — ' + wo.id + '</h1>' +
+    '<div class="subtitle">146 Main St, Los Altos &nbsp;·&nbsp; ' + wo.date + '</div>' +
+    '<span class="badge" style="background:' + (wo.priority==='urgent'?'#fef2f2;color:#b91c1c':wo.priority==='normal'?'#f0fdf4;color:#15803d':'#fffbeb;color:#b45309') + '">' + wo.priority.toUpperCase() + ' PRIORITY</span>' +
+    '<div class="section">Request details</div>' +
+    '<table>' +
+    '<tr><td>Work order #</td><td>' + wo.id + '</td></tr>' +
+    '<tr><td>Tenant</td><td>' + wo.tenant + (wo.business ? ' — ' + wo.business : '') + '</td></tr>' +
+    '<tr><td>Unit</td><td>' + wo.unit + '</td></tr>' +
+    '<tr><td>Issue</td><td>' + wo.issue_summary + '</td></tr>' +
+    '<tr><td>Category</td><td>' + wo.category + '</td></tr>' +
+    '<tr><td>Recommended action</td><td>' + wo.recommended_action + '</td></tr>' +
+    '<tr><td>Estimated time</td><td>' + wo.estimated_time + '</td></tr>' +
+    '<tr><td>Unit access required</td><td>' + (wo.access_needed ? 'Yes — coordinate with tenant' : 'No') + '</td></tr>' +
+    (wo.notes_for_vendor ? '<tr><td>Notes</td><td>' + wo.notes_for_vendor + '</td></tr>' : '') +
+    '<tr><td>Status</td><td style="color:' + color + ';font-weight:700">' + sl + '</td></tr>' +
+    '<tr><td>Source</td><td>' + (wo.source || 'Screenshot') + '</td></tr>' +
+    '</table>' +
+    '<div class="section">Vendor assignment</div>' +
+    '<table>' +
+    '<tr><td>Vendor</td><td>' + wo.vendor.name + '</td></tr>' +
+    '<tr><td>Contact</td><td>' + wo.vendor.contact + '</td></tr>' +
+    '<tr><td>Phone</td><td>' + wo.vendor.phone + '</td></tr>' +
+    '<tr><td>Email</td><td>' + wo.vendor.email + '</td></tr>' +
+    '</table>' +
+    '<div class="footer">MaintenanceAI &nbsp;·&nbsp; 146 Main St, Los Altos<br>Matt Brading &nbsp;·&nbsp; Brading Associates, LLC &nbsp;·&nbsp; (408) 234-7016 &nbsp;·&nbsp; matt@bradingassociates.com</div>' +
+    '</body></html>');
+  win.document.close();
+  // Mark as approved when PDF is downloaded
+  wo.status = 'approved';
+  saveData();
+  updateQueueCount();
+}
+
 function downloadPhotos(woId) {
   const wo = workOrders.find(w => w.id === woId);
   if (!wo || !wo.photos || !wo.photos.length) return;
   const win = window.open('', '_blank');
-  win.document.write(`<html><head><title>Photos — ${wo.id}</title>
-  <style>body{font-family:system-ui,sans-serif;padding:2rem;max-width:800px;margin:0 auto}
-  h2{font-size:18px;margin-bottom:.5rem}p{font-size:13px;color:#64748b;margin-bottom:1.5rem}
-  img{max-width:100%;border-radius:8px;margin-bottom:1rem;border:1px solid #e2e8f0;display:block}
-  .meta{font-size:12px;color:#94a3b8;margin-bottom:2rem}
-  @media print{button{display:none}}</style></head><body>
-  <h2>Work Order Photos — ${wo.id}</h2>
-  <div class="meta">${wo.issue_summary} · Unit ${wo.unit} · ${wo.date}</div>
-  <button onclick="window.print()" style="margin-bottom:1.5rem;padding:8px 16px;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-size:13px">Print / Save as PDF</button>
-  ${wo.photos.map((p,i) => `<div><div style="font-size:12px;font-weight:600;margin-bottom:6px;color:#64748b">Photo ${i+1}</div><img src="${p.dataUrl}"/></div>`).join('')}
-  </body></html>`);
+  win.document.write('<!DOCTYPE html><html><head><title>Photos — ' + wo.id + '</title>' +
+    '<style>body{font-family:Arial,sans-serif;padding:2rem;max-width:800px;margin:0 auto}' +
+    'h2{font-size:18px;margin-bottom:.5rem}.meta{font-size:12px;color:#94a3b8;margin-bottom:2rem}' +
+    'img{max-width:100%;border-radius:8px;margin-bottom:1rem;border:1px solid #e2e8f0;display:block}' +
+    '.back-btn{margin-bottom:1.5rem;padding:9px 18px;background:#f1f5f9;color:#0f172a;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;margin-right:8px}' +
+    '.print-btn{margin-bottom:1.5rem;padding:9px 18px;background:#0f172a;color:white;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}' +
+    '@media print{.back-btn,.print-btn{display:none}}</style></head><body>' +
+    '<button class="back-btn" onclick="window.close()">← Back to app</button>' +
+    '<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>' +
+    '<h2>Work Order Photos — ' + wo.id + '</h2>' +
+    '<div class="meta">' + wo.issue_summary + ' &nbsp;·&nbsp; Unit ' + wo.unit + ' &nbsp;·&nbsp; ' + wo.date + '</div>' +
+    wo.photos.map((p,i) => '<div><div style="font-size:12px;font-weight:600;margin-bottom:6px;color:#64748b">Photo ' + (i+1) + '</div><img src="' + p.dataUrl + '"/></div>').join('') +
+    '</body></html>');
   win.document.close();
 }
 
@@ -1221,6 +1278,7 @@ function exportReportPDF() {
     '@media print{.print-btn{display:none!important}body{padding:20px}}' +
     '</style></head><body>' +
     '<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>' +
+    '<button style="margin-bottom:24px;margin-left:8px;padding:10px 22px;background:#f1f5f9;color:#0f172a;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer" onclick="window.close()">← Back to app</button>' +
     '<h1>' + r.property + '</h1>' +
     '<div class="subtitle">Monthly Maintenance Report &nbsp;·&nbsp; ' + r.month + ' 2026 &nbsp;·&nbsp; Generated ' + new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) + '</div>' +
     '<div class="metrics">' +
