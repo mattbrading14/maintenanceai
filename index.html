@@ -1109,6 +1109,7 @@ function renderReport(property, month, text) {
         return`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px"><div><span style="font-weight:500">${w.id} — ${w.issue_summary}</span><span style="font-size:11px;color:#64748b;margin-left:8px">Unit ${w.unit}</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:#64748b">${w.vendor.name}</span><span class="badge ${sc}">${sl}</span></div></div>`;
       }).join('')}`:''}
     </div>`;
+}
 
 // ── UTILS ────────────────────────────────────────────────
 function formatPhone(p) {
