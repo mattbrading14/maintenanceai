@@ -714,41 +714,17 @@ async function handleScreenshot(input) {
   resultDiv.innerHTML = '<div class="loading-row"><div class="spinner"></div>AI reading image — this may take a few seconds...</div>';
 
   try {
-    // Convert to base64 via canvas — handles HEIC, PNG, JPG, any format
+    // Read file directly as base64 — skip canvas and Image element entirely
+    // FileReader works on ALL formats including HEIC on iPhone
     const base64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.onload = () => {
-          try {
-            const canvas = document.createElement('canvas');
-            const maxSize = 1600;
-            let w = img.width, h = img.height;
-            if (w > maxSize || h > maxSize) {
-              if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-              else { w = Math.round(w * maxSize / h); h = maxSize; }
-            }
-            canvas.width = w || 800;
-            canvas.height = h || 600;
-            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-            if (dataUrl === 'data:,') throw new Error('Canvas empty');
-            resolve(dataUrl.split(',')[1]);
-          } catch(canvasErr) {
-            // Canvas failed — use raw base64 directly
-            resolve(e.target.result.split(',')[1]);
-          }
-        };
-        img.onerror = () => {
-          // Image element failed — use raw base64 directly without canvas conversion
-          resolve(e.target.result.split(',')[1]);
-        };
-        img.src = e.target.result;
-      };
+      reader.onload = (e) => resolve(e.target.result.split(',')[1]);
       reader.onerror = () => reject(new Error('Could not read file'));
       reader.readAsDataURL(file);
     });
+
+    // Determine media type — default to jpeg for HEIC/unknown
+    const mediaType = (file.type && file.type.startsWith('image/') && !file.type.includes('heic') && !file.type.includes('heif')) ? file.type : 'image/jpeg';
 
     // Single API call — read image AND create work order(s) in one shot
     const tenantList = TENANTS.map(t => t.contact + ' (Unit ' + t.unit + ', ' + t.business + ', ' + t.email + ', ' + t.cell_phone + ')').join('\n');
@@ -762,7 +738,7 @@ async function handleScreenshot(input) {
         messages: [{
           role: 'user',
           content: [
-            {type: 'image', source: {type: 'base64', media_type: (file.type && file.type.startsWith('image/') && file.type !== 'image/heic' && file.type !== 'image/heif') ? file.type : 'image/jpeg', data: base64}},
+            {type: 'image', source: {type: 'base64', media_type: mediaType, data: base64}},
             {type: 'text', text: 'You are a property management AI for 146 Main St, Los Altos.\n\nRead this image carefully. It may be a text message, email, voicemail transcript, or any other communication. Extract ALL maintenance issues mentioned.\n\nTenant list for matching:\n' + tenantList + '\n\nMatch the sender to the tenant list using any name, phone number, email, or business name visible in the image. If no match found, use "Unknown".\n\nReturn ONLY valid JSON, no markdown, no explanation:\n{\n  "matched_tenant_unit": "unit number or Unknown",\n  "matched_tenant_name": "name or Unknown",\n  "sender_info": "what you could see about the sender",\n  "issues": [\n    {\n      "title": "short clear title for owner report e.g. Broken door handle - Main entrance",\n      "description": "full details of the issue",\n      "category": "plumbing|hvac|electrical|locksmith|fire|general",\n      "priority": "urgent|normal|low",\n      "recommended_action": "what vendor should do"\n    }\n  ]\n}'}
           ]
         }]
