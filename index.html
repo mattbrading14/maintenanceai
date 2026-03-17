@@ -97,7 +97,8 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
     <div class="card">
       <div class="section-label">Upload a screenshot of any tenant email, text, or voicemail transcript</div>
       <div class="upload-zone" id="upload-zone">
-        <input type="file" accept="image/*" onchange="handleScreenshot(this)"/>
+        <input type="file" accept="image/*" onchange="handleScreenshot(this.files[0])"
+/>
         <div class="upload-zone-icon">📸</div>
         <div class="upload-zone-title">Tap to upload screenshot</div>
         <div class="upload-zone-sub">Works with email screenshots, text message screenshots, voicemail transcripts</div>
