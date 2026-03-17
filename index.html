@@ -912,50 +912,107 @@ function submitCallLog() {
 }
 
 // ── SCREENSHOT HANDLER ───────────────────────────────────
-async function handleScreenshot(input) {
-  const file = input.files[0];
+async function handleScreenshot(file) {
   if (!file) return;
+  const preview = document.getElementById('screenshot-preview');
+  const objUrl = URL.createObjectURL(file);
+  preview.innerHTML = `<img src="${objUrl}" style="max-width:100%;border-radius:8px;margin-bottom:12px">`;
 
-  const preview = document.getElementById('preview-img');
-  const matchDiv = document.getElementById('match-result');
   const resultDiv = document.getElementById('screenshot-result');
-
-  // Show preview immediately
-  const objectUrl = URL.createObjectURL(file);
-  preview.src = objectUrl;
-  preview.style.display = 'block';
-  matchDiv.innerHTML = '';
-  resultDiv.innerHTML = '<div class="loading-row"><div class="spinner"></div>AI reading image — this may take a few seconds...</div>';
+  resultDiv.innerHTML = `<div style="color:#666;padding:12px;">⏳ Reading image...</div>`;
 
   try {
-    // Read and resize image before sending
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          // Resize to max 1024px to keep payload under Anthropic's limit
-          const canvas = document.createElement('canvas');
-          const maxSize = 1024;
-          let w = img.width || 800, h = img.height || 600;
-          if (w > maxSize || h > maxSize) {
-            if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-            else { w = Math.round(w * maxSize / h); h = maxSize; }
-          }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          resolve(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
-        };
-        img.onerror = () => {
-          // Canvas failed — send raw but warn it might be large
-          resolve(e.target.result.split(',')[1]);
-        };
-        img.src = e.target.result;
-      };
-      reader.onerror = () => reject(new Error('Could not read file'));
-      reader.readAsDataURL(file);
+    // Always use canvas to resize and compress to JPEG
+    const base64 = await compressImage(file, 800, 0.6);
+    const mediaType = 'image/jpeg';
+
+    resultDiv.innerHTML = `<div style="color:#666;padding:12px;">⏳ Analyzing with AI...</div>`;
+
+    const resp = await fetch('/api/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mediaType, data: base64 }
+            },
+            {
+              type: 'text',
+              text: `You are a property maintenance assistant. Read this screenshot and extract all maintenance issues mentioned. Return ONLY valid JSON, no other text:
+{
+  "workOrders": [
+    {
+      "title": "short title",
+      "description": "full details",
+      "priority": "low|medium|high|emergency",
+      "trade": "Plumbing|HVAC|Electrical|General/Handyman|Locksmith|Roofing|Pest Control|Landscaping|Other",
+      "unit": "unit number or Building Common Area",
+      "senderName": "name of person who sent the message if visible"
+    }
+  ]
+}`
+            }
+          ]
+        }]
+      })
     });
 
+    const data = await resp.json();
+    if (!data.content || !data.content[0]) throw new Error('No response from AI');
+
+    const text = data.content[0].text;
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) parsed = JSON.parse(match[0]);
+      else throw new Error('Could not parse AI response');
+    }
+
+    const orders = parsed.workOrders || [];
+    if (orders.length === 0) throw new Error('No maintenance issues found');
+
+    orders.forEach(wo => addToQueue(wo));
+    resultDiv.innerHTML = `<div style="background:#d4edda;color:#155724;padding:12px;border-radius:8px;">
+      ✅ Created ${orders.length} work order${orders.length > 1 ? 's' : ''}! Check the Approval Queue tab.
+    </div>`;
+
+  } catch (err) {
+    resultDiv.innerHTML = `<div style="background:#f8d7da;color:#721c24;padding:12px;border-radius:8px;">
+      <strong>Error: ${err.message}</strong><br>
+      <small>Try: Use the Log a Call tab to enter details manually.</small>
+    </div>`;
+  }
+}
+
+// Compress image to JPEG using canvas
+function compressImage(file, maxSize, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      URL.revokeObjectURL(url);
+      resolve(dataUrl.split(',')[1]); // return base64 only
+    };
+    img.onerror = () => reject(new Error('Image load failed'));
+    img.src = url;
+  });
+}
     const mediaType = 'image/jpeg';
 
     // Single API call — read image AND create work order(s) in one shot
