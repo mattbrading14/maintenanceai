@@ -89,6 +89,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
     <button class="tab" onclick="switchTab('pm')">Preventive maintenance</button>
     <button class="tab" onclick="switchTab('history')">Maintenance history</button>
     <button class="tab" onclick="switchTab('report')">Owner report</button>
+    <button class="tab" onclick="switchTab('directory')">⚙ Settings</button>
   </div>
 
   <!-- SCREENSHOT TAB -->
@@ -339,6 +340,80 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
     </div>
   </div>
 
+  <!-- DIRECTORY TAB -->
+  <div id="tab-directory" class="panel">
+
+    <!-- TENANTS -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <div class="section-label" style="margin:0">Tenants</div>
+        <button onclick="showAddTenant()" style="padding:6px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">+ Add tenant</button>
+      </div>
+      <div id="add-tenant-form" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid #e2e8f0">
+        <div class="row3" style="margin-bottom:8px">
+          <div><div class="section-label">Unit #</div><input id="nt-unit" placeholder="e.g. 218"/></div>
+          <div><div class="section-label">Business name</div><input id="nt-business" placeholder="Acme Co."/></div>
+          <div><div class="section-label">Contact name</div><input id="nt-contact" placeholder="Jane Smith"/></div>
+        </div>
+        <div class="row3" style="margin-bottom:8px">
+          <div><div class="section-label">Office phone</div><input id="nt-office" placeholder="650-555-0100"/></div>
+          <div><div class="section-label">Cell phone</div><input id="nt-cell" placeholder="650-555-0101"/></div>
+          <div><div class="section-label">Email</div><input id="nt-email" placeholder="jane@acme.com"/></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="addTenant()" style="padding:7px 16px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save tenant</button>
+          <button onclick="document.getElementById('add-tenant-form').style.display='none'" style="padding:7px 16px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>
+        </div>
+      </div>
+      <div id="tenant-directory-list"></div>
+    </div>
+
+    <!-- VENDORS -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <div class="section-label" style="margin:0">Vendors</div>
+        <button onclick="showAddVendor()" style="padding:6px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">+ Add vendor</button>
+      </div>
+      <div id="add-vendor-form" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid #e2e8f0">
+        <div class="row2" style="margin-bottom:8px">
+          <div><div class="section-label">Vendor name</div><input id="nv-name" placeholder="e.g. ABC Plumbing"/></div>
+          <div><div class="section-label">Trade / specialty</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <select id="nv-trade" style="flex:1;padding:9px 11px;font-size:13px;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#0f172a" onchange="handleTradeSelect('nv-trade','nv-trade-custom')">
+                <option value="">— Select trade —</option>
+                <option>Plumbing</option>
+                <option>HVAC</option>
+                <option>Electrical</option>
+                <option>Locksmith</option>
+                <option>Fire Sprinkler System</option>
+                <option>Fire Extinguishers</option>
+                <option>Kitchen Hood Fire System</option>
+                <option>Roofing</option>
+                <option>General / Handyman</option>
+                <option>Pest Control</option>
+                <option>Landscaping</option>
+                <option>Elevator</option>
+                <option>Appliance Repair</option>
+                <option value="__custom__">+ Add custom trade...</option>
+              </select>
+            </div>
+            <input id="nv-trade-custom" placeholder="Enter custom trade name" style="display:none;margin-top:6px;width:100%;padding:9px 11px;font-size:13px;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#0f172a"/>
+          </div>
+        </div>
+        <div class="row3" style="margin-bottom:8px">
+          <div><div class="section-label">Contact name</div><input id="nv-contact" placeholder="John Smith"/></div>
+          <div><div class="section-label">Phone</div><input id="nv-phone" placeholder="650-555-0200"/></div>
+          <div><div class="section-label">Email</div><input id="nv-email" placeholder="john@abcplumbing.com"/></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="addVendor()" style="padding:7px 16px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save vendor</button>
+          <button onclick="document.getElementById('add-vendor-form').style.display='none'" style="padding:7px 16px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>
+        </div>
+      </div>
+      <div id="vendor-directory-list"></div>
+    </div>
+  </div>
+
   <!-- OWNER REPORT TAB -->
   <div id="tab-report" class="panel">
     <div class="card">
@@ -363,11 +438,12 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
     </div>
     <div id="report-output"></div>
   </div>
+
 </div>
 
 <script>
-// ── REAL DATA ──────────────────────────────────────────────
-const TENANTS = [
+// ── REAL DATA (defaults — overridden by saved data) ────────
+let TENANTS = [
   {unit:"100",business:"Round Robin",contact:"Christy Drexel",office_phone:"6509480955",cell_phone:"4084384600",email:"encore.rrobin@yahoo.com"},
   {unit:"101/102",business:"Peninsula Symphony",contact:"Chelsea Chambers",office_phone:"6509415291",cell_phone:"4087109440",email:"chelsea@peninsulasymphony.org"},
   {unit:"103",business:"General Building",contact:"Matt Brading",office_phone:"",cell_phone:"4082347016",email:"matt@bradingassociates.com"},
@@ -388,7 +464,7 @@ const TENANTS = [
   {unit:"217",business:"Shelley Sinclair",contact:"Shelly Sinclair",office_phone:"5512652949",cell_phone:"",email:"ssinclairlep@icloud.com"}
 ];
 
-const VENDORS = [
+let VENDORS = [
   {name:"Nickell Fire Protection",trade:"Fire Sprinkler System",contact:"Jose Gonzalez",email:"jose@nickellfire.com",phone:"4084376039"},
   {name:"Nickell Fire Protection",trade:"Fire Extinguishers",contact:"Jose Gonzalez",email:"jose@nickellfire.com",phone:"4084376039"},
   {name:"Nickell Fire Protection",trade:"Kitchen Hood Fire System",contact:"Jose Gonzalez",email:"jose@nickellfire.com",phone:"4084376039"},
@@ -409,35 +485,21 @@ const DEFAULT_PM = [
 
 async function saveData() {
   try {
-    const payload = JSON.stringify({workOrders, maintenanceHistory, pmTasks});
-    // Save to localStorage as primary
+    const payload = JSON.stringify({workOrders, maintenanceHistory, pmTasks, TENANTS, VENDORS});
     localStorage.setItem(STORAGE_KEY, payload);
-    // Save to cloud via Claude API as backup/sync
-    await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 100,
-        system: 'You are a data store. When given data to store, reply only with: {"stored":true}',
-        messages: [{
-          role: 'user',
-          content: 'STORE:' + STORAGE_KEY + ':' + payload
-        }]
-      })
-    });
   } catch(e) { console.warn('Save failed:', e); }
 }
 
 async function loadData() {
   try {
-    // Try localStorage first (fastest)
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const data = JSON.parse(saved);
       if (data.workOrders) workOrders = data.workOrders;
       if (data.maintenanceHistory) maintenanceHistory = data.maintenanceHistory;
       if (data.pmTasks && data.pmTasks.length) pmTasks = data.pmTasks;
+      if (data.TENANTS && data.TENANTS.length) TENANTS = data.TENANTS;
+      if (data.VENDORS && data.VENDORS.length) VENDORS = data.VENDORS;
     }
   } catch(e) { console.warn('Load failed:', e); }
 }
@@ -448,6 +510,7 @@ let pmTasks = [...DEFAULT_PM];
 
 // Load saved data immediately
 loadData().then(() => {
+  loadDirectory();
   // Force update PM dates to correct values — overrides any stale saved dates
   const correctDates = {
     'Fire extinguisher inspection': '2027-03-12',
@@ -501,13 +564,164 @@ function matchVendor(category) {
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  const tabs = ['screenshot','logcall','queue','pm','history','report'];
+  const tabs = ['screenshot','logcall','queue','pm','history','report','directory'];
   document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
   if (name==='pm') renderPM();
   if (name==='queue') renderQueue();
   if (name==='history') renderHistory();
   if (name==='logcall') initCallLog();
+  if (name==='directory') renderDirectory();
+  if (name==='settings') renderSettings();
+}
+
+// ── SETTINGS — TENANT & VENDOR MANAGEMENT ────────────────
+function renderSettings() { renderTenantSettings(); renderVendorSettings(); }
+
+function renderTenantSettings() {
+  const el = document.getElementById('tenant-list-settings');
+  if (!el) return;
+  el.innerHTML = TENANTS.map((t, i) => {
+    const safeI = 'T' + i;
+    return '<div style="border:1px solid #e2e8f0;border-radius:8px;padding:.75rem 1rem;margin-bottom:.5rem;background:#fff">' +
+      '<div id="tenant-view-' + safeI + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px">' +
+          '<div>' +
+            '<div style="font-size:13px;font-weight:600">Unit ' + t.unit + ' — ' + t.contact + '</div>' +
+            '<div style="font-size:11px;color:#64748b;margin-top:2px">' + t.business + (t.email?' · '+t.email:'') + (t.cell_phone?' · '+t.cell_phone:'') + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px">' +
+            '<button onclick="editTenant(' + i + ')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit</button>' +
+            (t.unit === '103' ? '' : '<button onclick="deleteTenant(' + i + ')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:inherit">Remove</button>') +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="tenant-edit-' + safeI + '" style="display:none;margin-top:8px">' +
+        '<div class="row2"><div><div class="section-label">Unit #</div><input id="te-unit-' + safeI + '" value="' + t.unit + '"/></div><div><div class="section-label">Business</div><input id="te-business-' + safeI + '" value="' + t.business.replace(/"/g,'&quot;') + '"/></div></div>' +
+        '<div class="row2"><div><div class="section-label">Contact name</div><input id="te-contact-' + safeI + '" value="' + t.contact.replace(/"/g,'&quot;') + '"/></div><div><div class="section-label">Email</div><input id="te-email-' + safeI + '" value="' + (t.email||'') + '"/></div></div>' +
+        '<div class="row2"><div><div class="section-label">Office phone</div><input id="te-office-' + safeI + '" value="' + (t.office_phone||'') + '"/></div><div><div class="section-label">Cell phone</div><input id="te-cell-' + safeI + '" value="' + (t.cell_phone||'') + '"/></div></div>' +
+        '<div style="display:flex;gap:6px;margin-top:8px">' +
+          '<button onclick="saveTenant(' + i + ')" style="padding:6px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save</button>' +
+          '<button onclick="cancelTenantEdit(' + i + ')" style="padding:6px 14px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderVendorSettings() {
+  const el = document.getElementById('vendor-list-settings');
+  if (!el) return;
+  el.innerHTML = VENDORS.map((v, i) => {
+    const safeI = 'V' + i;
+    return '<div style="border:1px solid #e2e8f0;border-radius:8px;padding:.75rem 1rem;margin-bottom:.5rem;background:#fff">' +
+      '<div id="vendor-view-' + safeI + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px">' +
+          '<div>' +
+            '<div style="font-size:13px;font-weight:600">' + v.name + ' <span style="font-size:11px;font-weight:400;color:#6d28d9;background:#f5f3ff;padding:2px 6px;border-radius:99px">' + v.trade + '</span></div>' +
+            '<div style="font-size:11px;color:#64748b;margin-top:2px">' + v.contact + ' · ' + v.email + ' · ' + formatPhone(v.phone) + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px">' +
+            '<button onclick="editVendor(' + i + ')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit</button>' +
+            '<button onclick="deleteVendor(' + i + ')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:inherit">Remove</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="vendor-edit-' + safeI + '" style="display:none;margin-top:8px">' +
+        '<div class="row2"><div><div class="section-label">Company name</div><input id="ve-name-' + safeI + '" value="' + v.name.replace(/"/g,'&quot;') + '"/></div>' +
+        '<div><div class="section-label">Trade</div>' +
+        '<select id="ve-trade-' + safeI + '" onchange="handleTradeSelect(\'ve-trade-' + safeI + '\',\'ve-trade-custom-' + safeI + '\')" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a">' +
+        getTradeOptions(v.trade) +
+        '</select>' +
+        '<input id="ve-trade-custom-' + safeI + '" placeholder="Custom trade name" style="display:none;margin-top:6px;width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a"/>' +
+        '</div></div>' +
+        '<div class="row2"><div><div class="section-label">Contact</div><input id="ve-contact-' + safeI + '" value="' + v.contact.replace(/"/g,'&quot;') + '"/></div><div><div class="section-label">Email</div><input id="ve-email-' + safeI + '" value="' + v.email + '"/></div></div>' +
+        '<div class="row2"><div><div class="section-label">Phone</div><input id="ve-phone-' + safeI + '" value="' + v.phone + '"/></div><div></div></div>' +
+        '<div style="display:flex;gap:6px;margin-top:8px">' +
+          '<button onclick="saveVendor(' + i + ')" style="padding:6px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save</button>' +
+          '<button onclick="cancelVendorEdit(' + i + ')" style="padding:6px 14px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function showAddTenant() { document.getElementById('add-tenant-form').style.display='block'; }
+function showAddVendor() { document.getElementById('add-vendor-form').style.display='block'; }
+
+const TRADE_LIST = ['Plumbing','HVAC','Electrical','Locksmith','Fire Sprinkler System','Fire Extinguishers','Kitchen Hood Fire System','Roofing','General / Handyman','Pest Control','Landscaping','Elevator','Appliance Repair'];
+
+function getTradeOptions(selected) {
+  const isCustom = selected && !TRADE_LIST.includes(selected);
+  let html = '<option value="">— Select trade —</option>';
+  TRADE_LIST.forEach(t => { html += '<option' + (t === selected ? ' selected' : '') + '>' + t + '</option>'; });
+  if (isCustom) html += '<option value="' + selected + '" selected>' + selected + '</option>';
+  html += '<option value="__custom__">+ Add custom trade...</option>';
+  return html;
+}
+
+function handleTradeSelect(selectId, customId) {
+  const sel = document.getElementById(selectId);
+  const custom = document.getElementById(customId);
+  if (!sel || !custom) return;
+  if (sel.value === '__custom__') {
+    custom.style.display = 'block';
+    custom.focus();
+  } else {
+    custom.style.display = 'none';
+  }
+}
+
+function addTenant() {
+  const unit=document.getElementById('nt-unit').value.trim();
+  const contact=document.getElementById('nt-contact').value.trim();
+  if (!unit||!contact){alert('Unit number and contact name are required.');return;}
+  TENANTS.push({unit,business:document.getElementById('nt-business').value.trim(),contact,email:document.getElementById('nt-email').value.trim(),office_phone:document.getElementById('nt-office').value.trim(),cell_phone:document.getElementById('nt-cell').value.trim()});
+  saveData();
+  document.getElementById('add-tenant-form').style.display='none';
+  ['nt-unit','nt-business','nt-contact','nt-email','nt-office','nt-cell'].forEach(id=>document.getElementById(id).value='');
+  renderTenantSettings();
+}
+
+function addVendor() {
+  const name=document.getElementById('nv-name').value.trim();
+  const contact=document.getElementById('nv-contact').value.trim();
+  if (!name||!contact){alert('Company name and contact are required.');return;}
+  VENDORS.push({name,trade:document.getElementById('nv-trade').value.trim(),contact,email:document.getElementById('nv-email').value.trim(),phone:document.getElementById('nv-phone').value.trim()});
+  saveData();
+  document.getElementById('add-vendor-form').style.display='none';
+  ['nv-name','nv-contact','nv-email','nv-phone'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nv-trade').value='';
+  document.getElementById('nv-trade-custom').value='';
+  document.getElementById('nv-trade-custom').style.display='none';
+  renderVendorSettings();
+}
+
+function editTenant(i){document.getElementById('tenant-view-T'+i).style.display='none';document.getElementById('tenant-edit-T'+i).style.display='block';}
+function cancelTenantEdit(i){document.getElementById('tenant-view-T'+i).style.display='block';document.getElementById('tenant-edit-T'+i).style.display='none';}
+function saveTenant(i){
+  const s='T'+i;
+  TENANTS[i]={unit:document.getElementById('te-unit-'+s).value.trim(),business:document.getElementById('te-business-'+s).value.trim(),contact:document.getElementById('te-contact-'+s).value.trim(),email:document.getElementById('te-email-'+s).value.trim(),office_phone:document.getElementById('te-office-'+s).value.trim(),cell_phone:document.getElementById('te-cell-'+s).value.trim()};
+  saveData(); renderTenantSettings();
+}
+function deleteTenant(i){
+  if(!confirm('Remove '+TENANTS[i].contact+' from Unit '+TENANTS[i].unit+'?'))return;
+  TENANTS.splice(i,1); saveData(); renderTenantSettings();
+}
+
+function editVendor(i){document.getElementById('vendor-view-V'+i).style.display='none';document.getElementById('vendor-edit-V'+i).style.display='block';}
+function cancelVendorEdit(i){document.getElementById('vendor-view-V'+i).style.display='block';document.getElementById('vendor-edit-V'+i).style.display='none';}
+function saveVendor(i){
+  const s='V'+i;
+  const tradeSelect = document.getElementById('ve-trade-'+s).value;
+  const tradeCustom = document.getElementById('ve-trade-custom-'+s) ? document.getElementById('ve-trade-custom-'+s).value.trim() : '';
+  const trade = tradeSelect === '__custom__' ? tradeCustom : tradeSelect;
+  VENDORS[i]={name:document.getElementById('ve-name-'+s).value.trim(),trade,contact:document.getElementById('ve-contact-'+s).value.trim(),email:document.getElementById('ve-email-'+s).value.trim(),phone:document.getElementById('ve-phone-'+s).value.trim()};
+  saveData(); renderVendorSettings();
+}
+function deleteVendor(i){
+  if(!confirm('Remove '+VENDORS[i].name+'?'))return;
+  VENDORS.splice(i,1); saveData(); renderVendorSettings();
 }
 
 function initCallLog() {
@@ -729,7 +943,7 @@ async function handleScreenshot(input) {
     // Single API call — read image AND create work order(s) in one shot
     const tenantList = TENANTS.map(t => t.contact + ' (Unit ' + t.unit + ', ' + t.business + ', ' + t.email + ', ' + t.cell_phone + ')').join('\n');
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/api/claude', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -867,7 +1081,7 @@ async function handleHistory(input) {
     const base64 = e.target.result.split(',')[1];
     document.getElementById('history-result').innerHTML = `<div class="loading-row"><div class="spinner"></div>AI reading past maintenance record...</div>`;
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('/api/claude', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({
@@ -1466,7 +1680,7 @@ async function generateReport() {
   const histSummary = maintenanceHistory.length ? maintenanceHistory.map(h => h.task + ' completed ' + h.date_completed + ', next due ' + h.next_due).join('\n') : 'No history recorded.';
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
+    const res = await fetch('/api/claude',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:700,
@@ -1661,6 +1875,205 @@ function importData(input) {
     }
   };
   reader.readAsText(file);
+}
+
+// ── DIRECTORY — TENANTS & VENDORS ────────────────────────
+
+function saveDirectory() {
+  try {
+    localStorage.setItem('maintenanceai_tenants', JSON.stringify(TENANTS));
+    localStorage.setItem('maintenanceai_vendors', JSON.stringify(VENDORS));
+  } catch(e) { console.warn('Directory save failed:', e); }
+}
+
+function loadDirectory() {
+  try {
+    const savedTenants = localStorage.getItem('maintenanceai_tenants');
+    const savedVendors = localStorage.getItem('maintenanceai_vendors');
+    if (savedTenants) {
+      const parsed = JSON.parse(savedTenants);
+      if (parsed.length) { TENANTS.length = 0; parsed.forEach(t => TENANTS.push(t)); }
+    }
+    if (savedVendors) {
+      const parsed = JSON.parse(savedVendors);
+      if (parsed.length) { VENDORS.length = 0; parsed.forEach(v => VENDORS.push(v)); }
+    }
+  } catch(e) { console.warn('Directory load failed:', e); }
+}
+
+function renderDirectory() {
+  // Tenants
+  const tl = document.getElementById('tenant-directory-list');
+  if (!TENANTS.length) { tl.innerHTML = '<div class="empty">No tenants yet.</div>'; }
+  else {
+    tl.innerHTML = TENANTS.map((t, i) => {
+      const safeI = 'tenant_' + i;
+      return '<div style="padding:10px 0;border-bottom:1px solid #f1f5f9" id="trow-' + safeI + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+          '<div>' +
+            '<div style="font-size:13px;font-weight:600">Unit ' + t.unit + ' — ' + t.business + '</div>' +
+            '<div style="font-size:12px;color:#64748b;margin-top:2px">' + t.contact + ' · ' + (t.cell_phone||t.office_phone||'') + ' · ' + t.email + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px;flex-shrink:0">' +
+            '<button onclick="editTenant(' + i + ')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit</button>' +
+            '<button onclick="deleteTenant(' + i + ')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:inherit">Remove</button>' +
+          '</div>' +
+        '</div>' +
+        '<div id="tedit-' + safeI + '" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-top:8px;border:1px solid #e2e8f0">' +
+          '<div class="row3" style="margin-bottom:8px">' +
+            '<div><div class="section-label">Unit #</div><input id="te-unit-' + i + '" value="' + (t.unit||'') + '"/></div>' +
+            '<div><div class="section-label">Business</div><input id="te-business-' + i + '" value="' + (t.business||'') + '"/></div>' +
+            '<div><div class="section-label">Contact</div><input id="te-contact-' + i + '" value="' + (t.contact||'') + '"/></div>' +
+          '</div>' +
+          '<div class="row3" style="margin-bottom:8px">' +
+            '<div><div class="section-label">Office phone</div><input id="te-office-' + i + '" value="' + (t.office_phone||'') + '"/></div>' +
+            '<div><div class="section-label">Cell phone</div><input id="te-cell-' + i + '" value="' + (t.cell_phone||'') + '"/></div>' +
+            '<div><div class="section-label">Email</div><input id="te-email-' + i + '" value="' + (t.email||'') + '"/></div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px">' +
+            '<button onclick="saveTenantEdit(' + i + ')" style="padding:7px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save</button>' +
+            '<button onclick="document.getElementById(\'tedit_tenant_' + i + '\').style.display=\'none\'" style="padding:7px 14px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // Vendors
+  const vl = document.getElementById('vendor-directory-list');
+  if (!VENDORS.length) { vl.innerHTML = '<div class="empty">No vendors yet.</div>'; }
+  else {
+    vl.innerHTML = VENDORS.map((v, i) => {
+      return '<div style="padding:10px 0;border-bottom:1px solid #f1f5f9" id="vrow-vendor_' + i + '">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+          '<div>' +
+            '<div style="font-size:13px;font-weight:600">' + v.name + ' <span style="font-size:11px;color:#64748b;font-weight:400">(' + v.trade + ')</span></div>' +
+            '<div style="font-size:12px;color:#64748b;margin-top:2px">' + v.contact + ' · ' + formatPhone(v.phone) + ' · ' + v.email + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px;flex-shrink:0">' +
+            '<button onclick="editVendor(' + i + ')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit</button>' +
+            '<button onclick="deleteVendor(' + i + ')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:inherit">Remove</button>' +
+          '</div>' +
+        '</div>' +
+        '<div id="vedit-vendor_' + i + '" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-top:8px;border:1px solid #e2e8f0">' +
+          '<div class="row2" style="margin-bottom:8px">' +
+            '<div><div class="section-label">Vendor name</div><input id="ve-name-' + i + '" value="' + (v.name||'') + '"/></div>' +
+            '<div><div class="section-label">Trade</div><input id="ve-trade-' + i + '" value="' + (v.trade||'') + '"/></div>' +
+          '</div>' +
+          '<div class="row3" style="margin-bottom:8px">' +
+            '<div><div class="section-label">Contact</div><input id="ve-contact-' + i + '" value="' + (v.contact||'') + '"/></div>' +
+            '<div><div class="section-label">Phone</div><input id="ve-phone-' + i + '" value="' + (v.phone||'') + '"/></div>' +
+            '<div><div class="section-label">Email</div><input id="ve-email-' + i + '" value="' + (v.email||'') + '"/></div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px">' +
+            '<button onclick="saveVendorEdit(' + i + ')" style="padding:7px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save</button>' +
+            '<button onclick="document.getElementById(\'vedit-vendor_' + i + '\').style.display=\'none\'" style="padding:7px 14px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+}
+
+// Tenant functions
+function showAddTenant() {
+  const f = document.getElementById('add-tenant-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+function addTenant() {
+  const unit = document.getElementById('nt-unit').value.trim();
+  const business = document.getElementById('nt-business').value.trim();
+  const contact = document.getElementById('nt-contact').value.trim();
+  const office_phone = document.getElementById('nt-office').value.trim();
+  const cell_phone = document.getElementById('nt-cell').value.trim();
+  const email = document.getElementById('nt-email').value.trim();
+  if (!unit || !contact) { alert('Please enter at least a unit number and contact name.'); return; }
+  TENANTS.push({unit, business, contact, office_phone, cell_phone, email});
+  saveDirectory();
+  document.getElementById('nt-unit').value = '';
+  document.getElementById('nt-business').value = '';
+  document.getElementById('nt-contact').value = '';
+  document.getElementById('nt-office').value = '';
+  document.getElementById('nt-cell').value = '';
+  document.getElementById('nt-email').value = '';
+  document.getElementById('add-tenant-form').style.display = 'none';
+  renderDirectory();
+}
+
+function editTenant(i) {
+  const el = document.getElementById('tedit-tenant_' + i);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveTenantEdit(i) {
+  TENANTS[i] = {
+    unit: document.getElementById('te-unit-' + i).value.trim(),
+    business: document.getElementById('te-business-' + i).value.trim(),
+    contact: document.getElementById('te-contact-' + i).value.trim(),
+    office_phone: document.getElementById('te-office-' + i).value.trim(),
+    cell_phone: document.getElementById('te-cell-' + i).value.trim(),
+    email: document.getElementById('te-email-' + i).value.trim()
+  };
+  saveDirectory();
+  renderDirectory();
+}
+
+function deleteTenant(i) {
+  if (!confirm('Remove ' + TENANTS[i].contact + ' (Unit ' + TENANTS[i].unit + ')? This cannot be undone.')) return;
+  TENANTS.splice(i, 1);
+  saveDirectory();
+  renderDirectory();
+}
+
+// Vendor functions
+function showAddVendor() {
+  const f = document.getElementById('add-vendor-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+function addVendor() {
+  const name = document.getElementById('nv-name').value.trim();
+  const tradeSelect = document.getElementById('nv-trade').value;
+  const tradeCustom = document.getElementById('nv-trade-custom').value.trim();
+  const trade = tradeSelect === '__custom__' ? tradeCustom : tradeSelect;
+  const contact = document.getElementById('nv-contact').value.trim();
+  const phone = document.getElementById('nv-phone').value.trim();
+  const email = document.getElementById('nv-email').value.trim();
+  if (!name || !trade) { alert('Please enter at least a vendor name and trade.'); return; }
+  VENDORS.push({name, trade, contact, phone, email});
+  saveDirectory();
+  document.getElementById('nv-name').value = '';
+  document.getElementById('nv-trade').value = '';
+  document.getElementById('nv-contact').value = '';
+  document.getElementById('nv-phone').value = '';
+  document.getElementById('nv-email').value = '';
+  document.getElementById('add-vendor-form').style.display = 'none';
+  renderDirectory();
+}
+
+function editVendor(i) {
+  const el = document.getElementById('vedit-vendor_' + i);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveVendorEdit(i) {
+  VENDORS[i] = {
+    name: document.getElementById('ve-name-' + i).value.trim(),
+    trade: document.getElementById('ve-trade-' + i).value.trim(),
+    contact: document.getElementById('ve-contact-' + i).value.trim(),
+    phone: document.getElementById('ve-phone-' + i).value.trim(),
+    email: document.getElementById('ve-email-' + i).value.trim()
+  };
+  saveDirectory();
+  renderDirectory();
+}
+
+function deleteVendor(i) {
+  if (!confirm('Remove ' + VENDORS[i].name + '? This cannot be undone.')) return;
+  VENDORS.splice(i, 1);
+  saveDirectory();
+  renderDirectory();
 }
 
 // ── UTILS ────────────────────────────────────────────────
