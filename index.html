@@ -408,7 +408,7 @@ async function handleScreenshot(file){
   matchDiv.innerHTML='';
   resultDiv.innerHTML='<div class="loading-row"><div class="spinner"></div>Reading image...</div>';
   try{
-    const base64=await compressImage(file,600,0.5);
+const raw=await new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result.split(',')[1]);fr.readAsDataURL(file);});const base64=raw.length>500000?raw.substring(0,500000):raw;
     resultDiv.innerHTML='<div class="loading-row"><div class="spinner"></div>Analyzing with AI...</div>';
     const tenantList=TENANTS.map(t=>t.contact+' (Unit '+t.unit+', '+t.business+', '+t.email+', '+t.cell_phone+')').join('\n');
     const res=await fetch('/api/claude',{
