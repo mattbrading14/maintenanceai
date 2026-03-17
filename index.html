@@ -103,7 +103,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
         <div class="upload-zone-title">Tap to upload screenshot</div>
         <div class="upload-zone-sub">Works with email screenshots, text message screenshots, voicemail transcripts</div>
       </div>
-      <img id="preview-img" class="preview-img" style="display:none"/>
+<div id="screenshot-preview" style="margin-top:12px"></div>
       <div id="match-result"></div>
       <div id="screenshot-result"></div>
     </div>
@@ -911,88 +911,71 @@ function submitCallLog() {
   document.getElementById('photo-previews').innerHTML = '';
   uploadedPhotos = [];
 }
-
 // ── SCREENSHOT HANDLER ───────────────────────────────────
 async function handleScreenshot(file) {
   if (!file) return;
-  const preview = document.getElementById('screenshot-preview');
+  const previewDiv = document.getElementById('screenshot-preview');
   const objUrl = URL.createObjectURL(file);
-  preview.innerHTML = `<img src="${objUrl}" style="max-width:100%;border-radius:8px;margin-bottom:12px">`;
-
+  previewDiv.innerHTML = '<img src="' + objUrl + '" style="max-width:100%;border-radius:8px;margin-bottom:12px"/>';
+  const matchDiv = document.getElementById('match-result');
   const resultDiv = document.getElementById('screenshot-result');
-  resultDiv.innerHTML = `<div style="color:#666;padding:12px;">⏳ Reading image...</div>`;
-
+  matchDiv.innerHTML = '';
+  resultDiv.innerHTML = '<div class="loading-row"><div class="spinner"></div>Reading image...</div>';
   try {
-    // Always use canvas to resize and compress to JPEG
     const base64 = await compressImage(file, 800, 0.6);
-    const mediaType = 'image/jpeg';
-
-    resultDiv.innerHTML = `<div style="color:#666;padding:12px;">⏳ Analyzing with AI...</div>`;
-
-    const resp = await fetch('/api/claude', {
+    resultDiv.innerHTML = '<div class="loading-row"><div class="spinner"></div>Analyzing with AI...</div>';
+    const tenantList = TENANTS.map(t => t.contact + ' (Unit ' + t.unit + ', ' + t.business + ', ' + t.email + ', ' + t.cell_phone + ')').join('\n');
+    const res = await fetch('/api/claude', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 1500,
         messages: [{
           role: 'user',
           content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: base64 }
-            },
-            {
-              type: 'text',
-              text: `You are a property maintenance assistant. Read this screenshot and extract all maintenance issues mentioned. Return ONLY valid JSON, no other text:
-{
-  "workOrders": [
-    {
-      "title": "short title",
-      "description": "full details",
-      "priority": "low|medium|high|emergency",
-      "trade": "Plumbing|HVAC|Electrical|General/Handyman|Locksmith|Roofing|Pest Control|Landscaping|Other",
-      "unit": "unit number or Building Common Area",
-      "senderName": "name of person who sent the message if visible"
-    }
-  ]
-}`
-            }
+            {type:'image', source:{type:'base64', media_type:'image/jpeg', data:base64}},
+            {type:'text', text:'You are a property management AI for 146 Main St, Los Altos.\n\nRead this image carefully. It may be a text message, email, or voicemail. Extract ALL maintenance issues mentioned.\n\nTenant list:\n' + tenantList + '\n\nMatch the sender to the tenant list. If no match, use "Unknown".\n\nReturn ONLY valid JSON, no markdown:\n{"matched_tenant_unit":"unit or Unknown","matched_tenant_name":"name or Unknown","sender_info":"what you saw","issues":[{"title":"short title","description":"full details","category":"plumbing|hvac|electrical|locksmith|fire|general","priority":"urgent|normal|low","recommended_action":"what vendor should do"}]}'}
           ]
         }]
       })
     });
-
-    const data = await resp.json();
+    const data = await res.json();
     if (!data.content || !data.content[0]) throw new Error('No response from AI');
-
-    const text = data.content[0].text;
+    const rawText = data.content[0].text;
     let parsed;
     try {
-      parsed = JSON.parse(text);
-    } catch {
-      const match = text.match(/\{[\s\S]*\}/);
-      if (match) parsed = JSON.parse(match[0]);
-      else throw new Error('Could not parse AI response');
+      parsed = JSON.parse(rawText.replace(/```json|```/g,'').trim());
+    } catch(e1) {
+      const m = rawText.match(/\{[\s\S]*\}/);
+      if (m) parsed = JSON.parse(m[0]);
+      else parsed = {matched_tenant_unit:'Unknown',matched_tenant_name:'Unknown',sender_info:'Could not parse',issues:[{title:'Maintenance request — review required',description:rawText.substring(0,300),category:'general',priority:'normal',recommended_action:'Review image and add details manually'}]};
     }
-
-    const orders = parsed.workOrders || [];
-    if (orders.length === 0) throw new Error('No maintenance issues found');
-
-    orders.forEach(wo => addToQueue(wo));
-    resultDiv.innerHTML = `<div style="background:#d4edda;color:#155724;padding:12px;border-radius:8px;">
-      ✅ Created ${orders.length} work order${orders.length > 1 ? 's' : ''}! Check the Approval Queue tab.
-    </div>`;
-
-  } catch (err) {
-    resultDiv.innerHTML = `<div style="background:#f8d7da;color:#721c24;padding:12px;border-radius:8px;">
-      <strong>Error: ${err.message}</strong><br>
-      <small>Try: Use the Log a Call tab to enter details manually.</small>
-    </div>`;
+    const matchedTenant = TENANTS.find(t => t.unit === parsed.matched_tenant_unit) || null;
+    if (matchedTenant) {
+      matchDiv.innerHTML = '<div class="match-card"><div class="match-title">Tenant matched — Unit ' + matchedTenant.unit + '</div><div class="match-detail">' + matchedTenant.contact + ' · ' + matchedTenant.business + ' · ' + matchedTenant.email + '</div></div>';
+    } else {
+      matchDiv.innerHTML = '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:12px;color:#92400e"><strong>Sender: ' + parsed.sender_info + '</strong> — not matched to a tenant. Edit in queue to assign.</div>';
+    }
+    const issues = (parsed.issues && parsed.issues.length) ? parsed.issues : [{title:'Maintenance request',description:'See image for details',category:'general',priority:'normal',recommended_action:'Review and assess'}];
+    const newWOs = issues.map(issue => {
+      const vendor = matchVendor(issue.category);
+      return {id:'WO-'+Math.floor(1000+Math.random()*9000),issue_summary:issue.title,description:issue.description,category:issue.category,priority:issue.priority||'normal',priority_reason:'From screenshot',recommended_action:issue.recommended_action,estimated_time:'1-2 hours',access_needed:true,notes_for_vendor:issue.description,tenant:matchedTenant?matchedTenant.contact:(parsed.matched_tenant_name||'Unknown'),unit:matchedTenant?matchedTenant.unit:(parsed.matched_tenant_unit||'Unknown'),business:matchedTenant?matchedTenant.business:'',tenant_email:matchedTenant?matchedTenant.email:'',date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),vendor,status:'pending',source:'Screenshot',photos:[],excludeFromReport:false};
+    });
+    newWOs.forEach(wo => workOrders.unshift(wo));
+    updateQueueCount();
+    saveData();
+    resultDiv.innerHTML = '<div style="border:1px solid #86efac;border-radius:12px;padding:1rem;margin-top:.75rem;background:#fff"><div style="font-size:13px;font-weight:600;margin-bottom:.75rem;color:#15803d">' + newWOs.length + ' work order' + (newWOs.length>1?'s':'') + ' created from image</div>' +
+      newWOs.map(wo => {
+        const bc = wo.priority==='urgent'?'badge-urgent':wo.priority==='normal'?'badge-normal':'badge-low';
+        return '<div style="border:1px solid #e2e8f0;border-radius:8px;padding:.85rem;margin-bottom:.6rem;background:#f8fafc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:13px;font-weight:600">' + wo.id + ' — ' + wo.issue_summary + '</div><span class="badge ' + bc + '">' + wo.priority + '</span></div><div style="font-size:12px;color:#64748b;margin-bottom:8px">' + wo.description + '</div><div style="font-size:12px;color:#64748b;margin-bottom:8px">Vendor: ' + wo.vendor.name + ' — ' + wo.vendor.contact + '</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn-sm btn-pdf" onclick="downloadWOPDF(\'' + wo.id + '\')">Download WO PDF</button><button class="btn-sm btn-email" onclick="emailWO(\'' + wo.id + '\',\'screenshot\')">Approve &amp; email vendor</button><button class="btn-sm btn-deny" onclick="denyWO(\'' + wo.id + '\',\'screenshot\')">Deny</button></div><div id="action-' + wo.id + '" style="margin-top:6px;font-size:12px"></div></div>';
+      }).join('') +
+      '<div style="font-size:11px;color:#94a3b8;margin-top:8px">All work orders also available in the Approval Queue tab</div></div>';
+  } catch(err) {
+    resultDiv.innerHTML = '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:1rem;margin-top:.75rem;font-size:13px;color:#b91c1c"><strong>Error: ' + err.message + '</strong><br><br>Try: Use the Log a Call tab to enter details manually.</div>';
   }
 }
 
-// Compress image to JPEG using canvas
 function compressImage(file, maxSize, quality) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -1006,149 +989,13 @@ function compressImage(file, maxSize, quality) {
       const canvas = document.createElement('canvas');
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const dataUrl = canvas.toDataURL('image/jpeg', quality);
       URL.revokeObjectURL(url);
-      resolve(dataUrl.split(',')[1]); // return base64 only
+      resolve(canvas.toDataURL('image/jpeg', quality).split(',')[1]);
     };
-    img.onerror = () => reject(new Error('Image load failed'));
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not load image')); };
     img.src = url;
   });
-}
-    const mediaType = 'image/jpeg';
-
-    // Single API call — read image AND create work order(s) in one shot
-    const tenantList = TENANTS.map(t => t.contact + ' (Unit ' + t.unit + ', ' + t.business + ', ' + t.email + ', ' + t.cell_phone + ')').join('\n');
-
-    const res = await fetch('/api/claude', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        messages: [{
-          role: 'user',
-          content: [
-            {type: 'image', source: {type: 'base64', media_type: mediaType, data: base64}},
-            {type: 'text', text: 'You are a property management AI for 146 Main St, Los Altos.\n\nRead this image carefully. It may be a text message, email, voicemail transcript, or any other communication. Extract ALL maintenance issues mentioned.\n\nTenant list for matching:\n' + tenantList + '\n\nMatch the sender to the tenant list using any name, phone number, email, or business name visible in the image. If no match found, use "Unknown".\n\nReturn ONLY valid JSON, no markdown, no explanation:\n{\n  "matched_tenant_unit": "unit number or Unknown",\n  "matched_tenant_name": "name or Unknown",\n  "sender_info": "what you could see about the sender",\n  "issues": [\n    {\n      "title": "short clear title for owner report e.g. Broken door handle - Main entrance",\n      "description": "full details of the issue",\n      "category": "plumbing|hvac|electrical|locksmith|fire|general",\n      "priority": "urgent|normal|low",\n      "recommended_action": "what vendor should do"\n    }\n  ]\n}'}
-          ]
-        }]
-      })
-    });
-
-    const data = await res.json();
-    if (!data.content || !data.content[0]) throw new Error('No response from AI');
-
-    // Robust JSON extraction — find JSON object even if wrapped in text
-    const rawText = data.content[0].text;
-    let parsed;
-    try {
-      // Try direct parse first
-      const clean = rawText.replace(/```json|```/g, '').trim();
-      parsed = JSON.parse(clean);
-    } catch(e1) {
-      try {
-        // Try extracting JSON from within the text
-        const match = rawText.match(/\{[\s\S]*\}/);
-        if (match) parsed = JSON.parse(match[0]);
-        else throw new Error('No JSON found');
-      } catch(e2) {
-        // Last resort — create a basic work order from raw text
-        parsed = {
-          matched_tenant_unit: 'Unknown',
-          matched_tenant_name: 'Unknown',
-          sender_info: 'Could not parse sender',
-          issues: [{
-            title: 'Maintenance request — review required',
-            description: rawText.substring(0, 300),
-            category: 'general',
-            priority: 'normal',
-            recommended_action: 'Review image and add details manually'
-          }]
-        };
-      }
-    }
-
-    // Find matched tenant
-    const matchedTenant = TENANTS.find(t => t.unit === parsed.matched_tenant_unit) || null;
-
-    // Show match result
-    if (matchedTenant) {
-      matchDiv.innerHTML = '<div class="match-card"><div class="match-title">Tenant matched — Unit ' + matchedTenant.unit + '</div><div class="match-detail">' + matchedTenant.contact + ' · ' + matchedTenant.business + ' · ' + matchedTenant.email + '</div></div>';
-    } else {
-      matchDiv.innerHTML = '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:12px;color:#92400e"><strong>Sender: ' + parsed.sender_info + '</strong> — not matched to a tenant. Work order created with Unknown tenant — edit in queue to update.</div>';
-    }
-
-    // Create a work order for EACH issue found
-    const issues = parsed.issues && parsed.issues.length ? parsed.issues : [{
-      title: 'Maintenance request',
-      description: 'See image for details',
-      category: 'general',
-      priority: 'normal',
-      recommended_action: 'Review and assess'
-    }];
-
-    const newWOs = issues.map(issue => {
-      const vendor = matchVendor(issue.category);
-      return {
-        id: 'WO-' + Math.floor(1000 + Math.random()*9000),
-        issue_summary: issue.title,
-        description: issue.description,
-        category: issue.category,
-        priority: issue.priority || 'normal',
-        priority_reason: 'From screenshot',
-        recommended_action: issue.recommended_action,
-        estimated_time: '1-2 hours',
-        access_needed: true,
-        notes_for_vendor: issue.description,
-        tenant: matchedTenant ? matchedTenant.contact : (parsed.matched_tenant_name || 'Unknown'),
-        unit: matchedTenant ? matchedTenant.unit : (parsed.matched_tenant_unit || 'Unknown'),
-        business: matchedTenant ? matchedTenant.business : '',
-        tenant_email: matchedTenant ? matchedTenant.email : '',
-        date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
-        vendor: vendor,
-        status: 'pending',
-        source: 'Screenshot',
-        photos: [],
-        excludeFromReport: false
-      };
-    });
-
-    newWOs.forEach(wo => workOrders.unshift(wo));
-    updateQueueCount();
-    saveData();
-
-    // Show results
-    resultDiv.innerHTML = '<div style="border:1px solid #86efac;border-radius:12px;padding:1rem;margin-top:.75rem;background:#fff">' +
-      '<div style="font-size:13px;font-weight:600;margin-bottom:.75rem;color:#15803d">' + newWOs.length + ' work order' + (newWOs.length>1?'s':'') + ' created from image</div>' +
-      newWOs.map(wo => {
-        const bc = wo.priority==='urgent'?'badge-urgent':wo.priority==='normal'?'badge-normal':'badge-low';
-        return '<div style="border:1px solid #e2e8f0;border-radius:8px;padding:.85rem;margin-bottom:.6rem;background:#f8fafc">' +
-          '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">' +
-            '<div style="font-size:13px;font-weight:600">' + wo.id + ' — ' + wo.issue_summary + '</div>' +
-            '<span class="badge ' + bc + '">' + wo.priority + '</span>' +
-          '</div>' +
-          '<div style="font-size:12px;color:#64748b;margin-bottom:8px">' + wo.description + '</div>' +
-          '<div style="font-size:12px;color:#64748b;margin-bottom:8px">Vendor: ' + wo.vendor.name + ' — ' + wo.vendor.contact + '</div>' +
-          '<div style="display:flex;gap:6px;flex-wrap:wrap">' +
-            '<button class="btn-sm btn-pdf" onclick="downloadWOPDF(\'' + wo.id + '\')">Download WO PDF</button>' +
-            '<button class="btn-sm btn-email" onclick="emailWO(\'' + wo.id + '\',\'screenshot\')">Approve &amp; email vendor</button>' +
-            '<button class="btn-sm btn-deny" onclick="denyWO(\'' + wo.id + '\',\'screenshot\')">Deny</button>' +
-          '</div>' +
-          '<div id="action-' + wo.id + '" style="margin-top:6px;font-size:12px"></div>' +
-        '</div>';
-      }).join('') +
-      '<div style="font-size:11px;color:#94a3b8;margin-top:8px">All work orders also available in the Approval Queue tab</div>' +
-    '</div>';
-
-  } catch(err) {
-    console.error('Screenshot error:', err);
-    resultDiv.innerHTML = '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:1rem;margin-top:.75rem;font-size:13px;color:#b91c1c">' +
-      '<strong>Error: ' + err.message + '</strong><br><br>' +
-      'Try: Make sure you are connected to the internet, then try again. If the error persists, use the Log a Call tab to enter the details manually.' +
-    '</div>';
-  }
-}
-// ── HISTORY SCREENSHOT ───────────────────────────────────
+}// ── HISTORY SCREENSHOT ───────────────────────────────────
 async function handleHistory(input) {
   const file = input.files[0];
   if (!file) return;
