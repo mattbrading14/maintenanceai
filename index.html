@@ -928,17 +928,35 @@ async function handleScreenshot(input) {
   resultDiv.innerHTML = '<div class="loading-row"><div class="spinner"></div>AI reading image — this may take a few seconds...</div>';
 
   try {
-    // Read file directly as base64 — skip canvas and Image element entirely
-    // FileReader works on ALL formats including HEIC on iPhone
+    // Read and resize image before sending
     const base64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result.split(',')[1]);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          // Resize to max 1024px to keep payload under Anthropic's limit
+          const canvas = document.createElement('canvas');
+          const maxSize = 1024;
+          let w = img.width || 800, h = img.height || 600;
+          if (w > maxSize || h > maxSize) {
+            if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+            else { w = Math.round(w * maxSize / h); h = maxSize; }
+          }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.85).split(',')[1]);
+        };
+        img.onerror = () => {
+          // Canvas failed — send raw but warn it might be large
+          resolve(e.target.result.split(',')[1]);
+        };
+        img.src = e.target.result;
+      };
       reader.onerror = () => reject(new Error('Could not read file'));
       reader.readAsDataURL(file);
     });
 
-    // Determine media type — default to jpeg for HEIC/unknown
-    const mediaType = (file.type && file.type.startsWith('image/') && !file.type.includes('heic') && !file.type.includes('heif')) ? file.type : 'image/jpeg';
+    const mediaType = 'image/jpeg';
 
     // Single API call — read image AND create work order(s) in one shot
     const tenantList = TENANTS.map(t => t.contact + ' (Unit ' + t.unit + ', ' + t.business + ', ' + t.email + ', ' + t.cell_phone + ')').join('\n');
