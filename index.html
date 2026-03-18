@@ -194,8 +194,11 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
         <input id="pm-task" placeholder="Task (e.g. HVAC filter change)"/>
         <select id="pm-freq"><option>Monthly</option><option>Quarterly</option><option selected>Bi-annually</option><option>Annually</option></select>
       </div>
-      <div class="row2"><select id="pm-vendor-select"></select><input id="pm-unit" placeholder="Unit(s) or 'All units'"/></div>
-      <input id="pm-next" type="date" style="margin-bottom:8px"/>
+    <div class="row2"><select id="pm-vendor-select"></select><input id="pm-unit" placeholder="Unit(s) or 'All units'"/></div>
+      <div class="row2">
+        <input id="pm-next" type="date"/>
+        <input id="pm-cost" placeholder="Est. cost (e.g. $250)"/>
+      </div>
       <button class="btn-primary" onclick="addPM()" style="margin-top:0">Add to schedule</button>
     </div>
     <div class="card">
@@ -213,7 +216,7 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
       <div id="pm-log-result" style="margin-top:8px;font-size:12px"></div>
     </div>
     <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding-bottom:6px;border-bottom:1px solid #e2e8f0;margin-bottom:4px">
-      <span class="pm-head">Task</span><span class="pm-head">Frequency</span><span class="pm-head">Next due</span><span class="pm-head">Vendor</span><span></span>
+<span class="pm-head">Task</span><span class="pm-head">Frequency</span><span class="pm-head">Next due</span><span class="pm-head">Vendor</span><span class="pm-head">Est. cost</span><span></span>
     </div>
     <div id="pm-list"></div>
   </div>
