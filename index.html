@@ -408,7 +408,8 @@ async function handleScreenshot(file){
   matchDiv.innerHTML='';
   resultDiv.innerHTML='<div class="loading-row"><div class="spinner"></div>Reading image...</div>';
   try{
-const raw=await new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result.split(',')[1]);fr.readAsDataURL(file);});const base64=raw.length>500000?raw.substring(0,500000):raw;
+const raw=await 
+  new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result.split(',')[1]);fr.readAsDataURL(file);});const const base64=raw;
     resultDiv.innerHTML='<div class="loading-row"><div class="spinner"></div>Analyzing with AI...</div>';
     const tenantList=TENANTS.map(t=>t.contact+' (Unit '+t.unit+', '+t.business+', '+t.email+', '+t.cell_phone+')').join('\n');
     const res=await fetch('/api/claude',{
@@ -464,7 +465,8 @@ function compressImage(file,maxSize,quality){
       canvas.width=w;canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
       URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL('image/jpeg',quality).split(',')[1]);
+      const fmt = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+resolve(canvas.toDataURL(fmt, quality).split(',')[1]);
     };
     img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Could not load image'));};
     img.src=url;
