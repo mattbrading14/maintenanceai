@@ -691,7 +691,22 @@ function logCompletedPM(){
 }
 function deletePM(i){if(!confirm('Delete this PM task?'))return;pmTasks.splice(i,1);saveData();renderPM();}
 function editPM(i){const t=pmTasks[i];const newTask=prompt('Task name:',t.task);if(newTask===null)return;const newCost=prompt('Estimated cost:',t.cost||'');const newNext=prompt('Next due date (YYYY-MM-DD):',t.next);if(newTask)pmTasks[i].task=newTask.trim();if(newCost!==null)pmTasks[i].cost=newCost.trim();if(newNext)pmTasks[i].next=newNext.trim();saveData();renderPM();}
-// ── MARK COMPLETE ───────────────────────────────────────── function markComplete(id,ctx){   const wo=workOrders.find(w=>w.id===id);if(!wo)return;   const today=new Date().toISOString().split('T')[0];   const dateInput=prompt('Date completed (YYYY-MM-DD):',today);   if(dateInput===null)return;   const d=new Date(dateInput+'T12:00:00');   if(isNaN(d.getTime())){alert('Invalid date. Use YYYY-MM-DD format.');return;}   wo.status='completed';   wo.completedDate=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});   saveData();updateQueueCount();   const el=document.getElementById((ctx==='queue'?'qaction-':'action-')+id);   if(el)el.innerHTML='<span style="color:#15803d;font-weight:600">✓ Marked complete — '+wo.completedDate+'</span>';   if(ctx==='queue')renderQueue(); } // ── OWNER REPORT ──────────────────────────────────────────
+// ── MARK COMPLETE ─────────────────────────────────────────
+function markComplete(id,ctx){
+  const wo=workOrders.find(w=>w.id===id);if(!wo)return;
+  const today=new Date().toISOString().split('T')[0];
+  const dateInput=prompt('Date completed (YYYY-MM-DD):',today);
+  if(dateInput===null)return;
+  const d=new Date(dateInput+'T12:00:00');
+  if(isNaN(d.getTime())){alert('Invalid date. Use YYYY-MM-DD format.');return;}
+  wo.status='completed';
+  wo.completedDate=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  saveData();updateQueueCount();
+  const el=document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
+  if(el)el.innerHTML='<span style="color:#15803d;font-weight:600">✓ Marked complete — '+wo.completedDate+'</span>';
+  if(ctx==='queue')renderQueue();
+}
+//── OWNER REPORT ──────────────────────────────────────────
 async function generateReport(){
   const month=document.getElementById('rpt-month').value,property=document.getElementById('rpt-property').value.trim();
   const btn=document.getElementById('rpt-btn');btn.disabled=true;btn.textContent='Generating...';
