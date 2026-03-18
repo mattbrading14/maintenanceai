@@ -487,8 +487,9 @@ async function handleHistory(input){
       const record=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
       record.id='HIST-'+Math.floor(1000+Math.random()*9000);
       maintenanceHistory.unshift(record);
-      pmTasks.push({task:record.task,freq:record.frequency,next:record.next_due,vendor:record.vendor,units:record.unit});
-      saveData();
+const cost=document.getElementById('pm-cost').value.trim();
+pmTasks.push({task,freq,vendor,units:unit,next,cost});
+document.getElementById('pm-task').value='';document.getElementById('pm-next').value='';document.getElementById('pm-cost').value='';saveData();renderPM();      saveData();
       document.getElementById('history-result').innerHTML='<div class="match-card" style="margin-top:.75rem"><div class="match-title">History record added + scheduled</div><div class="match-detail">'+record.task+' · Completed: '+record.date_completed+' · Next due: '+record.next_due+'</div></div>';
       renderHistory();
     }catch(e){document.getElementById('history-result').innerHTML='<div class="loading-row" style="color:#b91c1c">Error reading screenshot. Try again.</div>';}
@@ -661,7 +662,7 @@ function renderPM(){
     const d=new Date(t.next),today=new Date();
     const due=d<today?'badge-urgent':d-today<7*86400000?'badge-low':'badge-normal';
     const dl=d<today?'Overdue':d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    return'<div class="pm-row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr auto"><span style="font-size:13px;font-weight:500">'+t.task+'<br><span style="font-size:11px;color:#64748b;font-weight:400">'+t.units+'</span></span><span class="badge" style="background:#f5f3ff;color:#6d28d9;align-self:center">'+t.freq+'</span><span class="badge '+due+'" style="align-self:center">'+dl+'</span><span style="font-size:12px;color:#64748b">'+t.vendor+'</span><span style="font-size:12px;color:#15803d;font-weight:600">'+(t.cost||'—')+'</span><div style="display:flex;gap:4px"><button class="btn-sm btn-email" onclick="dispatchPM('+i+')">Email</button><button onclick="editPM('+i+')" style="padding:4px 8px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit</button><button onclick="deletePM('+i+')" style="padding:4px 8px;font-size:11px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:inherit">Del</button></div></div>';
+return'<div class="pm-row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr auto"><span style="font-size:13px;font-weight:500">'+t.task+'<br><span style="font-size:11px;color:#64748b;font-weight:400">'+t.units+'</span></span><span class="badge" style="background:#f5f3ff;color:#6d28d9;align-self:center">'+t.freq+'</span><span class="badge '+due+'" style="align-self:center">'+dl+'</span><span style="font-size:12px;color:#64748b">'+t.vendor+'</span><span style="font-size:12px;color:#15803d;font-weight:600">'+(t.cost||'—')+'</span><div style="display:flex;gap:4px"><button class="btn-sm btn-email" onclick="dispatchPM('+i+')">Email</button><button onclick="editPM('+i+')" style="padding:4px 8px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit</button><button onclick="deletePM('+i+')" style="padding:4px 8px;font-size:11px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:inherit">Del</button></div></div>';
   }).join('');
 }
 function addPM(){
@@ -683,7 +684,17 @@ function dispatchPM(i){
   const body=encodeURIComponent('Dear '+vendor.contact+',\n\nScheduled preventive maintenance work order.\n\nWork Order: '+woId+'\nTask: '+t.task+'\nFrequency: '+t.freq+'\nUnits: '+t.units+'\n\nPlease confirm availability.\n\nThank you,\nMatt Brading\n(408) 234-7016');
   window.open('mailto:'+vendor.email+'?subject='+subject+'&body='+body);
 }
-function logCompletedPM(){
+function logCompletedPM(){function deletePM(i){if(!confirm('Delete this PM task?'))return;pmTasks.splice(i,1);saveData();renderPM();}
+function editPM(i){
+  const t=pmTasks[i];
+  const newTask=prompt('Task name:',t.task);if(newTask===null)return;
+  const newCost=prompt('Estimated cost:',t.cost||'');
+  const newNext=prompt('Next due date (YYYY-MM-DD):',t.next);
+  if(newTask)pmTasks[i].task=newTask.trim();
+  if(newCost!==null)pmTasks[i].cost=newCost.trim();
+  if(newNext)pmTasks[i].next=newNext.trim();
+  saveData();renderPM();
+}
   function deletePM(i){if(!confirm('Delete this PM task?'))return;pmTasks.splice(i,1);saveData();renderPM();}
 function editPM(i){
   const t=pmTasks[i];
