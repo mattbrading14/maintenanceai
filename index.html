@@ -716,7 +716,7 @@ async function generateReport(){
   const btn=document.getElementById('rpt-btn');btn.disabled=true;btn.textContent='Generating...';
   document.getElementById('report-output').innerHTML='<div class="loading-row"><div class="spinner"></div>AI compiling owner report...</div>';
   const rWOs=workOrders.filter(w=>!w.excludeFromReport);
-  const woSum=rWOs.length?rWOs.map(w=>w.id+': '+w.issue_summary+' (Unit '+w.unit+', Vendor: '+w.vendor.name+', Status: '+w.status+')').join('\n'):'No work orders this period.';
+  const woSum=rWOs.length?rWOs.map(w=>w.id+': '+w.issue_summary+' (Unit '+w.unit+', Vendor: '+w.vendor.name+', Status: '+(w.status==='completed'?'COMPLETED'+(w.completedDate?' on '+w.completedDate:''):w.status==='emailed'?'PENDING — vendor emailed, awaiting response':w.status==='approved'?'APPROVED — not yet completed':w.status==='denied'?'DENIED':'PENDING')+')').join('\n'):'No work orders this period.';
   const pmSum=pmTasks.map(t=>t.task+' — '+t.freq+', next: '+t.next+', vendor: '+t.vendor).join('\n');
   try{
     const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,messages:[{role:'user',content:'Write a professional monthly maintenance report.\n\nProperty: '+property+'\nPeriod: '+month+' 2026\n\nWork orders:\n'+woSum+'\n\nPreventive maintenance:\n'+pmSum+'\n\nFormat:\nOVERVIEW\n1-2 sentences.\n\nWORK COMPLETED\n- One bullet per work order.\n\nPREVENTIVE MAINTENANCE\n- One bullet per task.\n\nRECOMMENDATIONS\nOne sentence.'}]})});
