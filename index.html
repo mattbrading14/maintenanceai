@@ -487,9 +487,7 @@ async function handleHistory(input){
       const record=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
       record.id='HIST-'+Math.floor(1000+Math.random()*9000);
       maintenanceHistory.unshift(record);
-const cost=document.getElementById('pm-cost').value.trim();
-pmTasks.push({task,freq,vendor,units:unit,next,cost});
-document.getElementById('pm-task').value='';document.getElementById('pm-next').value='';document.getElementById('pm-cost').value='';saveData();renderPM();      saveData();
+saveData();
       document.getElementById('history-result').innerHTML='<div class="match-card" style="margin-top:.75rem"><div class="match-title">History record added + scheduled</div><div class="match-detail">'+record.task+' · Completed: '+record.date_completed+' · Next due: '+record.next_due+'</div></div>';
       renderHistory();
     }catch(e){document.getElementById('history-result').innerHTML='<div class="loading-row" style="color:#b91c1c">Error reading screenshot. Try again.</div>';}
@@ -684,28 +682,7 @@ function dispatchPM(i){
   const body=encodeURIComponent('Dear '+vendor.contact+',\n\nScheduled preventive maintenance work order.\n\nWork Order: '+woId+'\nTask: '+t.task+'\nFrequency: '+t.freq+'\nUnits: '+t.units+'\n\nPlease confirm availability.\n\nThank you,\nMatt Brading\n(408) 234-7016');
   window.open('mailto:'+vendor.email+'?subject='+subject+'&body='+body);
 }
-function logCompletedPM(){function deletePM(i){if(!confirm('Delete this PM task?'))return;pmTasks.splice(i,1);saveData();renderPM();}
-function editPM(i){
-  const t=pmTasks[i];
-  const newTask=prompt('Task name:',t.task);if(newTask===null)return;
-  const newCost=prompt('Estimated cost:',t.cost||'');
-  const newNext=prompt('Next due date (YYYY-MM-DD):',t.next);
-  if(newTask)pmTasks[i].task=newTask.trim();
-  if(newCost!==null)pmTasks[i].cost=newCost.trim();
-  if(newNext)pmTasks[i].next=newNext.trim();
-  saveData();renderPM();
-}
-  function deletePM(i){if(!confirm('Delete this PM task?'))return;pmTasks.splice(i,1);saveData();renderPM();}
-function editPM(i){
-  const t=pmTasks[i];
-  const newTask=prompt('Task name:',t.task);if(newTask===null)return;
-  const newCost=prompt('Estimated cost:',t.cost||'');
-  const newNext=prompt('Next due date (YYYY-MM-DD):',t.next);
-  if(newTask)pmTasks[i].task=newTask.trim();
-  if(newCost!==null)pmTasks[i].cost=newCost.trim();
-  if(newNext)pmTasks[i].next=newNext.trim();
-  saveData();renderPM();
-}
+function logCompletedPM()
   const task=document.getElementById('pm-log-task').value,date=document.getElementById('pm-log-date').value,vendor=document.getElementById('pm-log-vendor').value,notes=document.getElementById('pm-log-notes').value.trim();
   if(!task){alert('Please select a task.');return;}if(!date){alert('Please enter the date.');return;}
   const vo=VENDORS.find(v=>v.name===vendor)||VENDORS[0];
@@ -715,7 +692,8 @@ function editPM(i){
   document.getElementById('pm-log-result').innerHTML='<span style="color:#15803d">Logged — '+task+' on '+dd+' added to owner report.</span>';
   document.getElementById('pm-log-task').value='';document.getElementById('pm-log-date').value='';document.getElementById('pm-log-notes').value='';
 }
-
+function deletePM(i){if(!confirm('Delete this PM task?'))return;pmTasks.splice(i,1);saveData();renderPM();}
+function editPM(i){const t=pmTasks[i];const newTask=prompt('Task name:',t.task);if(newTask===null)return;const newCost=prompt('Estimated cost:',t.cost||'');const newNext=prompt('Next due date (YYYY-MM-DD):',t.next);if(newTask)pmTasks[i].task=newTask.trim();if(newCost!==null)pmTasks[i].cost=newCost.trim();if(newNext)pmTasks[i].next=newNext.trim();saveData();renderPM();}
 // ── OWNER REPORT ──────────────────────────────────────────
 async function generateReport(){
   const month=document.getElementById('rpt-month').value,property=document.getElementById('rpt-property').value.trim();
