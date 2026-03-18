@@ -727,7 +727,7 @@ async function generateReport(){
 }
 function fallbackReport(property,month,rWOs){
   const total=rWOs.length,approved=rWOs.filter(w=>w.status==='approved'||w.status==='emailed').length,pending=rWOs.filter(w=>w.status==='pending').length;
-  const woLines=rWOs.length?rWOs.map(w=>'• '+w.id+' — '+w.issue_summary+' ('+w.vendor.name+') — '+(w.status==='emailed'?'Emailed':w.status==='approved'?'Approved':w.status==='denied'?'Denied':'Pending')).join('\n'):'• No work orders this period';
+  const woLines=rWOs.length?rWOs.map(w=>w.id+': '+w.issue_summary+' (Unit '+w.unit+', Vendor: '+w.vendor.name+', Status: '+(w.status==='completed'?'COMPLETED'+(w.completedDate?' on '+w.completedDate:''):w.status==='emailed'?'PENDING — vendor emailed':w.status==='approved'?'APPROVED — not yet completed':w.status==='denied'?'DENIED':'PENDING')+(w.statusNotes?', Notes: '+w.statusNotes:'')+')').join('\n'):'• No work orders this period';
   const pmLines=pmTasks.map(t=>'• '+t.task+' — Next due: '+t.next+' ('+t.vendor+')').join('\n');
   return'OVERVIEW\n'+total+' work order'+(total!==1?'s':'')+' this period. '+approved+' approved'+(pending>0?', '+pending+' pending':'')+'.\n\nWORK COMPLETED\n'+woLines+'\n\nPREVENTIVE MAINTENANCE\n'+pmLines+'\n\nRECOMMENDATIONS\nPlease review any pending work orders and approve promptly.';
 }
