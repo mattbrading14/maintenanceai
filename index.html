@@ -682,7 +682,7 @@ function dispatchPM(i){
   const body=encodeURIComponent('Dear '+vendor.contact+',\n\nScheduled preventive maintenance work order.\n\nWork Order: '+woId+'\nTask: '+t.task+'\nFrequency: '+t.freq+'\nUnits: '+t.units+'\n\nPlease confirm availability.\n\nThank you,\nMatt Brading\n(408) 234-7016');
   window.open('mailto:'+vendor.email+'?subject='+subject+'&body='+body);
 }
-function logCompletedPM()
+function logCompletedPM(){
   const task=document.getElementById('pm-log-task').value,date=document.getElementById('pm-log-date').value,vendor=document.getElementById('pm-log-vendor').value,notes=document.getElementById('pm-log-notes').value.trim();
   if(!task){alert('Please select a task.');return;}if(!date){alert('Please enter the date.');return;}
   const vo=VENDORS.find(v=>v.name===vendor)||VENDORS[0];
