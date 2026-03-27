@@ -19,14 +19,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .nav-cta:hover{background:var(--green-mid)}
 @media(max-width:700px){.nav-links{display:none}}
 .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
-.hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all .3s}
-@media(max-width:700px){.hamburger{display:flex}}
-.mobile-menu{display:none;position:fixed;top:61px;left:0;right:0;background:white;border-bottom:1px solid var(--border);z-index:99;padding:1rem 2rem;flex-direction:column;gap:0;box-shadow:0 8px 30px rgba(12,26,18,0.08)}
-.mobile-menu.open{display:flex}
-.mobile-menu a{font-size:15px;font-weight:500;color:var(--ink);text-decoration:none;padding:.75rem 0;border-bottom:1px solid var(--border)}
-.mobile-menu a:last-child{border-bottom:none;color:var(--green);font-weight:600}
-
-.hero{min-height:100vh;display:flex;align-items:center;padding:8rem 2rem 4rem;background:var(--stone);position:relative;overflow:hidden}
+.hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all .3s}.hero{min-height:100vh;display:flex;align-items:center;padding:8rem 2rem 4rem;background:var(--stone);position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(26,107,60,0.08) 0%,transparent 70%);pointer-events:none}
 .hero::after{content:'';position:absolute;bottom:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(200,112,42,0.06) 0%,transparent 70%);pointer-events:none}
 .hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
@@ -191,12 +184,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
   <a href="blog.html">Blog</a>
   <a href="#contact">Join the beta</a>
 </div>
-<div class="mobile-menu" id="mobile-menu">
-  <a href="maintenanceai-website-v2.html#how-it-works" onclick="toggleMenu()">How it works</a>
-  <a href="maintenanceai-website-v2.html#pricing" onclick="toggleMenu()">Pricing</a>
-  <a href="blog.html" onclick="toggleMenu()">Blog</a>
-  <a href="maintenanceai-website-v2.html#contact" onclick="toggleMenu()">Join the beta →</a>
-</div>
+
 
 <!-- HERO -->
 <section class="hero">
@@ -527,10 +515,7 @@ function toggleMenu(){
 </script>
 <script>
 
-function toggleMenu(){
-  const m=document.getElementById('mobile-menu');
-  m.classList.toggle('open');
-}
+
 document.addEventListener('click',function(e){
   const menu=document.getElementById('mobile-menu');
   const btn=document.querySelector('.mobile-menu-btn');
