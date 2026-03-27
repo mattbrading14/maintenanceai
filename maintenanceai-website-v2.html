@@ -19,7 +19,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .nav-cta:hover{background:var(--green-mid)}
 @media(max-width:700px){.nav-links{display:none}}
 
-/* HERO */
 .hero{min-height:100vh;display:flex;align-items:center;padding:8rem 2rem 4rem;background:var(--stone);position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(26,107,60,0.08) 0%,transparent 70%);pointer-events:none}
 .hero::after{content:'';position:absolute;bottom:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(200,112,42,0.06) 0%,transparent 70%);pointer-events:none}
@@ -47,14 +46,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .mock-float-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px}
 
-/* PROOF */
 .proof{padding:2.5rem 2rem;background:white;border-bottom:1px solid var(--border)}
 .proof-inner{max-width:900px;margin:0 auto;text-align:center}
 .proof p{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
 .proof-items{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap}
 .proof-item{font-size:14px;font-weight:600;color:var(--muted);opacity:.6}
 
-/* SECTIONS */
 .section{padding:6rem 2rem}
 .section-inner{max-width:1000px;margin:0 auto}
 .section-tag{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.75rem}
@@ -68,7 +65,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .step p{font-size:13px;color:var(--muted);line-height:1.6}
 .step-icon{font-size:24px;margin-bottom:.75rem}
 
-/* TUNE UP SECTION */
 .tuneup-section{padding:6rem 2rem;background:var(--ink);color:white;position:relative;overflow:hidden}
 .tuneup-section::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(26,107,60,0.15) 0%,transparent 70%);pointer-events:none}
 .tuneup-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
@@ -83,8 +79,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .tuneup-cta{display:inline-block;background:var(--green);color:white;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif}
 .tuneup-cta:hover{background:var(--green-mid);transform:translateY(-1px)}
 
-
-/* PRICING */
 .pricing-section{padding:6rem 2rem;background:var(--stone)}
 .pricing-inner{max-width:1000px;margin:0 auto}
 .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem}
@@ -108,14 +102,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .price-card.featured .price-features li{border-color:rgba(255,255,255,0.1);color:rgba(255,255,255,0.85)}
 .check{width:16px;height:16px;background:var(--green-light);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:var(--green);font-weight:700}
 .price-card.featured .check{background:rgba(45,138,82,0.3);color:#6ee7a0}
-.price-btn{display:block;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+.price-btn{display:block;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;width:100%}
 .price-card:not(.featured) .price-btn{background:var(--green-light);color:var(--green)}
 .price-card:not(.featured) .price-btn:hover{background:var(--green);color:white}
 .price-card.featured .price-btn{background:var(--green);color:white}
 .price-card.featured .price-btn:hover{background:var(--green-mid)}
 .tuneup-pill{display:inline-flex;align-items:center;gap:6px;background:var(--amber-light);color:var(--amber);font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;margin-top:8px;border:1px solid rgba(200,112,42,0.2)}
 
-/* COMPARE */
 .compare-section{padding:6rem 2rem;background:white}
 .compare-inner{max-width:960px;margin:0 auto}
 .compare-table{width:100%;border-collapse:collapse;margin-top:3rem;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
@@ -126,7 +119,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .compare-table tr.highlight-row td{background:var(--green-light);font-weight:600;color:var(--green)}
 .yes{color:#15803d;font-weight:600}.no{color:#b91c1c}.partial{color:#b45309}
 
-/* CONTACT */
 .contact-section{padding:6rem 2rem;background:var(--stone)}
 .contact-inner{max-width:600px;margin:0 auto;text-align:center}
 .contact-inner h2{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,2.8rem);margin-bottom:1rem;letter-spacing:-0.5px}
@@ -141,7 +133,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .form-group textarea{height:100px;resize:none}
 .form-submit{width:100%;padding:14px;background:var(--green);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:background .2s;margin-top:4px}
 .form-submit:hover{background:var(--green-mid)}
+.form-submit:disabled{opacity:.6;cursor:not-allowed}
 .form-success{display:none;text-align:center;padding:2rem;font-size:15px;color:var(--green);font-weight:500}
+.form-error{display:none;text-align:center;padding:1rem;font-size:14px;color:#b91c1c;background:#fef2f2;border-radius:8px;margin-top:8px}
 
 footer{background:var(--ink);color:rgba(255,255,255,0.5);padding:2.5rem 2rem;text-align:center;font-size:13px}
 footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;font-size:18px;display:block;margin-bottom:.5rem}
@@ -284,7 +278,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
       <a href="#contact" class="tuneup-cta">Book a Home Tune Up</a>
     </div>
     <div class="fade-up" style="transition-delay:.2s">
-      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.75rem 1.75rem">
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.75rem">
         <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600">How it works with MaintenanceAI</div>
         <div style="font-size:15px;color:rgba(255,255,255,0.85);line-height:1.8;font-weight:300">MaintenanceAI tracks when each unit is due for a Tune Up and automatically suggests it in your dashboard. One click schedules a certified technician — and it logs in your owner report as completed preventive maintenance.</div>
         <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:10px">
@@ -319,7 +313,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
           <li><span class="check">✓</span>1 property owner report</li>
         </ul>
         <div class="tuneup-pill">🔧 Home Tune Up available</div>
-        <a href="#contact" class="price-btn" style="margin-top:1rem">Get started</a>
+        <button class="price-btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})" style="margin-top:1rem">Get started</button>
       </div>
       <div class="price-card featured fade-up" style="transition-delay:.1s">
         <span class="featured-tag">Most popular</span>
@@ -334,7 +328,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
           <li><span class="check">✓</span>Full vendor directory</li>
         </ul>
         <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(200,112,42,0.2);color:#f8b56a;font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;margin-top:8px;border:1px solid rgba(200,112,42,0.3)">🔧 Home Tune Up included</div>
-        <a href="#contact" class="price-btn" style="margin-top:1rem">Get started</a>
+        <button class="price-btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})" style="margin-top:1rem">Get started</button>
       </div>
       <div class="price-card fade-up" style="transition-delay:.2s">
         <div class="price-tier">Portfolio</div>
@@ -348,7 +342,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
           <li><span class="check">✓</span>Priority support</li>
         </ul>
         <div class="tuneup-pill">🔧 Home Tune Up priority scheduling</div>
-        <a href="#contact" class="price-btn" style="margin-top:1rem">Get started</a>
+        <button class="price-btn" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})" style="margin-top:1rem">Get started</button>
       </div>
     </div>
   </div>
@@ -398,26 +392,48 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
       <p>We're onboarding a small group of property managers, HOA managers, and landlords. Beta users get 3 months free and direct input on the product roadmap.</p>
     </div>
     <div class="contact-form fade-up">
-      <div class="form-row">
-        <div class="form-group"><label>First name</label><input type="text" placeholder="John"/></div>
-        <div class="form-group"><label>Last name</label><input type="text" placeholder="Smith"/></div>
+      <form id="beta-form" action="https://formspree.io/f/xreoepky" method="POST">
+        <div class="form-row">
+          <div class="form-group"><label>First name</label><input type="text" name="first_name" placeholder="John" required/></div>
+          <div class="form-group"><label>Last name</label><input type="text" name="last_name" placeholder="Smith" required/></div>
+        </div>
+        <div class="form-group"><label>Email address</label><input type="email" name="email" placeholder="you@email.com" required/></div>
+        <div class="form-group">
+          <label>I manage</label>
+          <select name="property_type">
+            <option>Residential rental properties</option>
+            <option>HOA / community association</option>
+            <option>Both</option>
+            <option>Commercial properties</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>How many units?</label>
+          <select name="unit_count">
+            <option>Under 25 units</option>
+            <option>25–50 units</option>
+            <option>50–200 units</option>
+            <option>200–500 units</option>
+            <option>500+ units</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Interested in Home Tune Up?</label>
+          <select name="home_tuneup">
+            <option>Yes — tell me more</option>
+            <option>Maybe later</option>
+            <option>No thanks</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Anything else? (optional)</label><textarea name="message" placeholder="Tell us about your current maintenance workflow..."></textarea></div>
+        <button type="submit" class="form-submit" id="submit-btn">Request beta access</button>
+        <div class="form-error" id="form-error">Something went wrong. Please try again or email us directly.</div>
+      </form>
+      <div class="form-success" id="form-success">
+        <div style="font-size:32px;margin-bottom:1rem">🎉</div>
+        <div style="font-size:18px;font-weight:600;color:var(--ink);margin-bottom:.5rem">You're on the list!</div>
+        <div style="font-size:15px;color:var(--muted)">We'll be in touch within 24 hours with your beta access details.</div>
       </div>
-      <div class="form-group"><label>Email address</label><input type="email" placeholder="you@email.com"/></div>
-      <div class="form-group">
-        <label>I manage</label>
-        <select><option>Residential rental properties</option><option>HOA / community association</option><option>Both</option><option>Commercial properties</option></select>
-      </div>
-      <div class="form-group">
-        <label>How many units?</label>
-        <select><option>Under 25 units</option><option>25–50 units</option><option>50–200 units</option><option>200–500 units</option><option>500+ units</option></select>
-      </div>
-      <div class="form-group">
-        <label>Interested in Home Tune Up?</label>
-        <select><option>Yes — tell me more</option><option>Maybe later</option><option>No thanks</option></select>
-      </div>
-      <div class="form-group"><label>Anything else? (optional)</label><textarea placeholder="Tell us about your current maintenance workflow..."></textarea></div>
-      <button class="form-submit" onclick="submitForm()">Request beta access</button>
-      <div class="form-success" id="form-success">Thanks! We'll be in touch within 24 hours with your beta access details.</div>
     </div>
   </div>
 </section>
@@ -434,15 +450,31 @@ const observer = new IntersectionObserver(entries => {
 }, {threshold:0.1});
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-function submitForm() {
-  document.querySelector('.contact-form').style.opacity = '0.4';
-  setTimeout(() => {
-    document.querySelectorAll('.contact-form .form-group, .contact-form .form-row, .form-submit').forEach(el => el.style.display='none');
-    const s = document.getElementById('form-success');
-    s.style.display='block';
-    document.querySelector('.contact-form').style.opacity='1';
-  }, 600);
-}
+document.getElementById('beta-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const errEl = document.getElementById('form-error');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  errEl.style.display = 'none';
+  try {
+    const res = await fetch('https://formspree.io/f/xreoepky', {
+      method: 'POST',
+      body: new FormData(this),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      document.getElementById('beta-form').style.display = 'none';
+      document.getElementById('form-success').style.display = 'block';
+    } else {
+      throw new Error('Server error');
+    }
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = 'Request beta access';
+    errEl.style.display = 'block';
+  }
+});
 
 window.addEventListener('scroll', () => {
   document.querySelector('nav').style.boxShadow = window.scrollY > 20 ? '0 2px 20px rgba(12,26,18,0.08)' : 'none';
