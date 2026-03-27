@@ -19,6 +19,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .nav-cta{background:var(--green);color:white;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;transition:background .2s}
 .nav-cta:hover{background:var(--green-mid)}
 @media(max-width:700px){.nav-links{display:none}}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all .3s}
+@media(max-width:700px){.hamburger{display:flex}}
+.mobile-menu{display:none;position:fixed;top:61px;left:0;right:0;background:white;border-bottom:1px solid var(--border);z-index:99;padding:1rem 2rem;flex-direction:column;gap:0;box-shadow:0 8px 30px rgba(12,26,18,0.08)}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-size:15px;font-weight:500;color:var(--ink);text-decoration:none;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.mobile-menu a:last-child{border-bottom:none;color:var(--green);font-weight:600}
 .hero{padding:8rem 2rem 4rem;background:var(--stone);border-bottom:1px solid var(--border)}
 .hero-inner{max-width:900px;margin:0 auto}
 .hero-tag{display:inline-block;background:var(--green-light);color:var(--green);font-size:12px;font-weight:600;padding:5px 14px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
@@ -59,6 +66,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .newsletter a:hover{background:var(--green-mid)}
 footer{background:var(--ink);color:rgba(255,255,255,0.5);padding:2.5rem 2rem;text-align:center;font-size:13px}
 footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;font-size:18px;display:block;margin-bottom:.5rem}
+
+.mobile-menu-btn{display:none;background:none;border:none;cursor:pointer;padding:4px;flex-direction:column;gap:5px}
+.mobile-menu-btn span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all .3s}
+@media(max-width:700px){
+  .mobile-menu-btn{display:flex}
+  .nav-cta{display:none}
+  .mobile-menu{display:none;position:fixed;top:61px;left:0;right:0;background:white;border-bottom:1px solid var(--border);padding:1rem 2rem;z-index:99;flex-direction:column;gap:0}
+  .mobile-menu.open{display:flex}
+  .mobile-menu a{font-size:15px;font-weight:500;color:var(--ink);text-decoration:none;padding:.75rem 0;border-bottom:1px solid var(--border)}
+  .mobile-menu a:last-child{border-bottom:none;color:var(--green);font-weight:600}
+}
+
 </style>
 </head>
 <body>
@@ -71,7 +90,25 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
     <li><a href="maintenanceai-website-v2.html#contact">Contact</a></li>
   </ul>
   <a href="maintenanceai-website-v2.html#contact" class="nav-cta">Join the beta</a>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="maintenanceai-website-v2.html#how-it-works">How it works</a>
+  <a href="maintenanceai-website-v2.html#pricing">Pricing</a>
+  <a href="blog.html">Blog</a>
+  <a href="maintenanceai-website-v2.html#contact">Join the beta</a>
+</div>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="maintenanceai-website-v2.html#how-it-works" onclick="toggleMenu()">How it works</a>
+  <a href="maintenanceai-website-v2.html#pricing" onclick="toggleMenu()">Pricing</a>
+  <a href="blog.html" onclick="toggleMenu()">Blog</a>
+  <a href="maintenanceai-website-v2.html#contact" onclick="toggleMenu()">Join the beta →</a>
+</div>
 
 <div class="hero">
   <div class="hero-inner">
@@ -185,6 +222,26 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
 window.addEventListener('scroll',()=>{
   document.querySelector('nav').style.boxShadow=window.scrollY>20?'0 2px 20px rgba(12,26,18,0.08)':'none';
 });
+
+function toggleMenu(){
+  var m=document.getElementById('mobile-menu');
+  m.classList.toggle('open');
+}
+</script>
+<script>
+
+function toggleMenu(){
+  const m=document.getElementById('mobile-menu');
+  m.classList.toggle('open');
+}
+document.addEventListener('click',function(e){
+  const menu=document.getElementById('mobile-menu');
+  const btn=document.querySelector('.mobile-menu-btn');
+  if(menu&&btn&&!menu.contains(e.target)&&!btn.contains(e.target)){
+    menu.classList.remove('open');
+  }
+});
+
 </script>
 </body>
 </html>
