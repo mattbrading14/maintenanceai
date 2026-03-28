@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Blog — MaintenanceAI | Property Management Tips & Insights</title>
+<meta name="description" content="Practical guides, tips, and insights for independent landlords and small property managers."/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--ink:#0c1a12;--green:#1a6b3c;--green-mid:#2d8a52;--green-light:#e8f5ee;--stone:#f7f5f0;--muted:#6b7a6e;--border:#d8e4db;--white:#ffffff}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;color:var(--ink);background:var(--white)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--green);text-decoration:none}
+.nav-links{display:flex;gap:1.75rem;list-style:none;align-items:center}
+.nav-links a{font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--ink)}
+.nav-cta{background:var(--green);color:white;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none}
+
+/* HAMBURGER */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px}
+
+/* MOBILE DROPDOWN */
+.mobile-nav{display:none;position:fixed;top:61px;left:0;right:0;background:white;border-bottom:1px solid var(--border);z-index:99;padding:1rem 2rem;flex-direction:column;box-shadow:0 8px 30px rgba(12,26,18,0.08)}
+.mobile-nav.open{display:flex}
+.mobile-nav a{font-size:15px;font-weight:500;color:var(--ink);text-decoration:none;padding:.75rem 0;border-bottom:1px solid var(--border)}
+.mobile-nav a:last-child{border-bottom:none;color:var(--green);font-weight:600}
+
+@media(max-width:700px){
+  .nav-links{display:none}
+  .nav-cta{display:none}
+  .hamburger{display:flex}
+}
+
+/* HERO */
+.hero{padding:8rem 2rem 4rem;background:var(--stone);border-bottom:1px solid var(--border)}
+.hero-inner{max-width:900px;margin:0 auto}
+.hero-tag{display:inline-block;background:var(--green-light);color:var(--green);font-size:12px;font-weight:600;padding:5px 14px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(2.2rem,4vw,3.2rem);line-height:1.1;letter-spacing:-0.5px;margin-bottom:1rem}
+.hero h1 em{font-style:italic;color:var(--green)}
+.hero-sub{font-size:17px;color:var(--muted);font-weight:300;max-width:560px;line-height:1.7}
+
+/* BLOG */
+.blog-section{max-width:1000px;margin:0 auto;padding:4rem 2rem 6rem}
+.featured-post{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;background:var(--ink);border-radius:20px;padding:3rem;margin-bottom:3.5rem;text-decoration:none;transition:transform .2s,box-shadow .2s}
+.featured-post:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(12,26,18,0.15)}
+@media(max-width:700px){.featured-post{grid-template-columns:1fr}}
+.featured-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6ee7a0;margin-bottom:.75rem}
+.featured-title{font-family:'DM Serif Display',serif;font-size:clamp(1.5rem,2.5vw,2rem);line-height:1.15;color:white;margin-bottom:1rem}
+.featured-title em{font-style:italic;color:#6ee7a0}
+.featured-excerpt{font-size:15px;color:rgba(255,255,255,0.6);line-height:1.7;font-weight:300;margin-bottom:1.5rem}
+.featured-meta{font-size:12px;color:rgba(255,255,255,0.4)}
+.featured-read{display:inline-block;margin-top:1rem;font-size:13px;font-weight:600;color:#6ee7a0}
+.featured-visual{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1.5rem}
+.fv-tag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6ee7a0;margin-bottom:.75rem}
+.fv-item{display:flex;justify-content:space-between;padding:.5rem 0;border-bottom:1px solid rgba(255,255,255,0.08);font-size:12px}
+.fv-item:last-child{border-bottom:none}
+.fv-label{color:rgba(255,255,255,0.4)}
+.fv-val{color:rgba(255,255,255,0.8);font-weight:600}
+.section-title{font-family:'DM Serif Display',serif;font-size:1.6rem;margin-bottom:1.75rem;letter-spacing:-0.3px}
+.posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:3.5rem}
+@media(max-width:800px){.posts-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:500px){.posts-grid{grid-template-columns:1fr}}
+.post-card{background:white;border:1px solid var(--border);border-radius:16px;padding:1.5rem;text-decoration:none;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
+.post-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(12,26,18,0.08)}
+.post-category{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:.6rem}
+.post-title{font-family:'DM Serif Display',serif;font-size:1.1rem;line-height:1.25;color:var(--ink);margin-bottom:.75rem}
+.post-excerpt{font-size:13px;color:var(--muted);line-height:1.65;font-weight:300;margin-bottom:1rem;flex:1}
+.post-meta{font-size:11px;color:var(--muted);display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding-top:.75rem}
+.post-read{font-size:12px;font-weight:600;color:var(--green)}
+.newsletter{background:var(--stone);border:1px solid var(--border);border-radius:20px;padding:2.5rem;text-align:center;margin-top:2rem}
+.newsletter h3{font-family:'DM Serif Display',serif;font-size:1.6rem;margin-bottom:.75rem}
+.newsletter p{font-size:15px;color:var(--muted);margin-bottom:1.5rem;font-weight:300}
+.newsletter a{display:inline-block;background:var(--green);color:white;padding:13px 30px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none}
+footer{background:var(--ink);color:rgba(255,255,255,0.5);padding:2.5rem 2rem;text-align:center;font-size:13px}
+footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;font-size:18px;display:block;margin-bottom:.5rem}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="maintenanceai-website-v2.html" class="nav-logo">MaintenanceAI</a>
+  <ul class="nav-links">
+    <li><a href="maintenanceai-website-v2.html#how-it-works">How it works</a></li>
+    <li><a href="maintenanceai-website-v2.html#pricing">Pricing</a></li>
+    <li><a href="blog.html" class="active">Blog</a></li>
+    <li><a href="maintenanceai-website-v2.html#contact">Contact</a></li>
+  </ul>
+  <a href="maintenanceai-website-v2.html#contact" class="nav-cta">Join the beta</a>
+  <button class="hamburger" onclick="document.getElementById('mobile-nav').classList.toggle('open')" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-nav" id="mobile-nav">
+  <a href="maintenanceai-website-v2.html#how-it-works">How it works</a>
+  <a href="maintenanceai-website-v2.html#pricing">Pricing</a>
+  <a href="blog.html">Blog</a>
+  <a href="maintenanceai-website-v2.html#contact">Join the beta →</a>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <span class="hero-tag">MaintenanceAI Blog</span>
+    <h1>Property management tips<br><em>for independent operators</em></h1>
+    <p class="hero-sub">Practical guides, checklists, and insights for landlords and small property managers who want to run a professional operation — without enterprise software.</p>
+  </div>
+</div>
+
+<div class="blog-section">
+
+  <a href="blog-post-1.html" class="featured-post">
+    <div>
+      <div class="featured-label">⭐ Featured Post</div>
+      <div class="featured-title">Why Small Property Managers Are Getting Left Behind by Big Software — <em>And What to Do About It</em></div>
+      <div class="featured-excerpt">AppFolio, Buildium, STAN AI, and Property Meld were built for large operators. Here's the full competitive landscape — and why there's finally a tool built for everyone else.</div>
+      <div class="featured-meta">MaintenanceAI Team · March 2026 · 7 min read</div>
+      <div class="featured-read">Read article →</div>
+    </div>
+    <div class="featured-visual">
+      <div class="fv-tag">How we compare</div>
+      <div class="fv-item"><span class="fv-label">AppFolio / Buildium</span><span class="fv-val" style="color:#ef4444">$200+/mo</span></div>
+      <div class="fv-item"><span class="fv-label">STAN AI</span><span class="fv-val" style="color:#ef4444">Enterprise only</span></div>
+      <div class="fv-item"><span class="fv-label">Property Meld</span><span class="fv-val" style="color:#ef4444">Enterprise only</span></div>
+      <div class="fv-item"><span class="fv-label">MaintenanceAI</span><span class="fv-val" style="color:#6ee7a0">$29/month</span></div>
+    </div>
+  </a>
+
+  <div class="section-title">All posts</div>
+  <div class="posts-grid">
+
+    <a href="blog-post-2.html" class="post-card">
+      <div class="post-category">Landlord Tips</div>
+      <div class="post-title">The Under-$100 Property Management Stack</div>
+      <div class="post-excerpt">You don't need a $400/month platform. Here's the exact lean stack independent landlords use to run a professional operation.</div>
+      <div class="post-meta"><span>March 2026 · 6 min</span><span class="post-read">Read →</span></div>
+    </a>
+
+    <a href="blog-post-3.html" class="post-card">
+      <div class="post-category">Property Management</div>
+      <div class="post-title">Why Your Tenants Shouldn't Have to Download an App to Report a Maintenance Issue</div>
+      <div class="post-excerpt">Tenant portals have an adoption problem. Most tenants ignore them and keep texting anyway. Here's a better approach.</div>
+      <div class="post-meta"><span>March 2026 · 5 min</span><span class="post-read">Read →</span></div>
+    </a>
+
+    <a href="blog-post-4.html" class="post-card">
+      <div class="post-category">Landlord Basics</div>
+      <div class="post-title">What Is a Work Order — And Why Every Landlord Needs to Start Using Them</div>
+      <div class="post-excerpt">A work order is one of the most important tools a landlord can use. Here's what it is, what to include, and how to create them fast.</div>
+      <div class="post-meta"><span>March 2026 · 6 min</span><span class="post-read">Read →</span></div>
+    </a>
+
+    <a href="blog-post-5.html" class="post-card">
+      <div class="post-category">Property Management</div>
+      <div class="post-title">How to Write a Monthly Owner Report Without Spending Half Your Sunday</div>
+      <div class="post-excerpt">Owner reports are essential — but they shouldn't take hours. Here's a proven format and a faster way to produce them every month.</div>
+      <div class="post-meta"><span>March 2026 · 6 min</span><span class="post-read">Read →</span></div>
+    </a>
+
+    <a href="blog-post-6.html" class="post-card">
+      <div class="post-category">Maintenance</div>
+      <div class="post-title">Preventive Maintenance Checklist for Rental Properties: What to Do and When</div>
+      <div class="post-excerpt">A complete checklist broken down by monthly, quarterly, bi-annual, and annual tasks to keep your properties in top shape.</div>
+      <div class="post-meta"><span>March 2026 · 7 min</span><span class="post-read">Read →</span></div>
+    </a>
+
+    <a href="blog-post-7.html" class="post-card">
+      <div class="post-category">Landlord Tips</div>
+      <div class="post-title">How to Build a Vendor Directory Before You Need One</div>
+      <div class="post-excerpt">The worst time to find a plumber is when a pipe bursts at 10pm. Here's how to build a reliable vendor network in advance.</div>
+      <div class="post-meta"><span>March 2026 · 5 min</span><span class="post-read">Read →</span></div>
+    </a>
+
+    <a href="blog-post-8.html" class="post-card">
+      <div class="post-category">Getting Started</div>
+      <div class="post-title">Self-Managing Your Rental Property: A Step-by-Step Guide for First-Time Landlords</div>
+      <div class="post-excerpt">A practical guide covering maintenance, tenant communication, vendor management, and owner reporting — for independent landlords.</div>
+      <div class="post-meta"><span>March 2026 · 8 min</span><span class="post-read">Read →</span></div>
+    </a>
+
+    <a href="blog-post-9.html" class="post-card">
+      <div class="post-category">Risk Management</div>
+      <div class="post-title">The Real Cost of a Missed Maintenance Request</div>
+      <div class="post-excerpt">A slow drip ignored for two weeks can turn a $180 repair into a $1,400 water damage job. Here's what's really at stake.</div>
+      <div class="post-meta"><span>March 2026 · 5 min</span><span class="post-read">Read →</span></div>
+    </a>
+
+    <a href="blog-post-10.html" class="post-card">
+      <div class="post-category">Thought Leadership</div>
+      <div class="post-title">How AI Is Changing Property Maintenance — And Why Small Landlords Should Care</div>
+      <div class="post-excerpt">AI adoption jumped from 21% to 34% in one year. Here's what that means for independent landlords — without the enterprise price tag.</div>
+      <div class="post-meta"><span>March 2026 · 6 min</span><span class="post-read">Read →</span></div>
+    </a>
+
+  </div>
+
+  <div class="newsletter">
+    <h3>Ready to stop managing maintenance manually?</h3>
+    <p>Join the MaintenanceAI beta — 3 months free for early users. No credit card, no enterprise contract.</p>
+    <a href="maintenanceai-website-v2.html#contact">Request beta access</a>
+  </div>
+
+</div>
+
+<footer>
+  <strong>MaintenanceAI</strong>
+  <p>AI-powered maintenance automation for independent property managers · Currently in beta</p>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{
+  document.querySelector('nav').style.boxShadow=window.scrollY>20?'0 2px 20px rgba(12,26,18,0.08)':'none';
+});
+</script>
+</body>
+</html>
