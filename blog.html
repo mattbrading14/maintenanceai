@@ -103,12 +103,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
   <a href="blog.html">Blog</a>
   <a href="maintenanceai-website-v2.html#contact">Join the beta</a>
 </div>
-<div class="mobile-menu" id="mobile-menu">
-  <a href="maintenanceai-website-v2.html#how-it-works" onclick="toggleMenu()">How it works</a>
-  <a href="maintenanceai-website-v2.html#pricing" onclick="toggleMenu()">Pricing</a>
-  <a href="blog.html" onclick="toggleMenu()">Blog</a>
-  <a href="maintenanceai-website-v2.html#contact" onclick="toggleMenu()">Join the beta →</a>
-</div>
+
 
 <div class="hero">
   <div class="hero-inner">
@@ -230,10 +225,7 @@ function toggleMenu(){
 </script>
 <script>
 
-function toggleMenu(){
-  const m=document.getElementById('mobile-menu');
-  m.classList.toggle('open');
-}
+
 document.addEventListener('click',function(e){
   const menu=document.getElementById('mobile-menu');
   const btn=document.querySelector('.mobile-menu-btn');
