@@ -18,8 +18,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .nav-cta{background:var(--green);color:white;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;transition:background .2s}
 .nav-cta:hover{background:var(--green-mid)}
 @media(max-width:700px){.nav-links{display:none}}
-.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
-.hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all .3s}.hero{min-height:100vh;display:flex;align-items:center;padding:8rem 2rem 4rem;background:var(--stone);position:relative;overflow:hidden}
+.hero{min-height:100vh;display:flex;align-items:center;padding:8rem 2rem 4rem;background:var(--stone);position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(26,107,60,0.08) 0%,transparent 70%);pointer-events:none}
 .hero::after{content:'';position:absolute;bottom:-100px;left:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(200,112,42,0.06) 0%,transparent 70%);pointer-events:none}
 .hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
@@ -46,11 +45,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 .mock-float-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;margin-right:6px}
 
-.proof{padding:2.5rem 2rem;background:white;border-bottom:1px solid var(--border)}
-.proof-inner{max-width:900px;margin:0 auto;text-align:center}
-.proof p{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
-.proof-items{display:flex;justify-content:center;gap:3rem;flex-wrap:wrap}
-.proof-item{font-size:14px;font-weight:600;color:var(--muted);opacity:.6}
+/* FOR SECTION */
+.for-section{padding:2.5rem 2rem;background:white;border-bottom:1px solid var(--border)}
+.for-inner{max-width:900px;margin:0 auto;text-align:center}
+.for-label{font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
+.for-items{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap}
+.for-item{font-size:13px;font-weight:600;color:var(--ink);background:var(--stone);border:1px solid var(--border);border-radius:99px;padding:6px 16px}
+
+/* NOT FOR SECTION */
+.not-for-section{padding:5rem 2rem;background:var(--ink);color:white}
+.not-for-inner{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+@media(max-width:680px){.not-for-inner{grid-template-columns:1fr;gap:2rem}}
+.not-for-col h3{font-family:'DM Serif Display',serif;font-size:1.4rem;margin-bottom:1.25rem;letter-spacing:-0.3px}
+.not-for-col.green h3{color:#6ee7a0}
+.not-for-col.muted h3{color:rgba(255,255,255,0.4)}
+.not-for-list{list-style:none;display:flex;flex-direction:column;gap:10px}
+.not-for-list li{font-size:14px;line-height:1.5;display:flex;align-items:flex-start;gap:10px}
+.not-for-col.green .not-for-list li{color:rgba(255,255,255,0.85)}
+.not-for-col.muted .not-for-list li{color:rgba(255,255,255,0.35)}
+.nf-icon{font-size:14px;flex-shrink:0;margin-top:1px}
 
 .section{padding:6rem 2rem}
 .section-inner{max-width:1000px;margin:0 auto}
@@ -65,19 +78,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .step p{font-size:13px;color:var(--muted);line-height:1.6}
 .step-icon{font-size:24px;margin-bottom:.75rem}
 
-.tuneup-section{padding:6rem 2rem;background:var(--ink);color:white;position:relative;overflow:hidden}
-.tuneup-section::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(26,107,60,0.15) 0%,transparent 70%);pointer-events:none}
+.tuneup-section{padding:6rem 2rem;background:var(--green);color:white;position:relative;overflow:hidden}
+.tuneup-section::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%);pointer-events:none}
 .tuneup-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center}
 @media(max-width:768px){.tuneup-inner{grid-template-columns:1fr}}
-.tuneup-tag{display:inline-block;background:rgba(26,107,60,0.3);color:#6ee7a0;font-size:12px;font-weight:600;padding:5px 14px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
+.tuneup-tag{display:inline-block;background:rgba(255,255,255,0.15);color:white;font-size:12px;font-weight:600;padding:5px 14px;border-radius:99px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:1.25rem}
 .tuneup-section h2{font-family:'DM Serif Display',serif;font-size:clamp(2rem,4vw,2.8rem);line-height:1.15;letter-spacing:-0.5px;margin-bottom:1rem;color:white}
-.tuneup-section h2 em{font-style:italic;color:#6ee7a0}
-.tuneup-sub{font-size:16px;line-height:1.7;color:rgba(255,255,255,0.6);margin-bottom:2rem;font-weight:300}
+.tuneup-section h2 em{font-style:italic;color:rgba(255,255,255,0.7)}
+.tuneup-sub{font-size:16px;line-height:1.7;color:rgba(255,255,255,0.75);margin-bottom:2rem;font-weight:300}
 .tuneup-items{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:2rem}
-.tuneup-item{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.8)}
-.tuneup-check{width:20px;height:20px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:10px;color:#6ee7a0;flex-shrink:0;font-weight:700}
-.tuneup-cta{display:inline-block;background:var(--green);color:white;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif}
-.tuneup-cta:hover{background:var(--green-mid);transform:translateY(-1px)}
+.tuneup-item{display:flex;align-items:center;gap:10px;font-size:13px;color:rgba(255,255,255,0.85)}
+.tuneup-check{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;flex-shrink:0;font-weight:700}
+.tuneup-cta{display:inline-block;background:var(--ink);color:white;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;transition:all .2s;font-family:'DM Sans',sans-serif}
+.tuneup-cta:hover{background:#1a3020;transform:translateY(-1px)}
 
 .pricing-section{padding:6rem 2rem;background:var(--stone)}
 .pricing-inner{max-width:1000px;margin:0 auto}
@@ -110,14 +123,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1rem 2rem;display:fl
 .tuneup-pill{display:inline-flex;align-items:center;gap:6px;background:var(--amber-light);color:var(--amber);font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;margin-top:8px;border:1px solid rgba(200,112,42,0.2)}
 
 .compare-section{padding:6rem 2rem;background:white}
-.compare-inner{max-width:960px;margin:0 auto}
+.compare-inner{max-width:1080px;margin:0 auto}
 .compare-table{width:100%;border-collapse:collapse;margin-top:3rem;border-radius:16px;overflow:hidden;border:1px solid var(--border)}
-.compare-table th{padding:1rem 1.25rem;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:left;background:var(--ink);color:white}
-.compare-table td{padding:.9rem 1.25rem;font-size:13px;border-bottom:1px solid var(--border)}
+.compare-table th{padding:1rem 1.1rem;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;text-align:left;background:var(--ink);color:white}
+.compare-table th.our-col{background:var(--green)}
+.compare-table td{padding:.85rem 1.1rem;font-size:13px;border-bottom:1px solid var(--border)}
 .compare-table tr:last-child td{border-bottom:none}
 .compare-table tr:nth-child(even) td{background:var(--stone)}
+.compare-table tr:nth-child(even) td.our-col{background:#d4edde}
+.compare-table td.our-col{background:var(--green-pale);font-weight:600}
 .compare-table tr.highlight-row td{background:var(--green-light);font-weight:600;color:var(--green)}
+.compare-table tr.highlight-row td.our-col{background:#b6dfc5}
 .yes{color:#15803d;font-weight:600}.no{color:#b91c1c}.partial{color:#b45309}
+.compare-note{margin-top:1.25rem;background:var(--green-light);border:1px solid var(--border);border-radius:10px;padding:.85rem 1.1rem;font-size:13px;color:var(--green);line-height:1.6}
+.compare-note strong{color:var(--ink)}
 
 .contact-section{padding:6rem 2rem;background:var(--stone)}
 .contact-inner{max-width:600px;margin:0 auto;text-align:center}
@@ -153,13 +172,15 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
   .mobile-menu a{font-size:15px;font-weight:500;color:var(--ink);text-decoration:none;padding:.75rem 0;border-bottom:1px solid var(--border)}
   .mobile-menu a:last-child{border-bottom:none;color:var(--green);font-weight:600}
 }
-
 </style>
 </head>
 <body>
 
 <nav>
-  <a href="maintenanceai-website-v2.html" class="nav-logo" style="display:flex;align-items:center;text-decoration:none"><svg width="32" height="32" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:8px;flex-shrink:0"><rect width="72" height="72" rx="16" fill="#1a6b3c"/><polygon points="36,12 64,30 64,66 8,66 8,30" fill="none" stroke="white" stroke-width="2.8" stroke-linejoin="round"/><rect x="27" y="45" width="18" height="21" rx="3" fill="white" opacity="0.95"/><polyline points="18,34 30,46 56,22" fill="none" stroke="#6ee7a0" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>MaintenanceAI</a>
+  <a href="maintenanceai-website-v2.html" class="nav-logo" style="display:flex;align-items:center;text-decoration:none">
+    <svg width="32" height="32" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:8px;flex-shrink:0"><rect width="72" height="72" rx="16" fill="#1a6b3c"/><polygon points="36,12 64,30 64,66 8,66 8,30" fill="none" stroke="white" stroke-width="2.8" stroke-linejoin="round"/><rect x="27" y="45" width="18" height="21" rx="3" fill="white" opacity="0.95"/><polyline points="18,34 30,46 56,22" fill="none" stroke="#6ee7a0" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    MaintenanceAI
+  </a>
   <ul class="nav-links">
     <li><a href="#how-it-works">How it works</a></li>
     <li><a href="#tuneup">Home Tune Up</a></li>
@@ -169,9 +190,6 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
     <li><a href="#contact">Contact</a></li>
   </ul>
   <a href="#contact" class="nav-cta">Get early access</a>
-  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
   <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menu">
     <span></span><span></span><span></span>
   </button>
@@ -185,14 +203,13 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
   <a href="#contact">Join the beta</a>
 </div>
 
-
 <!-- HERO -->
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-content fade-up">
       <span class="hero-tag">Now in Beta</span>
-      <h1>Maintenance requests,<br><em>handled automatically</em></h1>
-      <p class="hero-sub">Screenshot any tenant text or email, or upload a voicemail transcript. AI reads it, creates a work order, and lines up the right vendor — all waiting for your one-click approval. No portals. No tenant setup. No manual entry.</p>
+      <h1>You've got everything handled.<br><em>Except maintenance.</em></h1>
+      <p class="hero-sub">You already have your tenants, your process, and your vendors. MaintenanceAI makes sure nothing falls through the cracks — from the first tenant text to the vendor being dispatched. No new software for your tenants. No changing how you communicate. Just maintenance, finally under control.</p>
       <div class="hero-actions">
         <a href="#contact" class="btn-main">Request beta access</a>
         <a href="#how-it-works" class="btn-ghost">See how it works</a>
@@ -221,64 +238,90 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
   </div>
 </section>
 
-<!-- PROOF -->
-<div class="proof">
-  <div class="proof-inner">
-    <p>Built for property managers tired of</p>
-    <div class="proof-items">
-      <span class="proof-item">Missed tenant emails</span>
-      <span class="proof-item">Manual work orders</span>
-      <span class="proof-item">Chasing vendors</span>
-      <span class="proof-item">Last-minute owner reports</span>
-      <span class="proof-item">Expensive software</span>
+<!-- FOR WHO -->
+<div class="for-section">
+  <div class="for-inner">
+    <p class="for-label">Built for self-managing owners and property managers who handle their own</p>
+    <div class="for-items">
+      <span class="for-item">🏠 Tenant advertising</span>
+      <span class="for-item">📋 Tenant screening</span>
+      <span class="for-item">💳 Rent collection</span>
+      <span class="for-item">📱 Tenant communication</span>
+      <span class="for-item">🔧 Their own vendor relationships</span>
     </div>
   </div>
 </div>
+
+<!-- NOT FOR / FOR SECTION -->
+<section class="not-for-section">
+  <div class="not-for-inner" style="max-width:860px;margin:0 auto">
+    <div class="not-for-col green fade-up">
+      <h3>MaintenanceAI is for you if…</h3>
+      <ul class="not-for-list">
+        <li><span class="nf-icon">✓</span>You self-manage your properties and like it that way</li>
+        <li><span class="nf-icon">✓</span>Your tenants already text, call, or email you — and that's fine</li>
+        <li><span class="nf-icon">✓</span>You have vendors you trust but lose track of open requests</li>
+        <li><span class="nf-icon">✓</span>You want maintenance organized without switching your whole workflow</li>
+        <li><span class="nf-icon">✓</span>You manage between 5 and 500 units across residential or commercial</li>
+        <li><span class="nf-icon">✓</span>You need to report maintenance to property owners but hate doing it manually</li>
+      </ul>
+    </div>
+    <div class="not-for-col muted fade-up" style="transition-delay:.15s">
+      <h3>Not the right fit if…</h3>
+      <ul class="not-for-list">
+        <li><span class="nf-icon">—</span>You want one platform to replace your leasing, screening, and rent collection too</li>
+        <li><span class="nf-icon">—</span>You manage 1,000+ units and need enterprise-level infrastructure</li>
+        <li><span class="nf-icon">—</span>You want tenants to self-submit through a branded portal</li>
+        <li><span class="nf-icon">—</span>You already have a full-service property management company handling everything</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
 <!-- HOW IT WORKS -->
 <section class="section" id="how-it-works">
   <div class="section-inner">
     <div class="fade-up">
       <p class="section-tag">How it works</p>
-      <h2>From tenant email to<br>vendor dispatch in seconds</h2>
-      <p class="section-sub">No portals to set up. No tenant registration. Works with how your tenants already communicate.</p>
+      <h2>Works the way<br>you already work</h2>
+      <p class="section-sub">Your tenants keep texting and emailing you. You keep using your vendors. MaintenanceAI just makes sure every request gets captured, prioritized, and dispatched — without anything slipping through.</p>
     </div>
     <div class="steps">
       <div class="step fade-up">
         <div class="step-num">01</div>
-        <div class="step-icon">📧</div>
-        <h3>Tenant sends an email or text</h3>
-        <p>Your tenant emails or texts their maintenance issue — no app, no portal, no login required from them.</p>
+        <div class="step-icon">📱</div>
+        <h3>Tenant texts, calls, or emails you</h3>
+        <p>No app download. No portal. No new habit for your tenant. They reach out exactly the way they always have.</p>
       </div>
       <div class="step fade-up" style="transition-delay:.1s">
         <div class="step-num">02</div>
-        <div class="step-icon">🤖</div>
-        <h3>AI reads and creates a work order</h3>
-        <p>MaintenanceAI reads the message, categorizes the issue, sets priority, and recommends the right vendor by trade.</p>
+        <div class="step-icon">📸</div>
+        <h3>Screenshot it — AI does the rest</h3>
+        <p>Screenshot the text, email, or voicemail transcript. AI reads it, categorizes the issue, sets priority, and recommends your vendor by trade.</p>
       </div>
       <div class="step fade-up" style="transition-delay:.2s">
         <div class="step-num">03</div>
         <div class="step-icon">✅</div>
-        <h3>You approve with one click</h3>
-        <p>Review the structured work order and approve or deny. Nothing goes to a vendor without your sign-off.</p>
+        <h3>You approve with one tap</h3>
+        <p>Review the structured work order and approve or deny. Nothing goes to a vendor without your sign-off. You stay in control.</p>
       </div>
       <div class="step fade-up" style="transition-delay:.3s">
         <div class="step-num">04</div>
         <div class="step-icon">🔧</div>
-        <h3>Vendor is automatically dispatched</h3>
-        <p>The right vendor receives the job details instantly. No phone tag, no manual emails, no missed requests.</p>
+        <h3>Your vendor gets the job</h3>
+        <p>The vendor you already trust gets the details instantly by email. No phone tag, no copy-paste, no dropped requests.</p>
       </div>
       <div class="step fade-up" style="transition-delay:.4s">
         <div class="step-num">05</div>
         <div class="step-icon">📅</div>
         <h3>Preventive maintenance runs itself</h3>
-        <p>Annual HVAC checks, smoke detector tests, roof inspections — scheduled once, dispatched automatically when due.</p>
+        <p>HVAC filters, fire extinguishers, annual inspections — scheduled once, dispatched automatically when due. Nothing slips.</p>
       </div>
       <div class="step fade-up" style="transition-delay:.5s">
         <div class="step-num">06</div>
         <div class="step-icon">📊</div>
         <h3>Owner reports write themselves</h3>
-        <p>AI generates a professional monthly maintenance summary for your property owners — no manual reporting needed.</p>
+        <p>AI generates a professional monthly maintenance summary for property owners — every work order logged, no manual write-up needed.</p>
       </div>
     </div>
   </div>
@@ -290,7 +333,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
     <div class="fade-up">
       <span class="tuneup-tag">Featured service</span>
       <h2>Introducing the<br><em>Home Tune Up</em></h2>
-      <p class="tuneup-sub">A complete preventive maintenance service for your rental units — covering filters, detectors, vents, and appliance treatments in one visit. Automatically suggested by MaintenanceAI when it's time.</p>
+      <p class="tuneup-sub">A complete preventive maintenance visit for your rental units — covering filters, detectors, vents, and appliance treatments in one trip. MaintenanceAI tracks when each unit is due and suggests it automatically.</p>
       <div class="tuneup-items">
         <div class="tuneup-item"><span class="tuneup-check">✓</span>Furnace filter replacement</div>
         <div class="tuneup-item"><span class="tuneup-check">✓</span>Smoke & CO2 detector batteries</div>
@@ -306,14 +349,14 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
       <a href="#contact" class="tuneup-cta">Book a Home Tune Up</a>
     </div>
     <div class="fade-up" style="transition-delay:.2s">
-      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:1.75rem">
-        <div style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600">How it works with MaintenanceAI</div>
-        <div style="font-size:15px;color:rgba(255,255,255,0.85);line-height:1.8;font-weight:300">MaintenanceAI tracks when each unit is due for a Tune Up and automatically suggests it in your dashboard. One click schedules a certified technician — and it logs in your owner report as completed preventive maintenance.</div>
+      <div style="background:rgba(0,0,0,0.15);border:1px solid rgba(255,255,255,0.2);border-radius:16px;padding:1.75rem">
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600">How it works with MaintenanceAI</div>
+        <div style="font-size:15px;color:rgba(255,255,255,0.9);line-height:1.8;font-weight:300">MaintenanceAI tracks when each unit is due for a Tune Up and automatically surfaces it in your dashboard. One tap schedules a certified technician — and it logs automatically in your owner report as completed preventive maintenance.</div>
         <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.7)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6ee7a0;font-weight:700;flex-shrink:0">1</span>MaintenanceAI detects it has been 90 days since last Tune Up</div>
-          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.7)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6ee7a0;font-weight:700;flex-shrink:0">2</span>Suggested service card appears in your dashboard</div>
-          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.7)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6ee7a0;font-weight:700;flex-shrink:0">3</span>You approve — certified technician is dispatched</div>
-          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.7)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(26,107,60,0.4);border:1px solid #2d8a52;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6ee7a0;font-weight:700;flex-shrink:0">4</span>Logged in owner report as preventive maintenance completed</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.8)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:700;flex-shrink:0">1</span>MaintenanceAI detects it has been 90 days since last Tune Up</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.8)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:700;flex-shrink:0">2</span>Suggested service card appears in your dashboard</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.8)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:700;flex-shrink:0">3</span>You approve — certified technician is dispatched</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.8)"><span style="width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:700;flex-shrink:0">4</span>Logged in owner report as preventive maintenance completed</div>
         </div>
       </div>
     </div>
@@ -326,7 +369,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
     <div class="fade-up">
       <p class="section-tag">Pricing</p>
       <h2>Simple, honest pricing</h2>
-      <p class="section-sub">No annual contracts. No per-unit minimums. Cancel anytime. Beta users get 3 months free on any plan.</p>
+      <p class="section-sub">No per-unit fees. No annual contracts. No modules to unlock. Just one flat price based on how many units you manage. Beta users get 3 months free on any plan.</p>
     </div>
     <div class="pricing-grid">
       <div class="price-card fade-up">
@@ -381,32 +424,107 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
   <div class="compare-inner">
     <div class="fade-up">
       <p class="section-tag">Compare</p>
-      <h2>How we stack up</h2>
-      <p class="section-sub">Enterprise platforms are built for large management companies. MaintenanceAI is built for you.</p>
+      <h2>Not trying to replace<br>your whole operation</h2>
+      <p class="section-sub">Full-service platforms want you to run everything through them — leasing, screening, payments, maintenance. MaintenanceAI does one thing exceptionally well: maintenance. It works alongside whatever else you're already using.</p>
     </div>
     <div class="fade-up" style="overflow-x:auto">
       <table class="compare-table">
         <thead>
           <tr>
             <th>Feature</th>
-            <th>MaintenanceAI</th>
+            <th class="our-col">MaintenanceAI</th>
+            <th>Hemlane</th>
             <th>AppFolio / Buildium</th>
             <th>Yardi Breeze</th>
             <th>STAN AI</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Starting price</td><td class="yes">$29/month</td><td class="no">$200+/month</td><td class="no">$100–$400 min</td><td class="no">Enterprise only</td></tr>
-          <tr><td>Reads raw tenant emails</td><td class="yes">Yes — any email</td><td class="no">Portal only</td><td class="no">Portal only</td><td class="partial">Partial</td></tr>
-          <tr><td>No tenant portal required</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
-          <tr><td>AI work order creation</td><td class="yes">Yes</td><td class="no">No</td><td class="no">No</td><td class="yes">Yes</td></tr>
-          <tr><td>Manager approval before dispatch</td><td class="yes">Yes</td><td class="partial">Limited</td><td class="partial">Limited</td><td class="no">No</td></tr>
-          <tr><td>Preventive maintenance scheduler</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="yes">Yes</td><td class="no">No</td></tr>
-          <tr><td>AI-written owner reports</td><td class="yes">Yes</td><td class="partial">Manual exports</td><td class="partial">Manual exports</td><td class="no">No</td></tr>
-          <tr><td>Home Tune Up service</td><td class="yes">Yes — built in</td><td class="no">No</td><td class="no">No</td><td class="no">No</td></tr>
-          <tr class="highlight-row"><td>Built for under 500 units</td><td>Yes — designed for this</td><td>No — enterprise focus</td><td>No — $100 minimum</td><td>No — large operators</td></tr>
+          <tr>
+            <td>Starting price</td>
+            <td class="yes our-col">$29/month flat</td>
+            <td class="partial">$30/month + per unit fees</td>
+            <td class="no">$200+/month</td>
+            <td class="no">$100–$400 min</td>
+            <td class="no">Enterprise only</td>
+          </tr>
+          <tr>
+            <td>Works without changing tenant habits</td>
+            <td class="yes our-col">Yes — text, call, email as-is</td>
+            <td class="no">No — portal required</td>
+            <td class="no">No — portal required</td>
+            <td class="no">No — portal required</td>
+            <td class="no">No</td>
+          </tr>
+          <tr>
+            <td>Use your own vendors</td>
+            <td class="yes our-col">Yes — bring your own</td>
+            <td class="partial">Partial — prefers their network</td>
+            <td class="partial">Partial</td>
+            <td class="partial">Partial</td>
+            <td class="no">No</td>
+          </tr>
+          <tr>
+            <td>AI work order creation</td>
+            <td class="yes our-col">Yes — from any screenshot</td>
+            <td class="no">No — human coordinators</td>
+            <td class="no">No</td>
+            <td class="no">No</td>
+            <td class="yes">Yes</td>
+          </tr>
+          <tr>
+            <td>Manager approval before dispatch</td>
+            <td class="yes our-col">Yes — always</td>
+            <td class="partial">Limited</td>
+            <td class="partial">Limited</td>
+            <td class="partial">Limited</td>
+            <td class="no">No</td>
+          </tr>
+          <tr>
+            <td>Commercial property support</td>
+            <td class="yes our-col">Yes</td>
+            <td class="no">No — residential only</td>
+            <td class="partial">Limited</td>
+            <td class="yes">Yes</td>
+            <td class="no">No</td>
+          </tr>
+          <tr>
+            <td>Preventive maintenance scheduler</td>
+            <td class="yes our-col">Yes</td>
+            <td class="no">No</td>
+            <td class="yes">Yes</td>
+            <td class="yes">Yes</td>
+            <td class="no">No</td>
+          </tr>
+          <tr>
+            <td>AI-written owner reports</td>
+            <td class="yes our-col">Yes</td>
+            <td class="partial">Manual exports</td>
+            <td class="partial">Manual exports</td>
+            <td class="partial">Manual exports</td>
+            <td class="no">No</td>
+          </tr>
+          <tr>
+            <td>Home Tune Up service</td>
+            <td class="yes our-col">Yes — built in</td>
+            <td class="no">No</td>
+            <td class="no">No</td>
+            <td class="no">No</td>
+            <td class="no">No</td>
+          </tr>
+          <tr class="highlight-row">
+            <td>Designed for self-managing owners</td>
+            <td class="our-col">Yes — built for this</td>
+            <td>Partial — residential focus</td>
+            <td>No — enterprise focus</td>
+            <td>No — full platform</td>
+            <td>No — large operators</td>
+          </tr>
         </tbody>
       </table>
+      <div class="compare-note">
+        <strong>The honest difference:</strong> AppFolio, Buildium, and Hemlane want to be your entire property management system — leasing, payments, maintenance, everything in one portal. That's a great fit if you want to hand everything over. MaintenanceAI is for owners who self-manage and just need the maintenance side handled properly, without disrupting what's already working.
+      </div>
     </div>
   </div>
 </section>
@@ -417,7 +535,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
     <div class="fade-up">
       <p class="section-tag">Get early access</p>
       <h2>Join the beta</h2>
-      <p>We're onboarding a small group of property managers, HOA managers, and landlords. Beta users get 3 months free and direct input on the product roadmap.</p>
+      <p>We're onboarding a small group of self-managing owners, property managers, and HOA managers. Beta users get 3 months free and direct input on the product roadmap.</p>
     </div>
     <div class="contact-form fade-up">
       <form id="beta-form" action="https://formspree.io/f/xreoepky" method="POST">
@@ -427,12 +545,13 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
         </div>
         <div class="form-group"><label>Email address</label><input type="email" name="email" placeholder="you@email.com" required/></div>
         <div class="form-group">
-          <label>I manage</label>
+          <label>How do you manage?</label>
           <select name="property_type">
-            <option>Residential rental properties</option>
+            <option>Self-managing owner — residential</option>
+            <option>Self-managing owner — commercial</option>
+            <option>Independent property manager</option>
             <option>HOA / community association</option>
-            <option>Both</option>
-            <option>Commercial properties</option>
+            <option>Mix of the above</option>
           </select>
         </div>
         <div class="form-group">
@@ -453,7 +572,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
             <option>No thanks</option>
           </select>
         </div>
-        <div class="form-group"><label>Anything else? (optional)</label><textarea name="message" placeholder="Tell us about your current maintenance workflow..."></textarea></div>
+        <div class="form-group"><label>How do your tenants currently reach you? (optional)</label><textarea name="message" placeholder="e.g. Mostly texts and phone calls, some email..."></textarea></div>
         <button type="submit" class="form-submit" id="submit-btn">Request beta access</button>
         <div class="form-error" id="form-error">Something went wrong. Please try again or email us directly.</div>
       </form>
@@ -468,7 +587,7 @@ footer strong{color:rgba(255,255,255,0.9);font-family:'DM Serif Display',serif;f
 
 <footer>
   <strong>MaintenanceAI</strong>
-  <p>AI-powered maintenance automation for property managers · Currently in beta</p>
+  <p>Maintenance automation for self-managing owners and property managers · Currently in beta</p>
   <p style="margin-top:.5rem;font-size:12px">Including the Home Tune Up — preventive maintenance made simple</p>
 </footer>
 
@@ -512,9 +631,6 @@ function toggleMenu(){
   var m=document.getElementById('mobile-menu');
   m.classList.toggle('open');
 }
-</script>
-<script>
-
 
 document.addEventListener('click',function(e){
   const menu=document.getElementById('mobile-menu');
@@ -523,7 +639,6 @@ document.addEventListener('click',function(e){
     menu.classList.remove('open');
   }
 });
-
 </script>
 </body>
 </html>
