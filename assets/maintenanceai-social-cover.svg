@@ -1,0 +1,18 @@
+<svg width="1500" height="500" viewBox="0 0 1500 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">MaintenanceAI social cover</title>
+  <desc id="desc">MaintenanceAI social media cover image.</desc>
+  <rect width="1500" height="500" fill="#FFFDF8"/>
+  <rect x="44" y="44" width="1412" height="412" rx="36" fill="#0D1B16"/>
+  <g transform="translate(112 96)">
+    <rect width="308" height="308" rx="66" fill="#16653D"/>
+    <path d="M63 156L154 81L245 156V242H63V156Z" fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linejoin="round"/>
+    <path d="M99 172L132 205L217 120" fill="none" stroke="#7BE5AA" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="134" y="191" width="38" height="51" rx="8" fill="#FFFFFF"/>
+    <circle cx="219" cy="84" r="8" fill="#7BE5AA"/>
+    <circle cx="239" cy="104" r="6" fill="#7BE5AA" opacity=".82"/>
+    <path d="M219 84L239 104" stroke="#7BE5AA" stroke-width="5" stroke-linecap="round" opacity=".82"/>
+  </g>
+  <text x="480" y="218" font-family="Inter, Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="0" fill="#FFFFFF">Maintenance<tspan fill="#7BE5AA">AI</tspan></text>
+  <text x="486" y="288" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="600" fill="#D9E7DF">Maintenance operations for property managers</text>
+  <text x="486" y="344" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500" fill="#95A9A0">Work orders | bid requests | preventive maintenance | owner reports</text>
+</svg>
