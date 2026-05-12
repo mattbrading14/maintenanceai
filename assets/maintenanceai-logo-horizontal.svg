@@ -1,0 +1,16 @@
+<svg width="1800" height="520" viewBox="0 0 1800 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">MaintenanceAI horizontal logo</title>
+  <desc id="desc">MaintenanceAI wordmark with property check icon.</desc>
+  <rect width="1800" height="520" fill="none"/>
+  <g transform="translate(72 56)">
+    <rect width="408" height="408" rx="88" fill="#16653D"/>
+    <path d="M83 207L204 108L325 207V320H83V207Z" fill="none" stroke="#FFFFFF" stroke-width="19" stroke-linejoin="round"/>
+    <path d="M131 228L175 272L287 160" fill="none" stroke="#7BE5AA" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="178" y="253" width="51" height="67" rx="10" fill="#FFFFFF"/>
+    <circle cx="290" cy="112" r="10" fill="#7BE5AA"/>
+    <circle cx="317" cy="139" r="7" fill="#7BE5AA" opacity=".82"/>
+    <path d="M290 112L317 139" stroke="#7BE5AA" stroke-width="6" stroke-linecap="round" opacity=".82"/>
+  </g>
+  <text x="544" y="284" font-family="Inter, Arial, sans-serif" font-size="126" font-weight="800" letter-spacing="0" fill="#0D1B16">Maintenance<tspan fill="#16653D">AI</tspan></text>
+  <text x="552" y="352" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="600" letter-spacing="1.5" fill="#66736D">MAINTENANCE OPERATIONS FOR PROPERTY MANAGERS</text>
+</svg>
