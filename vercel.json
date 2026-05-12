@@ -11,5 +11,11 @@
       "destination": "/maintenanceai-website-v2.html",
       "permanent": false
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/favicon.ico",
+      "destination": "/assets/maintenanceai-mark.svg"
+    }
   ]
 }
