@@ -3,19 +3,28 @@
     "api/claude.js": {
       "memory": 1024,
       "maxDuration": 30
+    },
+    "api/site.js": {
+      "memory": 512,
+      "maxDuration": 10
     }
   },
-  "redirects": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "/maintenanceai-website-v2.html",
-      "permanent": false
-    }
-  ],
-  "rewrites": [
+      "src": "/favicon.ico",
+      "dest": "/assets/maintenanceai-mark.svg"
+    },
     {
-      "source": "/favicon.ico",
-      "destination": "/assets/maintenanceai-mark.svg"
+      "src": "/$",
+      "dest": "/api/site.js"
+    },
+    {
+      "src": "/maintenanceai-website-v2.html$",
+      "dest": "/api/site.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }
