@@ -1,0 +1,11 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">MaintenanceAI mark</title>
+  <desc id="desc">A green rounded square with a property outline and completion check.</desc>
+  <rect width="512" height="512" rx="112" fill="#16653D"/>
+  <path d="M104 260L256 136L408 260V402H104V260Z" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linejoin="round"/>
+  <path d="M164 286L220 342L360 202" fill="none" stroke="#7BE5AA" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="224" y="318" width="64" height="84" rx="13" fill="#FFFFFF"/>
+  <circle cx="364" cy="140" r="13" fill="#7BE5AA"/>
+  <circle cx="398" cy="174" r="9" fill="#7BE5AA" opacity=".82"/>
+  <path d="M364 140L398 174" stroke="#7BE5AA" stroke-width="8" stroke-linecap="round" opacity=".82"/>
+</svg>
