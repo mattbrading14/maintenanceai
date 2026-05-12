@@ -4,5 +4,12 @@
       "memory": 1024,
       "maxDuration": 30
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/maintenanceai-website-v2.html",
+      "permanent": false
+    }
+  ]
 }
