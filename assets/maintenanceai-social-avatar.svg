@@ -1,0 +1,11 @@
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">MaintenanceAI social avatar</title>
+  <desc id="desc">MaintenanceAI icon prepared for social profile images.</desc>
+  <rect width="1080" height="1080" rx="240" fill="#16653D"/>
+  <path d="M220 548L540 287L860 548V847H220V548Z" fill="none" stroke="#FFFFFF" stroke-width="52" stroke-linejoin="round"/>
+  <path d="M344 600L463 719L758 424" fill="none" stroke="#7BE5AA" stroke-width="64" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="472" y="670" width="136" height="177" rx="28" fill="#FFFFFF"/>
+  <circle cx="769" cy="297" r="28" fill="#7BE5AA"/>
+  <circle cx="842" cy="370" r="20" fill="#7BE5AA" opacity=".84"/>
+  <path d="M769 297L842 370" stroke="#7BE5AA" stroke-width="18" stroke-linecap="round" opacity=".84"/>
+</svg>
