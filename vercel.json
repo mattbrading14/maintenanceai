@@ -8,8 +8,8 @@
       "memory": 512,
       "maxDuration": 10
     },
-    "api/site.js": {
-      "memory": 512,
+    "api/public-redirect.js": {
+      "memory": 128,
       "maxDuration": 10
     },
     "api/supabase-keepalive.js": {
@@ -33,24 +33,32 @@
       "dest": "/api/app.js?mode=personal"
     },
     {
+      "src": "/index.html$",
+      "dest": "/api/app.js?mode=personal"
+    },
+    {
+      "src": "/app$",
+      "dest": "/api/app.js?mode=personal"
+    },
+    {
       "src": "/146-main$",
       "dest": "/api/app.js?mode=personal"
     },
     {
       "src": "/public-app$",
-      "dest": "/api/app.js?mode=public"
+      "dest": "/api/public-redirect.js"
     },
     {
       "src": "/demo-app$",
-      "dest": "/api/app.js?mode=public"
+      "dest": "/api/public-redirect.js"
     },
     {
       "src": "/maintenanceai-website-v2.html$",
-      "dest": "/api/site.js"
+      "dest": "/api/public-redirect.js"
     },
     {
       "src": "/website$",
-      "dest": "/api/site.js"
+      "dest": "/api/public-redirect.js"
     },
     {
       "src": "/(.*)",
