@@ -1,6 +1,4 @@
-function publicStorageIsolationScript() {
-  return `<script>
-(() => {
+function publicStorageIsolationBrowser() {
   const prefix = 'maintenanceai_public::';
   const originalGetItem = Storage.prototype.getItem;
   const originalSetItem = Storage.prototype.setItem;
@@ -25,18 +23,15 @@ function publicStorageIsolationScript() {
     const value = originalKey.call(this, index);
     return typeof value === 'string' && value.startsWith(prefix) ? value.slice(prefix.length) : value;
   };
-})();
-</script>`;
 }
 
-function personalAppScript() {
-  return `<script>
-(() => {
+function personalRecoveryBrowser() {
   document.title = '146 Main St | MaintenanceAI';
   const STORAGE_KEY = 'maintenanceai_v2';
   const SYNC_KEY = 'maintenanceai_sync_key';
-  const SB_URL = 'https://muascqnlwwijmifsqdic.supabase.co';
-  const SB_KEY = 'sb_publishable_2lHUemABajaLRmsE221E4Q_lyegGjkO';
+  const LEGACY_API_KEY_STORAGE = 'maintenanceai_146main_supabase_key';
+  const LEGACY_SB_URL = 'https://rhjssomlybvzjncekgbx.supabase.co';
+  const LEGACY_TABLE = 'maintenanceai_data';
 
   function escapeHtml(value) {
     return String(value || '').replace(/[&<>"']/g, function(char) {
@@ -53,30 +48,6 @@ function personalAppScript() {
     } catch (error) {
       return false;
     }
-  }
-
-  function keyCandidates(raw) {
-    const trimmed = String(raw || '').trim();
-    const lower = trimmed.toLowerCase();
-    return Array.from(new Set([trimmed, lower, trimmed.replace(/\\s+/g, '-'), lower.replace(/\\s+/g, '-')].filter(Boolean)));
-  }
-
-  async function loadCloudData(key) {
-    const res = await fetch(SB_URL + '/rest/v1/user_data?sync_key=eq.' + encodeURIComponent(key) + '&select=data,updated_at', {
-      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
-    });
-    if (!res.ok) throw new Error('Could not reach cloud sync.');
-    const rows = await res.json();
-    if (rows && rows.length && rows[0].data) return rows[0].data;
-    return null;
-  }
-
-  function describeData(data) {
-    const properties = data && data.properties ? Object.values(data.properties) : [];
-    return properties.map(function(property) {
-      const info = property.info || {};
-      return escapeHtml(info.address || 'Unnamed property');
-    }).join(', ');
   }
 
   function parsePastedJson(rawText) {
@@ -126,7 +97,7 @@ function personalAppScript() {
           info,
           tenants: arrayValue(rawData, ['TENANTS', 'tenants']),
           vendors: arrayValue(rawData, ['VENDORS', 'vendors']),
-          workOrders: arrayValue(rawData, ['WORK_ORDERS', 'WORKORDERS', 'workOrders', 'work_orders']),
+          workOrders: arrayValue(rawData, ['WORK_ORDERS', 'WORKORDERS', 'WORKORDERS_DATA', 'workOrders', 'work_orders']),
           pmTasks: arrayValue(rawData, ['PM_TASKS', 'PMTASKS', 'pmTasks', 'preventiveMaintenance', 'preventive_maintenance']),
           maintenanceHistory: arrayValue(rawData, ['MAINTENANCE_HISTORY', 'maintenanceHistory', 'history']),
           bidProjects: arrayValue(rawData, ['BID_PROJECTS', 'bidProjects', 'bids'])
@@ -134,6 +105,16 @@ function personalAppScript() {
       },
       activePropertyId: id
     };
+  }
+
+  function describeData(data) {
+    const normalized = normalizeLegacyData(data);
+    return Object.values(normalized.properties).map(function(property) {
+      const info = property.info || {};
+      const tenantCount = (property.tenants || []).length;
+      const workOrderCount = (property.workOrders || []).length;
+      return escapeHtml((info.address || 'Unnamed property') + ' - ' + tenantCount + ' tenants, ' + workOrderCount + ' work orders');
+    }).join(', ');
   }
 
   function installState(data, key) {
@@ -147,66 +128,80 @@ function personalAppScript() {
     return normalized;
   }
 
+  async function fetchLegacyRow(rowKey, apiKey) {
+    const url = LEGACY_SB_URL + '/rest/v1/' + LEGACY_TABLE + '?key=eq.' + encodeURIComponent(rowKey) + '&select=data&limit=1';
+    const response = await fetch(url, {
+      headers: {
+        apikey: apiKey,
+        Authorization: 'Bearer ' + apiKey
+      }
+    });
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('That Supabase API key did not allow access. Use the anon/public or publishable key from the maintenanceai_data project.');
+    }
+    if (!response.ok) throw new Error('Supabase returned an error while reading maintenanceai_data.');
+
+    const rows = await response.json();
+    if (!rows || !rows.length || !rows[0].data) throw new Error('No row was found for key ' + rowKey + '.');
+    return rows[0].data;
+  }
+
+  function setResult(message, isError) {
+    const result = document.getElementById('personal-recovery-result');
+    if (!result) return;
+    result.style.color = isError ? '#b91c1c' : '#15803d';
+    result.innerHTML = message;
+  }
+
   function insertRecoveryCard() {
     if (hasSavedData() || document.getElementById('personal-recovery-card')) return;
     const target = document.getElementById('ostep-body-0') || document.querySelector('.onboarding-body');
     if (!target) return;
 
+    const savedLegacyKey = localStorage.getItem(LEGACY_API_KEY_STORAGE) || '';
     const card = document.createElement('div');
     card.id = 'personal-recovery-card';
     card.style.cssText = 'border:1px solid #93c5fd;background:#eff6ff;border-radius:12px;padding:14px;margin:0 0 16px;color:#1e3a8a';
     card.innerHTML = '<div style="font-size:14px;font-weight:800;color:#1e3a8a;margin-bottom:4px">Restore your 146 Main St app</div>' +
-      '<div style="font-size:12px;line-height:1.5;color:#1d4ed8;margin-bottom:10px">First try the old key from your Supabase row: <strong>146main</strong>. If that does not work, paste the data JSON from the row below.</div>' +
-      '<input id="personal-recovery-key" type="text" value="146main" placeholder="146main or your email" style="width:100%;padding:10px 11px;font-size:13px;font-family:inherit;background:white;border:1px solid #93c5fd;border-radius:8px;color:#0f172a;margin-bottom:8px" />' +
-      '<button id="personal-recovery-button" style="width:100%;padding:10px 14px;font-size:13px;font-weight:700;font-family:inherit;background:#1d4ed8;color:white;border:none;border-radius:8px;cursor:pointer">Restore from cloud</button>' +
+      '<div style="font-size:12px;line-height:1.5;color:#1d4ed8;margin-bottom:10px">Your old app saved directly to Supabase, not email sync. This reads project <strong>maintenanceai_data</strong>, table <strong>maintenanceai_data</strong>, row key <strong>146main</strong>.</div>' +
+      '<input id="legacy-row-key" type="text" value="146main" placeholder="Supabase row key" style="width:100%;padding:10px 11px;font-size:13px;font-family:inherit;background:white;border:1px solid #93c5fd;border-radius:8px;color:#0f172a;margin-bottom:8px" />' +
+      '<input id="legacy-api-key" type="password" value="' + escapeHtml(savedLegacyKey) + '" placeholder="Paste Supabase anon / publishable API key" style="width:100%;padding:10px 11px;font-size:13px;font-family:inherit;background:white;border:1px solid #93c5fd;border-radius:8px;color:#0f172a;margin-bottom:8px" />' +
+      '<button id="legacy-fetch-button" style="width:100%;padding:10px 14px;font-size:13px;font-weight:700;font-family:inherit;background:#1d4ed8;color:white;border:none;border-radius:8px;cursor:pointer">Restore directly from Supabase</button>' +
       '<div style="height:1px;background:#bfdbfe;margin:12px 0"></div>' +
-      '<div style="font-size:12px;line-height:1.5;color:#1d4ed8;margin-bottom:8px"><strong>Supabase row restore:</strong> copy the value from the <strong>data</strong> cell for key <strong>146main</strong>, paste it here, then restore.</div>' +
+      '<div style="font-size:12px;line-height:1.5;color:#1d4ed8;margin-bottom:8px">Fallback: copy the value from the <strong>data</strong> cell for key <strong>146main</strong>, paste it here, then restore.</div>' +
       '<textarea id="personal-legacy-json" placeholder="Paste the Supabase data JSON here" style="width:100%;min-height:90px;padding:10px 11px;font-size:12px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;background:white;border:1px solid #93c5fd;border-radius:8px;color:#0f172a;margin-bottom:8px"></textarea>' +
       '<button id="personal-legacy-button" style="width:100%;padding:10px 14px;font-size:13px;font-weight:700;font-family:inherit;background:#0f172a;color:white;border:none;border-radius:8px;cursor:pointer">Restore pasted 146main data</button>' +
       '<div id="personal-recovery-result" style="font-size:12px;line-height:1.5;margin-top:8px;color:#1d4ed8"></div>' +
-      '<div style="font-size:11px;line-height:1.5;color:#475569;margin-top:10px;border-top:1px solid #bfdbfe;padding-top:9px">This only writes to this phone browser first. It does not delete the Supabase row.</div>';
+      '<div style="font-size:11px;line-height:1.5;color:#475569;margin-top:10px;border-top:1px solid #bfdbfe;padding-top:9px">This writes the restored app data to this phone browser. It does not delete or edit the Supabase row.</div>';
 
     target.insertBefore(card, target.firstChild);
 
-    document.getElementById('personal-recovery-button').addEventListener('click', async function() {
-      const input = document.getElementById('personal-recovery-key');
-      const result = document.getElementById('personal-recovery-result');
-      const button = document.getElementById('personal-recovery-button');
-      const candidates = keyCandidates(input.value);
-      if (!candidates.length) {
-        result.style.color = '#b91c1c';
-        result.textContent = 'Enter the email or sync key first.';
+    document.getElementById('legacy-fetch-button').addEventListener('click', async function() {
+      const button = document.getElementById('legacy-fetch-button');
+      const rowKey = (document.getElementById('legacy-row-key').value || '146main').trim();
+      const apiKey = (document.getElementById('legacy-api-key').value || '').trim();
+      if (!apiKey) {
+        setResult('Paste the anon/public or publishable API key from the maintenanceai_data Supabase project first.', true);
         return;
       }
+
       button.disabled = true;
       button.style.opacity = '.6';
-      result.style.color = '#1d4ed8';
-      result.textContent = 'Looking for saved data...';
+      setResult('Reading the 146main row from Supabase...', false);
       try {
-        let data = null;
-        let matchedKey = null;
-        for (const candidate of candidates) {
-          data = await loadCloudData(candidate);
-          if (data) { matchedKey = candidate; break; }
-        }
-        if (!data) {
-          result.style.color = '#b91c1c';
-          result.innerHTML = 'No record was found in the newer cloud table. Use the paste box with the Supabase data cell shown in your screenshot.';
+        localStorage.setItem(LEGACY_API_KEY_STORAGE, apiKey);
+        const data = await fetchLegacyRow(rowKey, apiKey);
+        const summary = describeData(data);
+        if (!window.confirm('Restore this saved app data? ' + summary)) {
+          setResult('Restore canceled. Nothing was changed.', true);
           return;
         }
-        const normalized = normalizeLegacyData(data);
-        const summary = describeData(normalized);
-        if (!window.confirm('Restore saved data for: ' + summary + '?')) {
-          result.textContent = 'Restore canceled. Nothing was changed.';
-          return;
-        }
-        installState(normalized, matchedKey);
-        result.style.color = '#15803d';
-        result.textContent = 'Restored. Reloading your app...';
+        installState(data, rowKey);
+        setResult('Restored. Reloading your app...', false);
         window.location.reload();
       } catch (error) {
-        result.style.color = '#b91c1c';
-        result.textContent = 'Restore failed. Use the paste box with the Supabase data cell shown in your screenshot.';
+        setResult(escapeHtml(error && error.message ? error.message : 'Could not restore from Supabase.'), true);
       } finally {
         button.disabled = false;
         button.style.opacity = '1';
@@ -215,23 +210,19 @@ function personalAppScript() {
 
     document.getElementById('personal-legacy-button').addEventListener('click', function() {
       const textarea = document.getElementById('personal-legacy-json');
-      const input = document.getElementById('personal-recovery-key');
-      const result = document.getElementById('personal-recovery-result');
+      const rowKey = (document.getElementById('legacy-row-key').value || '146main').trim();
       try {
         const rawData = parsePastedJson(textarea.value);
-        const normalized = normalizeLegacyData(rawData);
-        const summary = describeData(normalized);
-        if (!window.confirm('Restore pasted data for: ' + summary + '?')) {
-          result.textContent = 'Restore canceled. Nothing was changed.';
+        const summary = describeData(rawData);
+        if (!window.confirm('Restore pasted data? ' + summary)) {
+          setResult('Restore canceled. Nothing was changed.', true);
           return;
         }
-        installState(normalized, input.value.trim() || '146main');
-        result.style.color = '#15803d';
-        result.textContent = 'Restored. Reloading your app...';
+        installState(rawData, rowKey);
+        setResult('Restored. Reloading your app...', false);
         window.location.reload();
       } catch (error) {
-        result.style.color = '#b91c1c';
-        result.textContent = error && error.message ? error.message : 'Could not read that pasted data.';
+        setResult(escapeHtml(error && error.message ? error.message : 'Could not read that pasted data.'), true);
       }
     });
   }
@@ -240,8 +231,10 @@ function personalAppScript() {
     setTimeout(insertRecoveryCard, 350);
     setTimeout(insertRecoveryCard, 1200);
   });
-})();
-</script>`;
+}
+
+function scriptTag(fn) {
+  return `<script>(${fn.toString()})();</script>`;
 }
 
 function injectBeforeHeadClose(html, script) {
@@ -257,11 +250,10 @@ module.exports = async function handler(req, res) {
     const response = await fetch('https://mattbrading14.github.io/maintenanceai_public/');
     let html = await response.text();
 
-    if (mode === 'public') {
-      html = injectBeforeHeadClose(html, publicStorageIsolationScript());
-    } else {
-      html = injectBeforeHeadClose(html, personalAppScript());
-    }
+    html = injectBeforeHeadClose(
+      html,
+      mode === 'public' ? scriptTag(publicStorageIsolationBrowser) : scriptTag(personalRecoveryBrowser)
+    );
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=600');
