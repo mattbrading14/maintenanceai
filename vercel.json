@@ -4,14 +4,6 @@
       "memory": 1024,
       "maxDuration": 30
     },
-    "api/app.js": {
-      "memory": 512,
-      "maxDuration": 10
-    },
-    "api/personal-state.js": {
-      "memory": 128,
-      "maxDuration": 10
-    },
     "api/public-redirect.js": {
       "memory": 128,
       "maxDuration": 10
@@ -34,23 +26,19 @@
     },
     {
       "src": "/$",
-      "dest": "/api/app.js?mode=personal"
+      "dest": "/index.html"
     },
     {
       "src": "/index.html$",
-      "dest": "/api/app.js?mode=personal"
+      "dest": "/index.html"
     },
     {
       "src": "/app$",
-      "dest": "/api/app.js?mode=personal"
+      "dest": "/index.html"
     },
     {
       "src": "/146-main$",
-      "dest": "/api/app.js?mode=personal"
-    },
-    {
-      "src": "/api/personal-state$",
-      "dest": "/api/personal-state.js"
+      "dest": "/index.html"
     },
     {
       "src": "/public-app$",

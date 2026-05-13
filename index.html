@@ -1,894 +1,1450 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>MaintenanceAI | Maintenance Operations for Property Managers</title>
-<meta name="description" content="MaintenanceAI helps property managers automate work orders, bid requests, preventive maintenance, vendor coordination, and owner reporting." />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MaintenanceAI — 146 Main St, Los Altos</title>
 <style>
-:root {
-  --ink: #0d1b16;
-  --muted: #66736d;
-  --line: #dae5de;
-  --soft: #f5f8f6;
-  --paper: #fffdf8;
-  --green: #16653d;
-  --green-2: #218756;
-  --mint: #e8f6ee;
-  --gold: #b7791f;
-  --blue: #1f5c84;
-  --red: #b42318;
-  --white: #ffffff;
-  --shadow: 0 22px 60px rgba(13, 27, 22, .12);
-}
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
-  margin: 0;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: var(--ink);
-  background: var(--paper);
-}
-a { color: inherit; }
-.nav {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 14px 28px;
-  border-bottom: 1px solid rgba(218, 229, 222, .9);
-  background: rgba(255, 253, 248, .92);
-  backdrop-filter: blur(14px);
-}
-.brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 800;
-  text-decoration: none;
-  letter-spacing: -.02em;
-}
-.mark {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  background: var(--green);
-  color: white;
-  font-weight: 800;
-}
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  font-size: 14px;
-  color: var(--muted);
-}
-.nav-links a {
-  text-decoration: none;
-  font-weight: 600;
-}
-.nav-links a:hover { color: var(--ink); }
-.nav-actions { display: flex; align-items: center; gap: 10px; }
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 18px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  font-weight: 700;
-  font-size: 14px;
-  text-decoration: none;
-  cursor: pointer;
-}
-.btn.primary {
-  color: white;
-  background: var(--green);
-  box-shadow: 0 10px 26px rgba(22, 101, 61, .22);
-}
-.btn.primary:hover { background: var(--green-2); }
-.btn.secondary {
-  color: var(--green);
-  border-color: rgba(22, 101, 61, .35);
-  background: rgba(255, 255, 255, .78);
-}
-.hero {
-  min-height: calc(100vh - 64px);
-  display: grid;
-  align-items: end;
-  position: relative;
-  overflow: hidden;
-  background:
-    linear-gradient(180deg, rgba(13,27,22,.08), rgba(13,27,22,.56)),
-    url("https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=2200&q=80") center/cover;
-}
-.hero-inner {
-  width: min(1160px, calc(100% - 40px));
-  margin: 0 auto;
-  padding: 92px 0 34px;
-  color: white;
-}
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, .14);
-  border: 1px solid rgba(255, 255, 255, .22);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-.hero h1 {
-  max-width: 890px;
-  margin: 22px 0 18px;
-  font-family: Newsreader, Georgia, serif;
-  font-size: clamp(48px, 8vw, 96px);
-  line-height: .92;
-  letter-spacing: 0;
-}
-.hero p {
-  max-width: 670px;
-  margin: 0 0 28px;
-  font-size: clamp(17px, 2vw, 21px);
-  line-height: 1.6;
-  color: rgba(255, 255, 255, .86);
-}
-.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
-.hero .btn.secondary {
-  color: white;
-  border-color: rgba(255, 255, 255, .42);
-  background: rgba(255, 255, 255, .1);
-}
-.hero-preview {
-  width: min(1160px, calc(100% - 40px));
-  margin: 42px auto -70px;
-  border: 1px solid rgba(255, 255, 255, .26);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, .92);
-  box-shadow: var(--shadow);
-  color: var(--ink);
-  overflow: hidden;
-}
-.preview-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(245, 248, 246, .82);
-}
-.preview-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 800;
-  background: var(--mint);
-  color: var(--green);
-}
-.pill.dark { background: var(--ink); color: white; }
-.preview-grid {
-  display: grid;
-  grid-template-columns: 1.12fr .88fr;
-  gap: 1px;
-  background: var(--line);
-}
-.panel {
-  min-height: 260px;
-  background: white;
-  padding: 22px;
-}
-.panel-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-.panel-title h3 {
-  margin: 0;
-  font-size: 17px;
-  letter-spacing: -.02em;
-}
-.panel-title p {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
-.status {
-  display: inline-flex;
-  white-space: nowrap;
-  padding: 5px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
-}
-.status.green { background: #e8f6ee; color: var(--green); }
-.status.gold { background: #fff4db; color: var(--gold); }
-.status.blue { background: #e8f3fb; color: var(--blue); }
-.row {
-  display: grid;
-  grid-template-columns: 1.2fr .8fr .7fr .7fr;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 0;
-  border-top: 1px solid #eef3ef;
-  font-size: 13px;
-}
-.row strong { font-size: 14px; }
-.row span { color: var(--muted); }
-.row .value { color: var(--green); font-weight: 800; text-align: right; }
-.tasks {
-  display: grid;
-  gap: 10px;
-}
-.task {
-  display: grid;
-  grid-template-columns: 42px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  padding: 13px;
-  border: 1px solid #edf2ee;
-  border-radius: 10px;
-  background: var(--soft);
-}
-.task-icon {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  background: white;
-  font-weight: 900;
-  color: var(--green);
-}
-.task strong { display: block; font-size: 13px; }
-.task span { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; }
-.below-hero {
-  padding: 104px 0 0;
-  background: var(--paper);
-}
-.strip {
-  width: min(1160px, calc(100% - 40px));
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  overflow: hidden;
-  background: var(--line);
-}
-.metric {
-  padding: 20px;
-  background: white;
-}
-.metric strong {
-  display: block;
-  font-size: 24px;
-  letter-spacing: -.04em;
-}
-.metric span {
-  display: block;
-  margin-top: 5px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
-.section {
-  padding: 92px 0;
-}
-.section.alt { background: var(--soft); }
-.wrap {
-  width: min(1160px, calc(100% - 40px));
-  margin: 0 auto;
-}
-.section-head {
-  max-width: 720px;
-  margin-bottom: 34px;
-}
-.label {
-  margin: 0 0 10px;
-  color: var(--green);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-h2 {
-  margin: 0;
-  font-family: Newsreader, Georgia, serif;
-  font-size: clamp(36px, 5vw, 60px);
-  line-height: 1;
-  letter-spacing: 0;
-}
-.section-head > p {
-  margin: 16px 0 0;
-  color: var(--muted);
-  font-size: 17px;
-  line-height: 1.65;
-}
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-}
-.feature {
-  min-height: 300px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 22px;
-  padding: 22px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: white;
-}
-.feature h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
-  letter-spacing: -.03em;
-}
-.feature p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.6;
-}
-.mini-screen {
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  overflow: hidden;
-  background: var(--soft);
-}
-.mini-bar {
-  display: flex;
-  gap: 5px;
-  padding: 9px;
-  border-bottom: 1px solid var(--line);
-  background: white;
-}
-.dot { width: 7px; height: 7px; border-radius: 99px; background: #cfd8d2; }
-.mini-body { padding: 10px; display: grid; gap: 7px; }
-.mini-line { height: 9px; border-radius: 99px; background: #dfe8e2; }
-.mini-line.w70 { width: 70%; }
-.mini-line.w52 { width: 52%; }
-.mini-line.green { background: #bfe4cc; }
-.flow {
-  display: grid;
-  grid-template-columns: .8fr 1.2fr;
-  gap: 34px;
-  align-items: start;
-}
-.flow-nav {
-  position: sticky;
-  top: 88px;
-  display: grid;
-  gap: 12px;
-}
-.flow-card {
-  padding: 20px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: white;
-}
-.flow-card h3 { margin: 0 0 8px; font-size: 18px; letter-spacing: -.03em; }
-.flow-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
-.flow-demo {
-  display: grid;
-  gap: 16px;
-}
-.workflow-screen {
-  padding: 20px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: white;
-  box-shadow: 0 16px 42px rgba(13, 27, 22, .07);
-}
-.workflow-screen h3 {
-  margin: 0 0 5px;
-  font-size: 18px;
-}
-.workflow-screen p {
-  margin: 0 0 18px;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.55;
-}
-.vendor-row {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 10px;
-  align-items: center;
-  padding: 12px 0;
-  border-top: 1px solid #edf2ee;
-  font-size: 13px;
-}
-.vendor-row strong { display: block; }
-.vendor-row small { color: var(--muted); }
-.price { font-weight: 900; color: var(--ink); }
-.winner {
-  border-radius: 8px;
-  padding: 6px 9px;
-  color: var(--green);
-  background: var(--mint);
-  font-size: 12px;
-  font-weight: 900;
-}
-.report {
-  padding: 18px;
-  border-radius: 12px;
-  background: #0d1b16;
-  color: white;
-}
-.report strong { display: block; margin-bottom: 8px; }
-.report p { margin: 0; color: rgba(255,255,255,.72); font-size: 14px; line-height: 1.6; }
-.audience {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-.audience-card {
-  padding: 28px;
-  border-radius: 16px;
-  border: 1px solid var(--line);
-  background: white;
-}
-.audience-card.dark {
-  background: var(--ink);
-  color: white;
-  border-color: var(--ink);
-}
-.audience-card h3 {
-  margin: 0 0 16px;
-  font-size: 21px;
-  letter-spacing: -.03em;
-}
-.checklist {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.checklist li {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
-}
-.dark .checklist li { color: rgba(255,255,255,.72); }
-.checklist b {
-  color: var(--green);
-}
-.dark .checklist b {
-  color: #7be5aa;
-}
-.pricing {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  align-items: stretch;
-}
-.price-card {
-  padding: 26px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: white;
-}
-.price-card.featured {
-  background: var(--ink);
-  color: white;
-  border-color: var(--ink);
-  box-shadow: var(--shadow);
-}
-.tier {
-  font-size: 13px;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--green);
-}
-.featured .tier { color: #7be5aa; }
-.amount {
-  margin: 14px 0 4px;
-  font-size: 42px;
-  font-weight: 900;
-  letter-spacing: -.06em;
-}
-.per { color: var(--muted); font-size: 14px; }
-.featured .per { color: rgba(255,255,255,.6); }
-.price-card ul {
-  display: grid;
-  gap: 10px;
-  margin: 24px 0;
-  padding: 0;
-  list-style: none;
-  color: var(--muted);
-  font-size: 14px;
-}
-.featured ul { color: rgba(255,255,255,.76); }
-.price-card li::before {
-  content: "✓";
-  display: inline-block;
-  margin-right: 8px;
-  color: var(--green);
-  font-weight: 900;
-}
-.featured li::before { color: #7be5aa; }
-.contact {
-  display: grid;
-  grid-template-columns: .9fr 1.1fr;
-  gap: 36px;
-  align-items: start;
-}
-.contact-box {
-  padding: 28px;
-  border-radius: 16px;
-  background: white;
-  border: 1px solid var(--line);
-}
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.field { display: grid; gap: 7px; margin-bottom: 12px; }
-.field.full { grid-column: 1 / -1; }
-label {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: .05em;
-  text-transform: uppercase;
-}
-input, select, textarea {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--soft);
-  color: var(--ink);
-  font: inherit;
-  font-size: 14px;
-  padding: 12px 13px;
-}
-textarea { min-height: 118px; resize: vertical; }
-footer {
-  padding: 34px 0;
-  background: var(--ink);
-  color: rgba(255,255,255,.62);
-}
-.foot {
-  width: min(1160px, calc(100% - 40px));
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  font-size: 13px;
-}
-.foot strong { color: white; }
-@media (max-width: 960px) {
-  .nav-links { display: none; }
-  .preview-grid, .flow, .contact { grid-template-columns: 1fr; }
-  .feature-grid, .pricing { grid-template-columns: 1fr 1fr; }
-  .flow-nav { position: static; }
-}
-@media (max-width: 700px) {
-  .nav { padding: 12px 16px; }
-  .nav-actions .secondary { display: none; }
-  .hero-inner { padding-top: 74px; }
-  .hero-preview { margin-bottom: -44px; }
-  .below-hero { padding-top: 74px; }
-  .strip, .feature-grid, .pricing, .audience, .form-grid { grid-template-columns: 1fr; }
-  .row { grid-template-columns: 1fr; }
-  .row .value { text-align: left; }
-  .section { padding: 68px 0; }
-  .preview-top { align-items: flex-start; flex-direction: column; }
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f8fafc;color:#0f172a;min-height:100vh}
+.app{max-width:960px;margin:0 auto;padding:1.25rem}
+.top-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.logo{font-size:18px;font-weight:700;color:#0f172a}
+.property-tag{font-size:12px;background:#e8f5ee;color:#1a6b3c;padding:4px 12px;border-radius:99px;font-weight:600}
+.tabs{display:flex;gap:0;border-bottom:1px solid #e2e8f0;margin-bottom:1.25rem;overflow-x:auto}
+.tab{padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;color:#64748b;border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;font-family:inherit}
+.tab.active{color:#0f172a;border-bottom-color:#0f172a}
+.tab:hover:not(.active){color:#0f172a}
+.panel{display:none}.panel.active{display:block}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.section-label{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem}
+textarea,input,select{width:100%;padding:9px 11px;font-size:13px;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#0f172a}
+textarea{resize:none}
+textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+@media(max-width:580px){.row2,.row3{grid-template-columns:1fr}}
+.btn-primary{padding:10px 18px;font-size:13px;font-weight:600;font-family:inherit;background:#0f172a;border:none;border-radius:8px;cursor:pointer;color:#fff;width:100%;margin-top:8px}
+.btn-primary:hover{background:#1e293b}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-sm{padding:5px 12px;font-size:12px;font-family:inherit;border-radius:8px;cursor:pointer;font-weight:600;border:none}
+.btn-deny{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5}
+.btn-email{background:#0f172a;color:#ffffff;border:1px solid #0f172a}
+.btn-pdf{background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd}
+.badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px}
+.badge-urgent{background:#fef2f2;color:#b91c1c}
+.badge-normal{background:#f0fdf4;color:#15803d}
+.badge-low{background:#fffbeb;color:#b45309}
+.badge-pending{background:#eff6ff;color:#1d4ed8}
+.badge-sent{background:#f0fdf4;color:#15803d}
+.badge-denied{background:#fef2f2;color:#b91c1c}
+.wo-item{border:1px solid #e2e8f0;border-radius:10px;padding:.85rem 1rem;margin-bottom:.6rem;background:#fff}
+.wo-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.wo-title{font-size:13px;font-weight:600}
+.wo-meta{font-size:11px;color:#64748b;margin-top:2px}
+.wo-details{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;margin:8px 0;font-size:12px}
+.wo-detail-label{color:#64748b}
+.wo-detail-val{color:#0f172a;font-weight:500}
+.loading-row{display:flex;align-items:center;gap:8px;padding:.75rem 0;font-size:13px;color:#64748b}
+.spinner{width:14px;height:14px;border:2px solid #e2e8f0;border-top-color:#64748b;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.upload-zone{border:2px dashed #e2e8f0;border-radius:12px;padding:2.5rem 1rem;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc;position:relative;overflow:hidden}
+.upload-zone:hover{border-color:#94a3b8;background:#f1f5f9}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:10}
+.upload-zone-icon{font-size:32px;margin-bottom:.75rem}
+.upload-zone-title{font-size:14px;font-weight:600;color:#0f172a;margin-bottom:.25rem}
+.upload-zone-sub{font-size:12px;color:#64748b}
+.match-card{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:.85rem 1rem;margin:.75rem 0;font-size:13px}
+.match-title{font-weight:600;color:#15803d;margin-bottom:4px;font-size:13px}
+.match-detail{color:#166534;font-size:12px}
+.pm-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px}
+.pm-row:last-child{border-bottom:none}
+.pm-head{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.04em}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem}
+@media(max-width:580px){.metric-grid{grid-template-columns:1fr 1fr}}
+.metric{background:#f8fafc;border-radius:8px;padding:.85rem 1rem}
+.metric-label{font-size:11px;color:#64748b;margin-bottom:4px}
+.metric-val{font-size:22px;font-weight:700;color:#0f172a}
+.empty{font-size:13px;color:#94a3b8;padding:1.5rem 0;text-align:center}
+.history-zone{border:2px dashed #e2e8f0;border-radius:12px;padding:2rem 1rem;text-align:center;cursor:pointer;background:#f8fafc;position:relative;overflow:hidden}
+.history-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:10}
+
+/* ── BID REQUEST STYLES ─────────────────────────────── */
+.bid-job-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem}
+.bid-job-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;gap:10px;flex-wrap:wrap}
+.bid-job-title{font-size:14px;font-weight:700;color:#0f172a}
+.bid-job-meta{font-size:11px;color:#64748b;margin-top:2px}
+.badge-bids-open{background:#eff6ff;color:#1d4ed8}
+.badge-bids-comparing{background:#fef9c3;color:#854d0e}
+.badge-bids-awarded{background:#f0fdf4;color:#15803d}
+.badge-bids-closed{background:#f1f5f9;color:#475569}
+.vendor-checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+@media(max-width:480px){.vendor-checkbox-grid{grid-template-columns:1fr}}
+.vendor-check-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;font-size:12px;background:#f8fafc;transition:all .15s}
+.vendor-check-item:hover{border-color:#94a3b8;background:#f1f5f9}
+.vendor-check-item.selected{border-color:#0f172a;background:#f0f9ff}
+.vendor-check-item input[type=checkbox]{width:14px;height:14px;flex-shrink:0;cursor:pointer}
+.bid-vendor-row{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;background:#f8fafc;gap:10px;flex-wrap:wrap}
+.bid-vendor-name{font-size:13px;font-weight:600;flex:1}
+.bid-vendor-status{font-size:11px;color:#64748b}
+.bid-amount-input{width:120px;padding:6px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a}
+.bid-upload-btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:5px;padding:5px 12px;font-size:12px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:8px;cursor:pointer;font-family:inherit}
+.bid-upload-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.bid-compare-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.bid-compare-table th{padding:9px 12px;background:#0f172a;color:white;font-size:11px;font-weight:700;text-align:left;text-transform:uppercase;letter-spacing:.04em}
+.bid-compare-table td{padding:9px 12px;border-bottom:1px solid #e2e8f0;vertical-align:top}
+.bid-compare-table tr:nth-child(even) td{background:#f8fafc}
+.bid-winner{background:#f0fdf4 !important}
+.bid-winner td{color:#15803d;font-weight:600}
+.bid-section-divider{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;letter-spacing:.06em;margin:1rem 0 .5rem;padding-bottom:6px;border-bottom:2px solid #e2e8f0}
+.bid-step{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.bid-step-num{width:22px;height:22px;border-radius:50%;background:#0f172a;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bid-step-label{font-size:13px;font-weight:600;color:#0f172a}
+.bid-awarded-banner{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:10px 14px;margin-top:8px;display:flex;align-items:center;gap:10px}
+.bid-awarded-banner-icon{font-size:18px}
+.bid-awarded-banner-text{font-size:13px;font-weight:600;color:#15803d}
 </style>
 </head>
 <body>
-<nav class="nav" aria-label="Primary navigation">
-  <a class="brand" href="#top" aria-label="MaintenanceAI home">
-    <span class="mark">M</span>
-    <span>MaintenanceAI</span>
-  </a>
-  <div class="nav-links">
-    <a href="#platform">Platform</a>
-    <a href="#workflows">Workflows</a>
-    <a href="#fit">Who it is for</a>
-    <a href="#pricing">Pricing</a>
+<div class="app">
+  <div class="top-bar">
+    <div class="logo">MaintenanceAI</div>
+    <span class="property-tag">146 Main St, Los Altos</span>
   </div>
-  <div class="nav-actions">
-    <a class="btn secondary" href="https://mattbrading14.github.io/maintenanceai_public/">Open demo</a>
-    <a class="btn primary" href="#contact">Request access</a>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('screenshot')">Screenshot request</button>
+    <button class="tab" onclick="switchTab('logcall')">Log a call</button>
+    <button class="tab" onclick="switchTab('queue')">Approval queue <span id="queue-count" style="font-size:10px;background:#eff6ff;color:#1d4ed8;padding:1px 6px;border-radius:99px;margin-left:4px">0</span></button>
+    <button class="tab" onclick="switchTab('bids')">Bid requests <span id="bid-count" style="font-size:10px;background:#eff6ff;color:#1d4ed8;padding:1px 6px;border-radius:99px;margin-left:4px">0</span></button>
+    <button class="tab" onclick="switchTab('pm')">Preventive maintenance</button>
+    <button class="tab" onclick="switchTab('history')">Maintenance history</button>
+    <button class="tab" onclick="switchTab('report')">Owner report</button>
+    <button class="tab" onclick="switchTab('directory')">⚙ Settings</button>
   </div>
-</nav>
 
-<main id="top">
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-inner">
-      <span class="eyebrow">Now in beta</span>
-      <h1 id="hero-title">Maintenance operations for property managers.</h1>
-      <p>MaintenanceAI turns tenant requests, vendor bids, recurring maintenance, and owner updates into one organized workflow. Less chasing, cleaner reporting, and fewer expensive surprises.</p>
-      <div class="hero-actions">
-        <a class="btn primary" href="#contact">Get beta access</a>
-        <a class="btn secondary" href="#platform">See the system</a>
+  <!-- SCREENSHOT TAB -->
+  <div id="tab-screenshot" class="panel active">
+    <div class="card">
+      <div class="section-label">Upload a screenshot of any tenant email, text, or voicemail transcript</div>
+      <div class="upload-zone">
+        <input type="file" accept="image/*" onchange="handleScreenshot(this.files[0])"/>
+        <div class="upload-zone-icon">📸</div>
+        <div class="upload-zone-title">Tap to upload screenshot</div>
+        <div class="upload-zone-sub">Works with email screenshots, text message screenshots, voicemail transcripts</div>
+      </div>
+      <div id="screenshot-preview" style="margin-top:12px"></div>
+      <div id="match-result"></div>
+      <div id="screenshot-result"></div>
+    </div>
+  </div>
+
+  <!-- LOG A CALL TAB -->
+  <div id="tab-logcall" class="panel">
+    <div class="card">
+      <div class="section-label">Call details</div>
+      <div class="row2">
+        <div><div class="section-label">Property</div><select id="lc-property"><option>146 Main St, Los Altos</option></select></div>
+        <div><div class="section-label">Date & time of call</div><input type="datetime-local" id="lc-datetime"/></div>
+      </div>
+      <div class="row2">
+        <div><div class="section-label">Tenant name</div><select id="lc-tenant" onchange="autoFillTenant()"><option value="">— Select tenant —</option></select></div>
+        <div><div class="section-label">Unit</div><input id="lc-unit" readonly style="background:#f1f5f9"/></div>
+      </div>
+      <div class="row2">
+        <div><div class="section-label">Tenant phone</div><input id="lc-tenant-phone" readonly style="background:#f1f5f9"/></div>
+        <div><div class="section-label">Tenant email</div><input id="lc-tenant-email" readonly style="background:#f1f5f9"/></div>
       </div>
     </div>
-    <div class="hero-preview" aria-label="MaintenanceAI product preview">
-      <div class="preview-top">
+    <div class="card">
+      <div class="section-label">Service request details</div>
+      <div class="row2">
+        <div><div class="section-label">Service type</div>
+          <select id="lc-service" onchange="autoFillVendor()">
+            <option value="">— Select service type —</option>
+            <option value="plumbing">Plumbing</option><option value="hvac">HVAC</option>
+            <option value="electrical">Electrical</option><option value="locksmith">Locksmith</option>
+            <option value="fire">Fire Sprinkler System</option><option value="extinguisher">Fire Extinguishers</option>
+            <option value="hood">Kitchen Hood Fire System</option><option value="general">General / Handyman</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div><div class="section-label">Priority</div>
+          <select id="lc-priority"><option value="urgent">Urgent</option><option value="normal" selected>Normal</option><option value="low">Low</option></select>
+        </div>
+      </div>
+      <div style="margin-bottom:8px"><div class="section-label">Work order title *</div><input id="lc-title" placeholder="e.g. Broken door handle — Unit 103"/></div>
+      <div style="margin-bottom:8px"><div class="section-label">Issue description</div><textarea id="lc-description" rows="3" placeholder="Describe the issue..."></textarea></div>
+      <div style="margin-bottom:8px"><div class="section-label">Access needed?</div>
+        <select id="lc-access"><option value="yes">Yes — coordinate with tenant</option><option value="no">No — common area or exterior</option></select>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-label">Vendor assignment</div>
+      <div class="row2">
+        <div><div class="section-label">Vendor</div><select id="lc-vendor" onchange="autoFillVendorDetails()"><option value="">— Select vendor —</option></select></div>
+        <div><div class="section-label">Vendor contact</div><input id="lc-vendor-contact" readonly style="background:#f1f5f9"/></div>
+      </div>
+      <div class="row2">
+        <div><div class="section-label">Vendor phone</div><input id="lc-vendor-phone" readonly style="background:#f1f5f9"/></div>
+        <div><div class="section-label">Vendor email</div><input id="lc-vendor-email" readonly style="background:#f1f5f9"/></div>
+      </div>
+      <div style="margin-bottom:8px"><div class="section-label">Notes for vendor</div><textarea id="lc-notes" rows="2"></textarea></div>
+      <div style="margin-bottom:8px">
+        <div class="section-label">Attach photos</div>
+        <div style="border:2px dashed #e2e8f0;border-radius:10px;padding:1.25rem;text-align:center;background:#f8fafc;cursor:pointer" onclick="document.getElementById('lc-photos').click()">
+          <input type="file" id="lc-photos" accept="image/*" multiple style="display:none" onchange="handlePhotoUpload(this)"/>
+          <div style="font-size:22px;margin-bottom:.4rem">📷</div>
+          <div style="font-size:13px;font-weight:600">Tap to add photos</div>
+        </div>
+        <div id="photo-previews" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+      </div>
+      <div style="margin-bottom:8px">
+        <div class="section-label">Owner approval (optional)</div>
+        <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:.85rem 1rem">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <input type="checkbox" id="lc-owner-approval" style="width:16px;height:16px;flex-shrink:0" onchange="toggleOwnerApproval()"/>
+            <label for="lc-owner-approval" style="font-size:13px;font-weight:500;color:#92400e;cursor:pointer">Send to owner for approval before dispatching vendor</label>
+          </div>
+          <div id="owner-approval-fields" style="display:none">
+            <div class="row2" style="margin-bottom:0">
+              <div><div class="section-label">Owner name</div><input id="lc-owner-name" placeholder="Owner name"/></div>
+              <div><div class="section-label">Owner email</div><input id="lc-owner-email" placeholder="owner@email.com"/></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="submitCallLog()">Create work order</button>
+    </div>
+    <div id="call-result"></div>
+  </div>
+
+  <!-- QUEUE TAB -->
+  <div id="tab-queue" class="panel">
+    <div class="card" style="margin-bottom:.75rem;background:#f8fafc">
+      <div style="font-size:13px;color:#64748b;line-height:1.6"><span style="font-weight:600;color:#0f172a">Managing work orders:</span> Use <span style="font-weight:600">Edit</span> to update details. Use <span style="font-weight:600">Delete</span> to remove. All changes save automatically.</div>
+    </div>
+    <div id="queue-list"><div class="empty">No work orders yet. Upload a screenshot to get started.</div></div>
+  </div>
+
+  <!-- ── BID REQUESTS TAB ─────────────────────────────── -->
+  <div id="tab-bids" class="panel">
+
+    <!-- Create new bid request -->
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
         <div>
-          <strong>500 Commerce Dr</strong>
-          <span style="display:block;color:var(--muted);font-size:13px;margin-top:3px">Maintenance command center</span>
+          <div style="font-size:15px;font-weight:700;color:#0f172a">Bid Requests</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px">Send a job out to multiple vendors for competitive bidding</div>
         </div>
-        <div class="preview-tabs">
-          <span class="pill dark">Work Orders</span>
-          <span class="pill">Bid Requests</span>
-          <span class="pill">Preventive Maintenance</span>
-          <span class="pill">Owner Reports</span>
-        </div>
+        <button onclick="toggleNewBidForm()" id="new-bid-toggle-btn" style="padding:7px 16px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit">+ New bid request</button>
       </div>
-      <div class="preview-grid">
-        <div class="panel">
-          <div class="panel-title">
-            <div>
-              <h3>Bid comparison ready</h3>
-              <p>Three contractors responded to the same scope. AI has ranked the best value.</p>
-            </div>
-            <span class="status green">Winner found</span>
+
+      <!-- New bid form -->
+      <div id="new-bid-form" style="display:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1rem">
+        <div class="bid-section-divider" style="margin-top:0">Step 1 — Job details</div>
+        <div style="margin-bottom:8px"><div class="section-label">Job title *</div><input id="bid-title" placeholder="e.g. Exterior painting — all common areas"/></div>
+        <div style="margin-bottom:8px"><div class="section-label">Scope of work *</div><textarea id="bid-scope" rows="4" placeholder="Describe in detail what needs to be done. Be specific — this will be included in the bid request emails sent to vendors.&#10;&#10;e.g. Paint all exterior walls, trim, and entry doors. Approx 3,200 sq ft. Two coats required. Color to be specified by owner. Existing paint in fair condition with minor peeling near ground floor."></textarea></div>
+        <div class="row2">
+          <div><div class="section-label">Trade / category</div>
+            <select id="bid-trade">
+              <option value="">— Select trade —</option>
+              <option>Painting</option><option>Plumbing</option><option>HVAC</option><option>Electrical</option>
+              <option>Roofing</option><option>Flooring</option><option>General / Handyman</option>
+              <option>Landscaping</option><option>Pest Control</option><option>Concrete / Masonry</option>
+              <option>Windows / Doors</option><option>Other</option>
+            </select>
           </div>
-          <div class="row">
-            <strong>Bay Area Plumbing</strong>
-            <span>2 day timeline</span>
-            <span>$4,850</span>
-            <span class="value">Best value</span>
-          </div>
-          <div class="row">
-            <strong>Prime Mechanical</strong>
-            <span>5 day timeline</span>
-            <span>$4,200</span>
-            <span>Lowest price</span>
-          </div>
-          <div class="row">
-            <strong>Commercial Pros</strong>
-            <span>3 day timeline</span>
-            <span>$6,100</span>
-            <span>Fastest start</span>
-          </div>
+          <div><div class="section-label">Bid due date</div><input type="date" id="bid-due-date"/></div>
         </div>
-        <div class="panel">
-          <div class="panel-title">
-            <div>
-              <h3>Upcoming maintenance</h3>
-              <p>Recurring tasks are tracked automatically and ready for dispatch.</p>
-            </div>
-            <span class="status gold">4 due soon</span>
+        <div style="margin-bottom:8px"><div class="section-label">Budget estimate (optional — for internal use only)</div><input id="bid-budget" placeholder="e.g. $8,000–$12,000"/></div>
+
+        <div class="bid-section-divider">Step 2 — Select vendors to invite</div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:8px">Check all vendors you want to receive this bid request. You can also add unlisted vendors below.</div>
+        <div id="bid-vendor-checklist" class="vendor-checkbox-grid"></div>
+
+        <div style="margin-top:10px;padding:10px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px">
+          <div class="section-label" style="margin-bottom:6px">Add a vendor not in your directory</div>
+          <div class="row3" style="margin-bottom:0">
+            <input id="bid-extra-name" placeholder="Vendor name"/>
+            <input id="bid-extra-email" placeholder="vendor@email.com"/>
+            <button onclick="addExtraBidVendor()" style="padding:8px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Add</button>
           </div>
-          <div class="tasks">
-            <div class="task"><span class="task-icon">HV</span><div><strong>HVAC filter replacement</strong><span>Due May 16 · Reliable HVAC</span></div><span class="status blue">Scheduled</span></div>
-            <div class="task"><span class="task-icon">FE</span><div><strong>Fire extinguisher inspection</strong><span>Due May 22 · Safety First</span></div><span class="status gold">Reminder</span></div>
-            <div class="task"><span class="task-icon">RP</span><div><strong>Roof check</strong><span>Due Jun 1 · Apex Roofing</span></div><span class="status green">Ready</span></div>
-          </div>
+          <div id="bid-extra-vendors" style="margin-top:6px"></div>
         </div>
+
+        <div class="bid-section-divider">Step 3 — Review &amp; send</div>
+        <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#1e40af">
+          <strong>What happens next:</strong> Each selected vendor will receive a professional email with your job description and scope of work, asking them to reply with their bid. When bids come back, upload them here to compare side-by-side.
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-primary" onclick="sendBidRequests()" style="margin-top:0">Send bid request emails</button>
+          <button onclick="toggleNewBidForm()" style="padding:10px 18px;font-size:13px;font-weight:600;font-family:inherit;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;cursor:pointer;margin-top:0;flex-shrink:0">Cancel</button>
+        </div>
+        <div id="bid-send-result" style="margin-top:8px;font-size:12px"></div>
       </div>
     </div>
-  </section>
 
-  <div class="below-hero">
-    <div class="strip" aria-label="Product outcomes">
-      <div class="metric"><strong>1 scope</strong><span>sent to every contractor bidding on the job</span></div>
-      <div class="metric"><strong>0 sheets</strong><span>needed to track PM schedules and vendor replies</span></div>
-      <div class="metric"><strong>1 report</strong><span>generated for owners from actual maintenance history</span></div>
-      <div class="metric"><strong>Full control</strong><span>manager approval before anything is dispatched</span></div>
+    <!-- Existing bid jobs -->
+    <div id="bid-jobs-list"><div class="empty">No bid requests yet. Create one above to get started.</div></div>
+  </div>
+
+  <!-- PM TAB -->
+  <div id="tab-pm" class="panel">
+    <div class="card">
+      <div class="section-label">Add scheduled maintenance task</div>
+      <div class="row2">
+        <input id="pm-task" placeholder="Task (e.g. HVAC filter change)"/>
+        <select id="pm-freq"><option>Monthly</option><option>Quarterly</option><option selected>Bi-annually</option><option>Annually</option></select>
+      </div>
+      <div class="row2"><select id="pm-vendor-select"></select><input id="pm-unit" placeholder="Unit(s) or 'All units'"/></div>
+      <div class="row2">
+        <input id="pm-next" type="date"/>
+        <input id="pm-cost" placeholder="Est. cost (e.g. $250)"/>
+      </div>
+      <button class="btn-primary" onclick="addPM()" style="margin-top:0">Add to schedule</button>
+    </div>
+    <div class="card">
+      <div class="section-label">Log a completed past maintenance task</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px">Record maintenance that happened before you started using this app</div>
+      <div class="row2">
+        <div><div class="section-label">Task completed</div><select id="pm-log-task"><option value="">— Select task —</option></select></div>
+        <div><div class="section-label">Date completed</div><input type="date" id="pm-log-date"/></div>
+      </div>
+      <div class="row2">
+        <div><div class="section-label">Vendor</div><select id="pm-log-vendor"></select></div>
+        <div><div class="section-label">Notes (optional)</div><input id="pm-log-notes" placeholder="e.g. All units inspected"/></div>
+      </div>
+      <button class="btn-primary" onclick="logCompletedPM()" style="margin-top:0">Log as completed — add to owner report</button>
+      <div id="pm-log-result" style="margin-top:8px;font-size:12px"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding-bottom:6px;border-bottom:1px solid #e2e8f0;margin-bottom:4px">
+      <span class="pm-head">Task</span><span class="pm-head">Frequency</span><span class="pm-head">Next due</span><span class="pm-head">Vendor</span><span class="pm-head">Est. cost</span><span></span>
+    </div>
+    <div id="pm-list"></div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="tab-history" class="panel">
+    <div class="card">
+      <div class="section-label">Upload screenshot of past maintenance email to add to history</div>
+      <div class="history-zone">
+        <input type="file" accept="image/*" onchange="handleHistory(this)"/>
+        <div class="upload-zone-icon">📋</div>
+        <div class="upload-zone-title">Upload past maintenance screenshot</div>
+        <div class="upload-zone-sub">AI reads the date, work done, vendor, and unit</div>
+      </div>
+      <div id="history-result"></div>
+    </div>
+    <div class="card">
+      <div class="section-label">Maintenance history — 146 Main St</div>
+      <div id="history-list"><div class="empty">No history yet.</div></div>
     </div>
   </div>
 
-  <section class="section" id="platform">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="label">The platform</p>
-        <h2>The maintenance side of property management, finally in one place.</h2>
-        <p>Most property managers are not short on effort. They are stuck coordinating the same messy work across inboxes, texts, vendor calls, and spreadsheets. MaintenanceAI centralizes the flow.</p>
+  <!-- REPORT TAB -->
+  <div id="tab-report" class="panel">
+    <div class="card">
+      <div class="section-label">Report settings</div>
+      <div class="row2" style="margin-bottom:8px">
+        <div><div class="section-label">From</div><input type="date" id="rpt-start"/></div>
+        <div><div class="section-label">To</div><input type="date" id="rpt-end"/></div>
       </div>
-      <div class="feature-grid">
-        <article class="feature">
-          <div>
-            <h3>Work Orders</h3>
-            <p>Turn tenant texts, emails, or screenshots into structured work orders with category, priority, vendor match, and approval status.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line green"></span><span class="mini-line w70"></span><span class="mini-line w52"></span></div></div>
-        </article>
-        <article class="feature">
-          <div>
-            <h3>Bid Requests</h3>
-            <p>Send one scope to multiple contractors, track every response, and generate an AI comparison across price, timeline, and value.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w70"></span><span class="mini-line green"></span><span class="mini-line w52"></span></div></div>
-        </article>
-        <article class="feature">
-          <div>
-            <h3>Preventive Maintenance</h3>
-            <p>Schedule recurring tasks once. MaintenanceAI tracks due dates, sends reminders, logs completions, and advances the next cycle.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w52"></span><span class="mini-line w70"></span><span class="mini-line green"></span></div></div>
-        </article>
-        <article class="feature">
-          <div>
-            <h3>Owner Reports</h3>
-            <p>Maintenance history, completed PM tasks, bid outcomes, vendor activity, and costs roll into clean owner-facing reports.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line green"></span><span class="mini-line green"></span><span class="mini-line w70"></span></div></div>
-        </article>
+      <div class="row2" style="margin-bottom:8px">
+        <input id="rpt-property" value="146 Main St, Los Altos"/>
+        <div></div>
       </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <button onclick="setRange('mtd')" style="padding:5px 12px;font-size:11px;font-weight:600;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer">This month</button>
+        <button onclick="setRange('last30')" style="padding:5px 12px;font-size:11px;font-weight:600;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer">Last 30 days</button>
+        <button onclick="setRange('q1')" style="padding:5px 12px;font-size:11px;font-weight:600;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer">Q1</button>
+        <button onclick="setRange('q2')" style="padding:5px 12px;font-size:11px;font-weight:600;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer">Q2</button>
+        <button onclick="setRange('q3')" style="padding:5px 12px;font-size:11px;font-weight:600;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer">Q3</button>
+        <button onclick="setRange('q4')" style="padding:5px 12px;font-size:11px;font-weight:600;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer">Q4</button>
+        <button onclick="setRange('biannual1')" style="padding:5px 12px;font-size:11px;font-weight:600;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer">H1</button>
+        <button onclick="setRange('biannual2')" style="padding:5px 12px;font-size:11px;font-weight:600;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer">H2</button>
+        <button onclick="setRange('annual')" style="padding:5px 12px;font-size:11px;font-weight:600;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer">Full year</button>
+      </div>
+      <button class="btn-primary" onclick="generateReport()" id="rpt-btn" style="margin-top:0">Generate owner report</button>
     </div>
-  </section>
-
-  <section class="section alt" id="workflows">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="label">Core workflows</p>
-        <h2>Built around the work that actually eats your week.</h2>
-        <p>Contractor coordination, recurring maintenance, and owner communication are where time disappears. These workflows are designed to remove the manual follow-up.</p>
+    <div class="card">
+      <div class="section-label">Data backup &amp; restore</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:10px">Export your work orders and data to back up or transfer to another device</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="exportData()" style="padding:9px 16px;font-size:13px;font-weight:600;font-family:inherit;background:#f0fdf4;color:#15803d;border:1px solid #86efac;border-radius:8px;cursor:pointer">Export data backup</button>
+        <label style="padding:9px 16px;font-size:13px;font-weight:600;font-family:inherit;background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd;border-radius:8px;cursor:pointer">Import data backup<input type="file" accept=".json" onchange="importData(this)" style="display:none"/></label>
       </div>
-      <div class="flow">
-        <div class="flow-nav">
-          <div class="flow-card"><h3>Send bids without rewriting emails</h3><p>Fill in the project once, choose vendors by trade, and open polished bid request emails for every contractor.</p></div>
-          <div class="flow-card"><h3>Know which vendor to pick</h3><p>When bids come in, MaintenanceAI compares price, scope, exclusions, and timeline side by side.</p></div>
-          <div class="flow-card"><h3>Keep owners current</h3><p>Reports update from logged activity, so owners see the maintenance record without a spreadsheet recap.</p></div>
-        </div>
-        <div class="flow-demo">
-          <div class="workflow-screen">
-            <h3>Roof repair bid request</h3>
-            <p>Scope sent to three roofing vendors. Two bids received, one pending.</p>
-            <div class="vendor-row"><div><strong>Apex Roofing</strong><small>Full replacement · 3 days</small></div><span class="price">$8,900</span><span class="winner">Recommended</span></div>
-            <div class="vendor-row"><div><strong>Summit Exterior</strong><small>Partial repair · 1 day</small></div><span class="price">$4,200</span><span class="status gold">Scope risk</span></div>
-            <div class="vendor-row"><div><strong>Premier Roofing</strong><small>Awaiting response</small></div><span class="price">--</span><span class="status blue">Pending</span></div>
-          </div>
-          <div class="workflow-screen">
-            <h3>Preventive maintenance schedule</h3>
-            <p>Every recurring task has a vendor, frequency, estimated cost, due date, and completion history.</p>
-            <div class="vendor-row"><div><strong>HVAC filters</strong><small>Quarterly · next due May 16</small></div><span class="price">$150</span><span class="status green">Auto reminder</span></div>
-            <div class="vendor-row"><div><strong>Fire extinguisher inspection</strong><small>Annual · next due Jun 5</small></div><span class="price">$275</span><span class="status blue">Scheduled</span></div>
-            <div class="vendor-row"><div><strong>Plumbing flush</strong><small>Semiannual · next due Jun 18</small></div><span class="price">$325</span><span class="status gold">Due soon</span></div>
-          </div>
-          <div class="report">
-            <strong>Owner summary</strong>
-            <p>This month included 6 completed work orders, 3 preventive maintenance tasks, and one competitive bid process. The recommended roofing vendor was selected based on warranty coverage, completion timeline, and total scope alignment.</p>
-          </div>
-        </div>
-      </div>
+      <div id="import-result" style="margin-top:8px;font-size:12px"></div>
     </div>
-  </section>
-
-  <section class="section" id="fit">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="label">Who it is for</p>
-        <h2>For managers who need maintenance under control, not another giant system.</h2>
-      </div>
-      <div class="audience">
-        <div class="audience-card dark">
-          <h3>MaintenanceAI is a fit if...</h3>
-          <ul class="checklist">
-            <li><b>✓</b><span>You manage residential, commercial, or mixed portfolios.</span></li>
-            <li><b>✓</b><span>Your tenants already text, call, or email maintenance issues.</span></li>
-            <li><b>✓</b><span>You use trusted local vendors and want better coordination.</span></li>
-            <li><b>✓</b><span>You need clean owner reports without manual write-ups.</span></li>
-            <li><b>✓</b><span>You want preventive maintenance to stop falling through the cracks.</span></li>
-          </ul>
-        </div>
-        <div class="audience-card">
-          <h3>It is not trying to be...</h3>
-          <ul class="checklist">
-            <li><b>—</b><span>A replacement for your accounting, rent collection, or leasing system.</span></li>
-            <li><b>—</b><span>A tenant portal that forces renters into a new habit.</span></li>
-            <li><b>—</b><span>A marketplace that pushes you away from your own vendors.</span></li>
-            <li><b>—</b><span>An enterprise platform built for thousands of units and long implementation cycles.</span></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section alt" id="pricing">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="label">Beta pricing</p>
-        <h2>Simple plans while the product is still young.</h2>
-        <p>Start with the workflow that hurts most, then expand into the full maintenance operations system as your team adopts it.</p>
-      </div>
-      <div class="pricing">
-        <article class="price-card">
-          <div class="tier">Starter</div>
-          <div class="amount">$29</div>
-          <div class="per">per month · smaller portfolios</div>
-          <ul>
-            <li>Work order creation</li>
-            <li>Vendor directory</li>
-            <li>Basic PM scheduler</li>
-            <li>Monthly owner report</li>
-          </ul>
-          <a class="btn secondary" href="#contact">Start beta</a>
-        </article>
-        <article class="price-card featured">
-          <div class="tier">Professional</div>
-          <div class="amount">$79</div>
-          <div class="per">per month · growing property teams</div>
-          <ul>
-            <li>Everything in Starter</li>
-            <li>Bid request workflows</li>
-            <li>AI bid comparison reports</li>
-            <li>Advanced owner reporting</li>
-          </ul>
-          <a class="btn primary" href="#contact">Request access</a>
-        </article>
-        <article class="price-card">
-          <div class="tier">Portfolio</div>
-          <div class="amount">$199</div>
-          <div class="per">per month · multi-property operators</div>
-          <ul>
-            <li>Everything in Professional</li>
-            <li>Multiple property imports</li>
-            <li>Portfolio-wide reporting</li>
-            <li>Priority onboarding support</li>
-          </ul>
-          <a class="btn secondary" href="#contact">Talk to Matt</a>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="contact">
-    <div class="wrap contact">
-      <div class="section-head">
-        <p class="label">Get early access</p>
-        <h2>Bring your maintenance workflow into one place.</h2>
-        <p>Join the beta if you manage properties and want help automating contractor coordination, recurring maintenance, and owner reporting.</p>
-        <p style="font-size:14px">Want to see the current product first? <a href="https://mattbrading14.github.io/maintenanceai_public/" style="color:var(--green);font-weight:800">Open the live demo</a>.</p>
-      </div>
-      <div class="contact-box">
-        <form action="https://formspree.io/f/xreoepky" method="POST">
-          <div class="form-grid">
-            <div class="field"><label for="first">First name</label><input id="first" name="first_name" required /></div>
-            <div class="field"><label for="last">Last name</label><input id="last" name="last_name" required /></div>
-            <div class="field full"><label for="email">Email</label><input id="email" name="email" type="email" required /></div>
-            <div class="field"><label for="role">Role</label><select id="role" name="role"><option>Property manager</option><option>PM company owner</option><option>Self-managing owner</option><option>Investor / owner</option><option>HOA manager</option></select></div>
-            <div class="field"><label for="units">Units managed</label><select id="units" name="units"><option>Under 25</option><option>25-50</option><option>50-200</option><option>200-500</option><option>500+</option></select></div>
-            <div class="field full"><label for="message">What maintenance workflow is most painful right now?</label><textarea id="message" name="message" placeholder="Bid requests, vendor follow-up, preventive maintenance, owner reports..."></textarea></div>
-          </div>
-          <button class="btn primary" type="submit" style="width:100%">Request beta access</button>
-        </form>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="foot">
-    <div><strong>MaintenanceAI</strong><br />Maintenance operations for property managers.</div>
-    <div>Built by Matt Brading · Currently in beta</div>
+    <div id="report-output"></div>
   </div>
-</footer>
+
+  <!-- SETTINGS TAB -->
+  <div id="tab-directory" class="panel">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <div class="section-label" style="margin:0">Tenants</div>
+        <button onclick="showAddTenant()" style="padding:6px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">+ Add tenant</button>
+      </div>
+      <div id="add-tenant-form" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid #e2e8f0">
+        <div class="row3" style="margin-bottom:8px">
+          <div><div class="section-label">Unit #</div><input id="nt-unit" placeholder="e.g. 218"/></div>
+          <div><div class="section-label">Business name</div><input id="nt-business" placeholder="Acme Co."/></div>
+          <div><div class="section-label">Contact name</div><input id="nt-contact" placeholder="Jane Smith"/></div>
+        </div>
+        <div class="row3" style="margin-bottom:8px">
+          <div><div class="section-label">Office phone</div><input id="nt-office" placeholder="650-555-0100"/></div>
+          <div><div class="section-label">Cell phone</div><input id="nt-cell" placeholder="650-555-0101"/></div>
+          <div><div class="section-label">Email</div><input id="nt-email" placeholder="jane@acme.com"/></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="addTenant()" style="padding:7px 16px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save tenant</button>
+          <button onclick="document.getElementById('add-tenant-form').style.display='none'" style="padding:7px 16px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>
+        </div>
+      </div>
+      <div id="tenant-directory-list"></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
+        <div class="section-label" style="margin:0">Vendors</div>
+        <button onclick="showAddVendor()" style="padding:6px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">+ Add vendor</button>
+      </div>
+      <div id="add-vendor-form" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-bottom:12px;border:1px solid #e2e8f0">
+        <div class="row2" style="margin-bottom:8px">
+          <div><div class="section-label">Vendor name</div><input id="nv-name" placeholder="e.g. ABC Plumbing"/></div>
+          <div><div class="section-label">Trade / specialty</div>
+            <select id="nv-trade" onchange="handleTradeSelect('nv-trade','nv-trade-custom')">
+              <option value="">— Select trade —</option>
+              <option>Plumbing</option><option>HVAC</option><option>Electrical</option><option>Locksmith</option>
+              <option>Fire Sprinkler System</option><option>Fire Extinguishers</option><option>Kitchen Hood Fire System</option>
+              <option>Roofing</option><option>General / Handyman</option><option>Pest Control</option>
+              <option>Landscaping</option><option>Elevator</option><option>Appliance Repair</option>
+              <option value="__custom__">+ Add custom trade...</option>
+            </select>
+            <input id="nv-trade-custom" placeholder="Enter custom trade name" style="display:none;margin-top:6px"/>
+          </div>
+        </div>
+        <div class="row3" style="margin-bottom:8px">
+          <div><div class="section-label">Contact name</div><input id="nv-contact" placeholder="John Smith"/></div>
+          <div><div class="section-label">Phone</div><input id="nv-phone" placeholder="650-555-0200"/></div>
+          <div><div class="section-label">Email</div><input id="nv-email" placeholder="john@abc.com"/></div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="addVendor()" style="padding:7px 16px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save vendor</button>
+          <button onclick="document.getElementById('add-vendor-form').style.display='none'" style="padding:7px 16px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button>
+        </div>
+      </div>
+      <div id="vendor-directory-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────
+let TENANTS=[
+  {unit:"100",business:"Round Robin",contact:"Christy Drexel",office_phone:"6509480955",cell_phone:"4084384600",email:"encore.rrobin@yahoo.com"},
+  {unit:"101/102",business:"Peninsula Symphony",contact:"Chelsea Chambers",office_phone:"6509415291",cell_phone:"4087109440",email:"chelsea@peninsulasymphony.org"},
+  {unit:"103",business:"General Building",contact:"Matt Brading",office_phone:"",cell_phone:"4082347016",email:"matt@bradingassociates.com"},
+  {unit:"104",business:"Azool",contact:"Shabnam Jain",office_phone:"6509473800",cell_phone:"6507935152",email:"shabnam@azooljewels.com"},
+  {unit:"201",business:"Total Wealth Solutions",contact:"Imran Thanvi",office_phone:"",cell_phone:"5106732127",email:"imran7007@outlook.com"},
+  {unit:"202",business:"Michael Nusimow",contact:"Michael Nusimow",office_phone:"",cell_phone:"9175861476",email:"nusimow@gmail.com"},
+  {unit:"203",business:"Theresa Allocco, LCSW",contact:"Theresa Allocco",office_phone:"",cell_phone:"4082058302",email:"theresa@theresamallocco.com"},
+  {unit:"204/205",business:"European Fin.",contact:"Marianne Conway",office_phone:"6509413865",cell_phone:"8009456357",email:"eurobrkr@pacbell.net"},
+  {unit:"207",business:"Hartcom",contact:"Sara Hart",office_phone:"6508158848",cell_phone:"6508158848",email:"sarahart@hartcom.com"},
+  {unit:"208",business:"Zakus",contact:"Frank Tan",office_phone:"6509179158",cell_phone:"6505768669",email:"franktan@zakusinc.com"},
+  {unit:"209",business:"Fortis Lauren Group, Inc",contact:"Lauren Mcallister",office_phone:"6502071004",cell_phone:"",email:"laurennmcallister@gmail.com"},
+  {unit:"210",business:"Biotech Equipment Sales",contact:"Raymond Balewilz",office_phone:"650-793-1043",cell_phone:"",email:"medisales@msn.com"},
+  {unit:"211",business:"Anya Steinberg, M.D.",contact:"Anya Steinberg",office_phone:"650-254-2040",cell_phone:"",email:"a.steinbergmd@gmail.com"},
+  {unit:"212/213",business:"Fortis Lauren Group, Inc",contact:"Lauren Mcallister",office_phone:"6502071004",cell_phone:"",email:"laurennmcallister@gmail.com"},
+  {unit:"214",business:"Momar",contact:"Breeze Momar",office_phone:"6504955098",cell_phone:"",email:"bmo361@yahoo.com"},
+  {unit:"215",business:"Shelley Sinclair",contact:"Shelly Sinclair",office_phone:"5512652949",cell_phone:"",email:"ssinclairlep@icloud.com"},
+  {unit:"216",business:"Shelley Sinclair",contact:"Shelly Sinclair",office_phone:"5512652949",cell_phone:"",email:"ssinclairlep@icloud.com"},
+  {unit:"217",business:"Shelley Sinclair",contact:"Shelly Sinclair",office_phone:"5512652949",cell_phone:"",email:"ssinclairlep@icloud.com"}
+];
+let VENDORS=[
+  {name:"Nickell Fire Protection",trade:"Fire Sprinkler System",contact:"Jose Gonzalez",email:"jose@nickellfire.com",phone:"4084376039"},
+  {name:"Nickell Fire Protection",trade:"Fire Extinguishers",contact:"Jose Gonzalez",email:"jose@nickellfire.com",phone:"4084376039"},
+  {name:"Nickell Fire Protection",trade:"Kitchen Hood Fire System",contact:"Jose Gonzalez",email:"jose@nickellfire.com",phone:"4084376039"},
+  {name:"Gomez Sewer and Drain",trade:"Plumbing",contact:"Santos Gomez",email:"gomezseweranddrain@gmail.com",phone:"4083911591"},
+  {name:"O.C. McDonald",trade:"HVAC",contact:"Jayme Gutierrez",email:"jgutierrez@ocmcdonald.com",phone:"8312771731"},
+  {name:"Tri-City Lock Company",trade:"Locksmith",contact:"Dan Allen",email:"lockmandan@tri-citylock.com",phone:"6509642165"},
+  {name:"Zeus Electric",trade:"Electrical",contact:"Carlos Perez",email:"zeus.electric.cp@gmail.com",phone:"4087813142"}
+];
+const STORAGE_KEY='maintenanceai_146main';
+const DEFAULT_PM=[
+  {task:"Fire extinguisher inspection",freq:"Annually",next:"2027-03-12",vendor:"Nickell Fire Protection",units:"All units"},
+  {task:"Fire sprinkler system check",freq:"Annually",next:"2026-09-23",vendor:"Nickell Fire Protection",units:"All units"},
+  {task:"HVAC filter change",freq:"Quarterly",next:"2026-03-31",vendor:"O.C. McDonald",units:"All units"},
+  {task:"Kitchen hood fire system",freq:"Bi-annually",next:"2027-09-23",vendor:"Nickell Fire Protection",units:"All units"}
+];
+let workOrders=[],maintenanceHistory=[],pmTasks=[...DEFAULT_PM],bidJobs=[];
+
+// ── SUPABASE + STORAGE ────────────────────────────────────
+const SUPABASE_URL='https://rhjssomlybvzjncekgbx.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJoanNzb21seWJ2empuY2VrZ2J4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzMDM0NzQsImV4cCI6MjA4OTg3OTQ3NH0.10brFbJm0WhCZUAabu8Td86V889BNKIs1FW2yH42m0w';
+const DB_KEY='146main';
+
+async function saveData(){
+  const payload={workOrders,maintenanceHistory,pmTasks,TENANTS,VENDORS,bidJobs};
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));}catch(e){}
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/maintenanceai_data?key=eq.'+DB_KEY,{method:'GET',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
+    const rows=await res.json();
+    if(rows&&rows.length>0){
+      await fetch(SUPABASE_URL+'/rest/v1/maintenanceai_data?key=eq.'+DB_KEY,{method:'PATCH',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({data:payload})});
+    }else{
+      await fetch(SUPABASE_URL+'/rest/v1/maintenanceai_data',{method:'POST',headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},body:JSON.stringify({key:DB_KEY,data:payload})});
+    }
+  }catch(e){console.warn('Supabase save failed:',e);}
+}
+
+function loadData(){
+  try{
+    const s=localStorage.getItem(STORAGE_KEY);
+    if(!s)return;
+    const d=JSON.parse(s);
+    if(d.workOrders)workOrders=d.workOrders;
+    if(d.maintenanceHistory)maintenanceHistory=d.maintenanceHistory;
+    if(d.pmTasks&&d.pmTasks.length)pmTasks=d.pmTasks;
+    if(d.TENANTS&&d.TENANTS.length)TENANTS=d.TENANTS;
+    if(d.VENDORS&&d.VENDORS.length)VENDORS=d.VENDORS;
+    if(d.bidJobs)bidJobs=d.bidJobs;
+  }catch(e){}
+}
+
+async function loadFromSupabase(){
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/maintenanceai_data?key=eq.'+DB_KEY+'&select=data',{headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}});
+    const rows=await res.json();
+    if(rows&&rows.length>0&&rows[0].data){
+      const d=rows[0].data;
+      if(d.workOrders)workOrders=d.workOrders;
+      if(d.maintenanceHistory)maintenanceHistory=d.maintenanceHistory;
+      if(d.pmTasks&&d.pmTasks.length)pmTasks=d.pmTasks;
+      if(d.TENANTS&&d.TENANTS.length)TENANTS=d.TENANTS;
+      if(d.VENDORS&&d.VENDORS.length)VENDORS=d.VENDORS;
+      if(d.bidJobs)bidJobs=d.bidJobs;
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(d));
+    }
+  }catch(e){console.warn('Supabase load failed:',e);}
+  updateQueueCount();
+  renderPM();
+  renderDirectory();
+  renderBidJobs();
+  updateBidCount();
+  (function(){
+    const now=new Date();
+    const y=now.getFullYear(),m=now.getMonth();
+    const start=new Date(y,m-1,15);
+    const end=new Date(y,m,14);
+    document.getElementById('rpt-start').value=start.toISOString().split('T')[0];
+    document.getElementById('rpt-end').value=end.toISOString().split('T')[0];
+  })();
+}
+loadData();
+loadFromSupabase();
+
+const correctDates={'Fire extinguisher inspection':'2027-03-12','Fire sprinkler system check':'2026-09-23','HVAC filter change':'2026-03-31','Kitchen hood fire system':'2027-09-23'};
+let _upd=false;
+pmTasks.forEach(t=>{if(correctDates[t.task]&&t.next!==correctDates[t.task]){t.next=correctDates[t.task];_upd=true;}});
+if(_upd)saveData();
+updateQueueCount();
+renderPM();
+renderDirectory();
+updateBidCount();
+
+// ── HELPERS ───────────────────────────────────────────────
+function matchVendor(cat){
+  cat=(cat||'').toLowerCase();
+  const map={plumbing:'Plumbing',hvac:'HVAC',electrical:'Electrical',locksmith:'Locksmith',lock:'Locksmith',fire:'Fire Sprinkler System',sprinkler:'Fire Sprinkler System',extinguisher:'Fire Extinguishers',hood:'Kitchen Hood Fire System'};
+  for(const[k,v]of Object.entries(map))if(cat.includes(k))return VENDORS.find(vn=>vn.trade===v)||VENDORS[0];
+  return VENDORS.find(v=>v.trade==='Plumbing')||VENDORS[0];
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const tabs=['screenshot','logcall','queue','bids','pm','history','report','directory'];
+  const idx=tabs.indexOf(name);
+  if(idx>=0)document.querySelectorAll('.tab')[idx].classList.add('active');
+  const panel=document.getElementById('tab-'+name);
+  if(panel)panel.classList.add('active');
+  if(name==='pm')renderPM();
+  if(name==='queue')renderQueue();
+  if(name==='history')renderHistory();
+  if(name==='logcall')initCallLog();
+  if(name==='directory')renderDirectory();
+  if(name==='bids'){renderBidVendorChecklist();renderBidJobs();}
+}
+
+// ── SCREENSHOT ────────────────────────────────────────────
+async function handleScreenshot(file){
+  if(!file)return;
+  const previewDiv=document.getElementById('screenshot-preview');
+  const matchDiv=document.getElementById('match-result');
+  const resultDiv=document.getElementById('screenshot-result');
+  previewDiv.innerHTML='<img src="'+URL.createObjectURL(file)+'" style="max-width:100%;border-radius:8px;margin-bottom:12px"/>';
+  matchDiv.innerHTML='';
+  resultDiv.innerHTML='<div class="loading-row"><div class="spinner"></div>Reading image...</div>';
+  try{
+    const base64=await compressImage(file,600,0.5);
+    resultDiv.innerHTML='<div class="loading-row"><div class="spinner"></div>Analyzing with AI...</div>';
+    const tenantList=TENANTS.map(t=>t.contact+' (Unit '+t.unit+', '+t.business+', '+t.email+', '+t.cell_phone+')').join('\n');
+    const res=await fetch('/api/claude',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1500,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:base64}},
+          {type:'text',text:'You are a property management AI for 146 Main St, Los Altos. Read this image and extract ALL maintenance issues.\n\nTenant list:\n'+tenantList+'\n\nMatch sender to tenant list. If no match use "Unknown".\n\nReturn ONLY valid JSON:\n{"matched_tenant_unit":"unit or Unknown","matched_tenant_name":"name or Unknown","sender_info":"what you saw","issues":[{"title":"short title","description":"full details","category":"plumbing|hvac|electrical|locksmith|fire|general","priority":"urgent|normal|low","recommended_action":"what vendor should do","estimated_cost":"e.g. $150-$300"}]}'}
+        ]}]
+      })
+    });
+    const data=await res.json();
+    if(!data.content||!data.content[0])throw new Error('No response from AI');
+    const rawText=data.content[0].text;
+    let parsed;
+    try{parsed=JSON.parse(rawText.replace(/```json|```/g,'').trim());}
+    catch(e1){
+      const m=rawText.match(/\{[\s\S]*\}/);
+      if(m)parsed=JSON.parse(m[0]);
+      else parsed={matched_tenant_unit:'Unknown',matched_tenant_name:'Unknown',sender_info:'Could not parse',issues:[{title:'Maintenance request',description:rawText.substring(0,300),category:'general',priority:'normal',recommended_action:'Review and add details manually'}]};
+    }
+    const matchedTenant=TENANTS.find(t=>t.unit===parsed.matched_tenant_unit)||null;
+    matchDiv.innerHTML=matchedTenant
+      ?'<div class="match-card"><div class="match-title">Tenant matched — Unit '+matchedTenant.unit+'</div><div class="match-detail">'+matchedTenant.contact+' · '+matchedTenant.business+'</div></div>'
+      :'<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:.75rem 1rem;margin:.75rem 0;font-size:12px;color:#92400e"><strong>Sender: '+parsed.sender_info+'</strong> — not matched to a tenant. Edit in queue to assign.</div>';
+    const issues=(parsed.issues&&parsed.issues.length)?parsed.issues:[{title:'Maintenance request',description:'See image for details',category:'general',priority:'normal',recommended_action:'Review and assess'}];
+    const newWOs=issues.map(issue=>{
+      const vendor=matchVendor(issue.category);
+      return{id:'WO-'+Math.floor(1000+Math.random()*9000),issue_summary:issue.title,description:issue.description,category:issue.category,priority:issue.priority||'normal',priority_reason:'From screenshot',recommended_action:issue.recommended_action,estimated_time:'1-2 hours',access_needed:true,notes_for_vendor:issue.description,tenant:matchedTenant?matchedTenant.contact:(parsed.matched_tenant_name||'Unknown'),unit:matchedTenant?matchedTenant.unit:(parsed.matched_tenant_unit||'Unknown'),business:matchedTenant?matchedTenant.business:'',tenant_email:matchedTenant?matchedTenant.email:'',date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),vendor,status:'pending',source:'Screenshot',photos:[],excludeFromReport:false,estimatedCost:issue.estimated_cost||''};
+    });
+    newWOs.forEach(wo=>workOrders.unshift(wo));
+    updateQueueCount();saveData();
+    resultDiv.innerHTML='<div style="border:1px solid #86efac;border-radius:12px;padding:1rem;margin-top:.75rem;background:#fff"><div style="font-size:13px;font-weight:600;margin-bottom:.75rem;color:#15803d">'+newWOs.length+' work order'+(newWOs.length>1?'s':'')+' created!</div>'+
+      newWOs.map(wo=>{
+        const bc=wo.priority==='urgent'?'badge-urgent':wo.priority==='normal'?'badge-normal':'badge-low';
+        return'<div style="border:1px solid #e2e8f0;border-radius:8px;padding:.85rem;margin-bottom:.6rem;background:#f8fafc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div style="font-size:13px;font-weight:600">'+wo.id+' — '+wo.issue_summary+'</div><span class="badge '+bc+'">'+wo.priority+'</span></div><div style="font-size:12px;color:#64748b;margin-bottom:8px">'+wo.description+'</div><div style="font-size:12px;color:#64748b;margin-bottom:8px">Vendor: '+wo.vendor.name+'</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn-sm btn-pdf" onclick="downloadWOPDF(\''+wo.id+'\')">Download WO PDF</button><button class="btn-sm btn-email" onclick="emailWO(\''+wo.id+'\',\'screenshot\')">Approve &amp; email vendor</button><button class="btn-sm btn-deny"onclick="denyWO(\''+wo.id+'\',\'screenshot\')">Deny</button><button class="btn-sm" onclick="markComplete(\''+wo.id+'\',\'screenshot\')" style="padding:5px 12px;background:#f0fdf4;color:#15803d;border:1px solid #86efac;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;font-size:12px">✓ Complete</button></div><div id="action-'+wo.id+'" style="margin-top:6px;font-size:12px"></div></div>';
+      }).join('')+
+      '<div style="font-size:11px;color:#94a3b8;margin-top:8px">All work orders also in the Approval Queue tab</div></div>';
+  }catch(err){
+    resultDiv.innerHTML='<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:1rem;margin-top:.75rem;font-size:13px;color:#b91c1c"><strong>Error: '+err.message+'</strong><br><br>Try: Use the Log a Call tab to enter details manually.</div>';
+  }
+}
+
+function compressImage(file,maxSize,quality){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>maxSize||h>maxSize){if(w>h){h=Math.round(h*maxSize/w);w=maxSize;}else{w=Math.round(w*maxSize/h);h=maxSize;}}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg',quality).split(',')[1]);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Could not load image'));};
+    img.src=url;
+  });
+}
+
+// ── HISTORY ───────────────────────────────────────────────
+async function handleHistory(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const base64=e.target.result.split(',')[1];
+    document.getElementById('history-result').innerHTML='<div class="loading-row"><div class="spinner"></div>AI reading past maintenance record...</div>';
+    try{
+      const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type,data:base64}},{type:'text',text:'Screenshot of past maintenance for 146 Main St. Extract details. Reply ONLY with valid JSON:\n{"task":"what was done","unit":"unit or All units","vendor":"vendor or Unknown","date_completed":"YYYY-MM-DD","frequency":"Monthly|Quarterly|Bi-annually|Annually","next_due":"YYYY-MM-DD","notes":"details"}'}]}]})});
+      const data=await res.json();
+      const record=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+      record.id='HIST-'+Math.floor(1000+Math.random()*9000);
+      maintenanceHistory.unshift(record);
+      saveData();
+      document.getElementById('history-result').innerHTML='<div class="match-card" style="margin-top:.75rem"><div class="match-title">History record added + scheduled</div><div class="match-detail">'+record.task+' · Completed: '+record.date_completed+' · Next due: '+record.next_due+'</div></div>';
+      renderHistory();
+    }catch(e){document.getElementById('history-result').innerHTML='<div class="loading-row" style="color:#b91c1c">Error reading screenshot. Try again.</div>';}
+  };
+  reader.readAsDataURL(file);
+}
+function renderHistory(){
+  const el=document.getElementById('history-list');
+  if(!maintenanceHistory.length){el.innerHTML='<div class="empty">No history yet.</div>';return;}
+  el.innerHTML=maintenanceHistory.map(r=>'<div style="padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px"><div style="font-weight:600">'+r.task+' — '+r.unit+'</div><div style="font-size:11px;color:#64748b;margin-top:2px">Completed: '+r.date_completed+' · Vendor: '+r.vendor+' · Next due: '+r.next_due+'</div>'+(r.notes?'<div style="font-size:11px;color:#94a3b8">'+r.notes+'</div>':'')+'</div>').join('');
+}
+
+// ── LOG A CALL ────────────────────────────────────────────
+function initCallLog(){
+  const ts=document.getElementById('lc-tenant');
+  if(ts.options.length<=1){
+    const gen=TENANTS.find(t=>t.unit==='103');
+    if(gen){const o=document.createElement('option');o.value=gen.unit;o.textContent=gen.contact+' — Unit '+gen.unit+' ('+gen.business+') ★ Walkthrough';ts.appendChild(o);}
+    TENANTS.filter(t=>t.unit!=='103').forEach(t=>{const o=document.createElement('option');o.value=t.unit;o.textContent=t.contact+' — Unit '+t.unit+' ('+t.business+')';ts.appendChild(o);});
+  }
+  const vs=document.getElementById('lc-vendor');
+  if(vs.options.length<=1){const seen=new Set();VENDORS.forEach(v=>{if(!seen.has(v.name)){seen.add(v.name);const o=document.createElement('option');o.value=v.name;o.textContent=v.name+' ('+v.trade+')';vs.appendChild(o);}});}
+  const dt=document.getElementById('lc-datetime');
+  if(!dt.value){const now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());dt.value=now.toISOString().slice(0,16);}
+}
+function autoFillTenant(){
+  const t=TENANTS.find(t=>t.unit===document.getElementById('lc-tenant').value);
+  document.getElementById('lc-unit').value=t?'Unit '+t.unit+' — '+t.business:'';
+  document.getElementById('lc-tenant-phone').value=t?(t.cell_phone||t.office_phone||'—'):'';
+  document.getElementById('lc-tenant-email').value=t?(t.email||'—'):'';
+}
+function autoFillVendor(){const v=matchVendor(document.getElementById('lc-service').value);if(v){document.getElementById('lc-vendor').value=v.name;document.getElementById('lc-vendor-contact').value=v.contact;document.getElementById('lc-vendor-phone').value=formatPhone(v.phone);document.getElementById('lc-vendor-email').value=v.email;}}
+function autoFillVendorDetails(){const v=VENDORS.find(v=>v.name===document.getElementById('lc-vendor').value);if(v){document.getElementById('lc-vendor-contact').value=v.contact;document.getElementById('lc-vendor-phone').value=formatPhone(v.phone);document.getElementById('lc-vendor-email').value=v.email;}}
+function toggleOwnerApproval(){document.getElementById('owner-approval-fields').style.display=document.getElementById('lc-owner-approval').checked?'block':'none';}
+let uploadedPhotos=[];
+function handlePhotoUpload(input){
+  Array.from(input.files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=(e)=>{
+      uploadedPhotos.push({name:file.name,dataUrl:e.target.result});
+      const div=document.createElement('div');div.style.cssText='position:relative;display:inline-block';
+      div.innerHTML='<img src="'+e.target.result+'" style="width:80px;height:80px;object-fit:cover;border-radius:8px;border:1px solid #e2e8f0"/><span onclick="removePhoto('+(uploadedPhotos.length-1)+',this)" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;font-weight:700">✕</span>';
+      document.getElementById('photo-previews').appendChild(div);
+    };reader.readAsDataURL(file);
+  });
+}
+function removePhoto(i,el){uploadedPhotos.splice(i,1);el.parentElement.remove();}
+function submitCallLog(){
+  const tenantUnit=document.getElementById('lc-tenant').value;
+  const tenant=TENANTS.find(t=>t.unit===tenantUnit);
+  const vendorName=document.getElementById('lc-vendor').value;
+  const vendor=VENDORS.find(v=>v.name===vendorName)||{name:vendorName||'TBD',contact:'',email:'',phone:''};
+  const title=document.getElementById('lc-title').value.trim();
+  const desc=document.getElementById('lc-description').value.trim();
+  const service=document.getElementById('lc-service').value;
+  const priority=document.getElementById('lc-priority').value;
+  const access=document.getElementById('lc-access').value;
+  const notes=document.getElementById('lc-notes').value.trim();
+  const datetime=document.getElementById('lc-datetime').value;
+  const ownerApproval=document.getElementById('lc-owner-approval').checked;
+  const ownerName=document.getElementById('lc-owner-name').value.trim();
+  const ownerEmail=document.getElementById('lc-owner-email').value.trim();
+  const photos=[...uploadedPhotos];
+  if(!tenant){alert('Please select a tenant.');return;}
+  if(!title){alert('Please enter a work order title.');return;}
+  if(!service){alert('Please select a service type.');return;}
+  const costMap={plumbing:'$150-$400',hvac:'$200-$500',electrical:'$150-$350',locksmith:'$100-$250',fire:'$200-$600',extinguisher:'$100-$300',hood:'$300-$800',general:'$100-$300',other:'$100-$300'};
+  const wo={id:'WO-'+Math.floor(1000+Math.random()*9000),issue_summary:title,description:desc,category:service,priority,priority_reason:'Phone call',recommended_action:desc||title,estimated_time:'1-2 hours',access_needed:access==='yes',notes_for_vendor:notes,tenant:tenant.contact,unit:tenant.unit,business:tenant.business,tenant_email:tenant.email,date:new Date(datetime).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),vendor,status:ownerApproval?'owner_pending':'pending',source:tenantUnit==='103'?'Building walkthrough':'Phone call',photos,ownerName,ownerEmail,estimatedCost:costMap[service]||'$100-$300'};
+  workOrders.unshift(wo);updateQueueCount();saveData();
+  const bc=priority==='urgent'?'badge-urgent':priority==='normal'?'badge-normal':'badge-low';
+  document.getElementById('call-result').innerHTML='<div style="border:1px solid #86efac;border-radius:12px;padding:1rem;margin-top:.75rem;background:#fff"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><span style="font-size:13px;font-weight:600">Work order created: '+wo.id+'</span><span class="badge '+bc+'">'+priority+' priority</span></div><div style="font-size:13px;color:#15803d">✅ Added to Approval Queue</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="btn-sm btn-pdf" onclick="downloadWOPDF(\''+wo.id+'\')">Download WO PDF</button><button class="btn-sm btn-email" onclick="emailWO(\''+wo.id+'\',\'call-result\')">Approve &amp; email vendor</button><button class="btn-sm btn-deny" onclick="denyWO(\''+wo.id+'\',\'call-result\')">Deny</button><button class="btn-sm" onclick="markComplete(\''+wo.id+'\',\'call-result\')" style="padding:5px 12px;background:#f0fdf4;color:#15803d;border:1px solid #86efac;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;font-size:12px">✓ Complete</button></div><div id="action-'+wo.id+'" style="margin-top:8px;font-size:12px"></div></div>';
+  document.getElementById('lc-title').value='';document.getElementById('lc-description').value='';document.getElementById('lc-notes').value='';document.getElementById('lc-owner-approval').checked=false;document.getElementById('owner-approval-fields').style.display='none';document.getElementById('lc-owner-name').value='';document.getElementById('lc-owner-email').value='';document.getElementById('photo-previews').innerHTML='';uploadedPhotos=[];
+}
+
+// ── WORK ORDER ACTIONS ────────────────────────────────────
+function emailWO(id,ctx){
+  const wo=workOrders.find(w=>w.id===id);if(!wo)return;
+  wo.status='emailed';updateQueueCount();saveData();
+  const subject=encodeURIComponent('Work Order '+wo.id+' — '+wo.issue_summary+' — 146 Main St, Los Altos');
+  const body=encodeURIComponent('Dear '+wo.vendor.contact+',\n\nNew work order at 146 Main St, Los Altos.\n\nWork Order: '+wo.id+'\nDate: '+wo.date+'\nTenant: '+wo.tenant+' — Unit '+wo.unit+(wo.business?' ('+wo.business+')':'')+'\nIssue: '+wo.issue_summary+'\nPriority: '+wo.priority+'\n\nAction: '+wo.recommended_action+'\nAccess Required: '+(wo.access_needed?'Yes — coordinate with tenant':'No')+(wo.notes_for_vendor?'\nNotes: '+wo.notes_for_vendor:'')+'\n\nPlease confirm receipt.\n\nThank you,\nMatt Brading\nBrading Associates, LLC\n(408) 234-7016');
+  window.open('mailto:'+wo.vendor.email+'?subject='+subject+'&body='+body);
+  const el=document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
+  if(el)el.innerHTML='<span style="color:#6d28d9">Email opened to '+wo.vendor.contact+'</span>';
+  if(ctx==='queue')renderQueue();
+}
+function denyWO(id,ctx){
+  const wo=workOrders.find(w=>w.id===id);if(!wo)return;
+  wo.status='denied';updateQueueCount();saveData();
+  const el=document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
+  if(el)el.innerHTML='<span style="color:#b91c1c">Denied.</span>';
+  if(ctx==='queue')renderQueue();
+}
+function updateQueueCount(){document.getElementById('queue-count').textContent=workOrders.filter(w=>w.status==='pending').length;}
+
+function renderQueue(){
+  const el=document.getElementById('queue-list');
+  if(!workOrders.length){el.innerHTML='<div class="empty">No work orders yet.</div>';return;}
+  el.innerHTML=workOrders.map(wo=>{
+    const bc=wo.priority==='urgent'?'badge-urgent':wo.priority==='normal'?'badge-normal':'badge-low';
+    const sc=wo.status==='completed'?'badge-sent':wo.status==='approved'||wo.status==='emailed'?'badge-sent':wo.status==='denied'?'badge-denied':wo.status==='owner_pending'?'badge-low':'badge-pending';
+    const sl=wo.status==='completed'?'✓ Completed'+(wo.completedDate?' — '+wo.completedDate:''):wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':wo.status==='owner_pending'?'Awaiting owner approval':'Pending approval';
+    const inReport=!wo.excludeFromReport;
+    const sid=wo.id.replace('-','_');
+    const unknown=wo.tenant==='Unknown'||wo.unit==='Unknown';
+    const tOpts=TENANTS.map(t=>'<option value="'+t.unit+'"'+(wo.unit===t.unit?' selected':'')+'>'+t.contact+' — Unit '+t.unit+' ('+t.business+')</option>').join('');
+    const vOpts=[...new Set(VENDORS.map(v=>v.name))].map(n=>'<option value="'+n+'"'+(wo.vendor&&wo.vendor.name===n?' selected':'')+'>'+n+'</option>').join('');
+    return'<div class="wo-item" id="woitem-'+wo.id+'" style="border-left:3px solid '+(unknown?'#f59e0b':inReport?'#22c55e':'#e2e8f0')+'">'+
+      (unknown?'<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap"><div style="font-size:12px;font-weight:700;color:#92400e">⚠ Sender not recognized — assign a tenant</div><select onchange="assignTenant(\''+wo.id+'\',this.value)" style="padding:6px 10px;font-size:12px;font-family:inherit;background:white;border:1px solid #fcd34d;border-radius:6px;color:#0f172a;min-width:200px"><option value="">— Select tenant —</option>'+tOpts+'</select></div>':'')+
+      '<div class="wo-top"><div><div class="wo-title">'+wo.id+' — '+(wo.issue_summary||'<span style="color:#f59e0b;font-style:italic">No title</span>')+'</div>'+(wo.description?'<div style="font-size:11px;color:#64748b;margin-top:2px;line-height:1.4">'+wo.description.substring(0,100)+(wo.description.length>100?'...':'')+'</div>':'')+
+      '<div class="wo-meta">'+wo.tenant+' · Unit '+wo.unit+(wo.business?' · '+wo.business:'')+' · '+wo.date+'</div></div>'+
+      '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span class="badge '+bc+'">'+wo.priority+'</span><span class="badge '+sc+'">'+sl+'</span></div></div>'+
+      '<div class="wo-details"><div><div class="wo-detail-label">Category</div><div class="wo-detail-val">'+wo.category+'</div></div><div><div class="wo-detail-label">Vendor</div><div class="wo-detail-val">'+wo.vendor.name+'</div></div><div><div class="wo-detail-label">Action</div><div class="wo-detail-val">'+wo.recommended_action+'</div></div><div><div class="wo-detail-label">Est. time</div><div class="wo-detail-val">'+wo.estimated_time+'</div></div></div>'+
+      '<div id="edit-'+sid+'" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-top:8px;border:1px solid #e2e8f0">'+
+        '<div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;margin-bottom:8px">Edit work order</div>'+
+        '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">Title</div><input id="et-'+sid+'" value="'+(wo.issue_summary||'').replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a"/></div>'+
+        '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">Description</div><textarea id="ed-'+sid+'" rows="2" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a;resize:none">'+(wo.description||wo.recommended_action||'')+'</textarea></div>'+
+        '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">Tenant</div><select id="eten-'+sid+'" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a"><option value="">— Select tenant —</option>'+tOpts+'</select></div>'+
+        '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">Vendor</div><select id="ev-'+sid+'" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a">'+vOpts+'</select></div>'+
+        '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px">Priority</div><select id="ep-'+sid+'" style="width:100%;padding:8px 10px;font-size:13px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a"><option value="urgent"'+(wo.priority==='urgent'?' selected':'')+'>Urgent</option><option value="normal"'+(wo.priority==='normal'?' selected':'')+'>Normal</option><option value="low"'+(wo.priority==='low'?' selected':'')+'>Low</option></select></div>'+
+        '<div style="display:flex;gap:6px"><button onclick="saveWOEdit(\''+wo.id+'\')" style="padding:7px 16px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save</button><button onclick="cancelWOEdit(\''+wo.id+'\')" style="padding:7px 16px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button></div>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">'+
+        '<button class="btn-sm btn-pdf" onclick="downloadWOPDF(\''+wo.id+'\')">Download WO PDF</button>'+
+        '<button class="btn-sm btn-email" onclick="emailWO(\''+wo.id+'\',\'queue\')">Approve &amp; email vendor</button>'+
+        '<button class="btn-sm btn-deny" onclick="denyWO(\''+wo.id+'\',\'queue\')">Deny</button>'+
+        '<button onclick="toggleEditWO(\''+wo.id+'\')" style="padding:5px 12px;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;font-family:inherit;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd">Edit</button>'+
+        '<button onclick="markComplete(\''+wo.id+'\',\'queue\')" style="padding:5px 12px;font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;font-family:inherit;background:#f0fdf4;color:#15803d;border:1px solid #86efac">✓ Complete</button></div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9">'+
+        '<button onclick="toggleReportInclude(\''+wo.id+'\','+ !inReport+')" style="padding:4px 12px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;border:1px solid '+(inReport?'#86efac':'#e2e8f0')+';background:'+(inReport?'#f0fdf4':'#f8fafc')+';color:'+(inReport?'#15803d':'#64748b')+'">'+(inReport?'✓ In owner report':'○ Excluded from report')+'</button>'+
+        '<button onclick="deleteWO(\''+wo.id+'\')" style="padding:4px 12px;font-size:11px;font-weight:600;border-radius:6px;cursor:pointer;font-family:inherit;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5">Delete</button>'+
+      '</div>'+
+      '<div id="qaction-'+wo.id+'" style="margin-top:6px;font-size:12px"></div>'+
+      '<div style="margin-top:8px;padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase">Est. Cost</span><span id="cost-display-'+wo.id+'" style="font-size:13px;font-weight:600;color:#0f172a">'+(wo.estimatedCost||'Not set')+'</span><input id="cost-input-'+wo.id+'" style="display:none;width:120px;padding:4px 8px;font-size:12px;border:1px solid #94a3b8;border-radius:6px;background:white" value="'+(wo.estimatedCost||'')+'"/><button onclick="editWOCost(\''+wo.id+'\')" id="cost-edit-btn-'+wo.id+'" style="padding:3px 10px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit cost</button><button onclick="saveWOCost(\''+wo.id+'\')" id="cost-save-btn-'+wo.id+'" style="display:none;padding:3px 10px;font-size:11px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save</button></div>'+
+      '<div style="margin-top:8px"><div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Status notes</div><textarea id="sn-'+wo.id+'" onfocus="this.style.borderColor=\'#94a3b8\'" onblur="this.style.borderColor=\'#e2e8f0\'" style="width:100%;padding:8px 10px;font-size:12px;font-family:inherit;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#0f172a;resize:none;min-height:60px" placeholder="e.g. Vendor confirmed Thursday, parts on order...">'+(wo.statusNotes||'')+'</textarea><button onclick="saveWONotes(\''+wo.id+'\',document.getElementById(\'sn-'+wo.id+'\').value)" style="margin-top:6px;padding:5px 14px;font-size:11px;font-weight:600;font-family:inherit;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer">Save notes</button><span id="sn-saved-'+wo.id+'" style="font-size:11px;color:#15803d;margin-left:8px;display:none">✓ Saved</span></div>'+
+    '</div>';
+  }).join('');
+}
+
+function assignTenant(id,unit){if(!unit)return;const wo=workOrders.find(w=>w.id===id),t=TENANTS.find(t=>t.unit===unit);if(!wo||!t)return;wo.tenant=t.contact;wo.unit=t.unit;wo.business=t.business;wo.tenant_email=t.email;saveData();renderQueue();}
+function toggleEditWO(id){const p=document.getElementById('edit-'+id.replace('-','_'));if(p)p.style.display=p.style.display==='none'?'block':'none';}
+function cancelWOEdit(id){const p=document.getElementById('edit-'+id.replace('-','_'));if(p)p.style.display='none';}
+function saveWOEdit(id){
+  const wo=workOrders.find(w=>w.id===id);if(!wo)return;
+  const s=id.replace('-','_');
+  const t=document.getElementById('et-'+s).value.trim();
+  if(!t){alert('Please enter a title.');return;}
+  wo.issue_summary=t;wo.description=document.getElementById('ed-'+s).value.trim();wo.priority=document.getElementById('ep-'+s).value;wo.recommended_action=wo.description||t;
+  const nu=document.getElementById('eten-'+s).value;if(nu){const tn=TENANTS.find(t=>t.unit===nu);if(tn){wo.tenant=tn.contact;wo.unit=tn.unit;wo.business=tn.business;wo.tenant_email=tn.email;}}
+  const nv=document.getElementById('ev-'+s).value;if(nv){const vn=VENDORS.find(v=>v.name===nv);if(vn)wo.vendor=vn;}
+  saveData();renderQueue();
+}
+function deleteWO(id){if(!confirm('Delete '+id+'? Cannot be undone.'))return;workOrders=workOrders.filter(w=>w.id!==id);saveData();updateQueueCount();renderQueue();}
+function toggleReportInclude(id,include){const wo=workOrders.find(w=>w.id===id);if(!wo)return;wo.excludeFromReport=!include;saveData();renderQueue();}
+function editWOCost(id){document.getElementById('cost-display-'+id).style.display='none';document.getElementById('cost-edit-btn-'+id).style.display='none';document.getElementById('cost-input-'+id).style.display='inline-block';document.getElementById('cost-save-btn-'+id).style.display='inline-block';}
+function saveWOCost(id){const wo=workOrders.find(w=>w.id===id);if(!wo)return;wo.estimatedCost=document.getElementById('cost-input-'+id).value.trim();saveData();document.getElementById('cost-display-'+id).textContent=wo.estimatedCost||'Not set';document.getElementById('cost-display-'+id).style.display='inline';document.getElementById('cost-edit-btn-'+id).style.display='inline-block';document.getElementById('cost-input-'+id).style.display='none';document.getElementById('cost-save-btn-'+id).style.display='none';}
+function saveWONotes(id,val){
+  const wo=workOrders.find(w=>w.id===id);if(!wo)return;
+  wo.statusNotes=val.trim();saveData();
+  const el=document.getElementById('sn-saved-'+id);
+  if(el){el.style.display='inline';setTimeout(()=>el.style.display='none',2000);}
+}
+
+// ── MARK COMPLETE ─────────────────────────────────────────
+function markComplete(id,ctx){
+  const wo=workOrders.find(w=>w.id===id);if(!wo)return;
+  const today=new Date().toISOString().split('T')[0];
+  const dateInput=prompt('Date completed (YYYY-MM-DD):',today);
+  if(dateInput===null)return;
+  const d=new Date(dateInput+'T12:00:00');
+  if(isNaN(d.getTime())){alert('Invalid date. Use YYYY-MM-DD format.');return;}
+  wo.status='completed';
+  wo.completedDate=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  saveData();updateQueueCount();
+  const el=document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
+  if(el)el.innerHTML='<span style="color:#15803d;font-weight:600">✓ Marked complete — '+wo.completedDate+'</span>';
+  if(ctx==='queue')renderQueue();
+}
+
+// ══════════════════════════════════════════════════════════
+// ── BID REQUESTS ──────────────────────────────────────────
+// ══════════════════════════════════════════════════════════
+
+let extraBidVendors=[];  // unlisted vendors added for this bid session
+
+function updateBidCount(){
+  const open=bidJobs.filter(b=>b.status==='open'||b.status==='comparing').length;
+  document.getElementById('bid-count').textContent=open;
+}
+
+function toggleNewBidForm(){
+  const form=document.getElementById('new-bid-form');
+  const btn=document.getElementById('new-bid-toggle-btn');
+  const isHidden=form.style.display==='none';
+  form.style.display=isHidden?'block':'none';
+  btn.textContent=isHidden?'✕ Cancel':'+ New bid request';
+  if(isHidden){
+    renderBidVendorChecklist();
+    extraBidVendors=[];
+    document.getElementById('bid-extra-vendors').innerHTML='';
+    // default due date to 2 weeks from today
+    const d=new Date();d.setDate(d.getDate()+14);
+    document.getElementById('bid-due-date').value=d.toISOString().split('T')[0];
+  }
+}
+
+function renderBidVendorChecklist(){
+  const el=document.getElementById('bid-vendor-checklist');
+  if(!el)return;
+  const seen=new Set();
+  const unique=VENDORS.filter(v=>{if(seen.has(v.name))return false;seen.add(v.name);return true;});
+  el.innerHTML=unique.map(v=>`
+    <label class="vendor-check-item" id="vc-${v.name.replace(/\s/g,'_')}">
+      <input type="checkbox" value="${v.name}" onchange="toggleVendorCheckStyle(this)"/>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:12px">${v.name}</div>
+        <div style="font-size:11px;color:#64748b">${v.trade} · ${v.contact}</div>
+      </div>
+    </label>
+  `).join('');
+}
+
+function toggleVendorCheckStyle(cb){
+  const label=cb.closest('.vendor-check-item');
+  label.classList.toggle('selected',cb.checked);
+}
+
+function addExtraBidVendor(){
+  const name=document.getElementById('bid-extra-name').value.trim();
+  const email=document.getElementById('bid-extra-email').value.trim();
+  if(!name||!email){alert('Please enter both a vendor name and email.');return;}
+  extraBidVendors.push({name,email,contact:name,phone:''});
+  document.getElementById('bid-extra-name').value='';
+  document.getElementById('bid-extra-email').value='';
+  const div=document.getElementById('bid-extra-vendors');
+  div.innerHTML=extraBidVendors.map((v,i)=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:white;border:1px solid #e2e8f0;border-radius:6px;margin-top:4px;font-size:12px">
+      <span><strong>${v.name}</strong> · ${v.email}</span>
+      <button onclick="removeExtraBidVendor(${i})" style="padding:2px 8px;font-size:11px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-family:inherit">Remove</button>
+    </div>
+  `).join('');
+}
+
+function removeExtraBidVendor(i){
+  extraBidVendors.splice(i,1);
+  const div=document.getElementById('bid-extra-vendors');
+  div.innerHTML=extraBidVendors.map((v,idx)=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:white;border:1px solid #e2e8f0;border-radius:6px;margin-top:4px;font-size:12px">
+      <span><strong>${v.name}</strong> · ${v.email}</span>
+      <button onclick="removeExtraBidVendor(${idx})" style="padding:2px 8px;font-size:11px;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:5px;cursor:pointer;font-family:inherit">Remove</button>
+    </div>
+  `).join('');
+}
+
+function sendBidRequests(){
+  const title=document.getElementById('bid-title').value.trim();
+  const scope=document.getElementById('bid-scope').value.trim();
+  const trade=document.getElementById('bid-trade').value;
+  const dueDate=document.getElementById('bid-due-date').value;
+  const budget=document.getElementById('bid-budget').value.trim();
+  if(!title){alert('Please enter a job title.');return;}
+  if(!scope){alert('Please enter a scope of work.');return;}
+  if(!trade){alert('Please select a trade / category.');return;}
+
+  // Collect checked vendors from directory
+  const checkedBoxes=document.querySelectorAll('#bid-vendor-checklist input[type=checkbox]:checked');
+  const selectedVendors=[];
+  checkedBoxes.forEach(cb=>{
+    const v=VENDORS.find(v=>v.name===cb.value);
+    if(v&&!selectedVendors.find(s=>s.name===v.name))selectedVendors.push(v);
+  });
+  // Add extra vendors
+  extraBidVendors.forEach(v=>{if(!selectedVendors.find(s=>s.name===v.name))selectedVendors.push(v);});
+
+  if(selectedVendors.length===0){alert('Please select at least one vendor to send this bid request to.');return;}
+
+  const dueFmt=dueDate?new Date(dueDate+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}):'';
+  const jobId='BID-'+Math.floor(1000+Math.random()*9000);
+  const today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  // Build bid job record
+  const job={
+    id:jobId,
+    title,scope,trade,dueDate,dueFmt,budget,
+    createdDate:today,
+    status:'open',
+    vendors:selectedVendors.map(v=>({
+      name:v.name,contact:v.contact||v.name,email:v.email,phone:v.phone||'',
+      bidStatus:'invited',  // invited | received | declined
+      bidAmount:'',
+      bidNotes:'',
+      bidFiles:[],
+      bidDate:''
+    })),
+    awardedTo:'',
+    reportGenerated:false,
+    aiReport:''
+  };
+
+  bidJobs.unshift(job);
+  saveData();
+  updateBidCount();
+
+  // Open mailto for each vendor
+  const resultDiv=document.getElementById('bid-send-result');
+  const opened=[];
+  selectedVendors.forEach((v,idx)=>{
+    setTimeout(()=>{
+      const subject=encodeURIComponent('Bid Request — '+title+' — 146 Main St, Los Altos');
+      const bodyText='Dear '+v.contact+',\n\nWe are soliciting bids for the following project at 146 Main St, Los Altos.\n\nJob: '+title+'\nTrade: '+trade+'\n'+(dueFmt?'Bids due by: '+dueFmt+'\n':'')+'\nScope of Work:\n'+scope+'\n\nPlease reply to this email with your itemized bid, including:\n• Total price\n• Estimated timeline\n• Any exclusions or assumptions\n• Your license number and insurance info\n\nWe look forward to your proposal.\n\nThank you,\nMatt Brading\nBrading Associates, LLC\n(408) 234-7016\nmatt@bradingassociates.com';
+      window.open('mailto:'+v.email+'?subject='+encodeURIComponent(decodeURIComponent(subject))+'&body='+encodeURIComponent(bodyText));
+      opened.push(v.name);
+    },idx*600);
+  });
+
+  setTimeout(()=>{
+    resultDiv.innerHTML='<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;font-size:12px;color:#15803d"><strong>✅ '+selectedVendors.length+' bid request email'+(selectedVendors.length>1?'s':'')+' opened!</strong><br>Sent to: '+selectedVendors.map(v=>v.name).join(', ')+'<br><span style="color:#64748b;margin-top:4px;display:block">Go to Bid Requests to track responses and upload bids when they come in.</span></div>';
+    document.getElementById('bid-title').value='';
+    document.getElementById('bid-scope').value='';
+    document.getElementById('bid-trade').value='';
+    document.getElementById('bid-budget').value='';
+    extraBidVendors=[];
+    document.getElementById('bid-extra-vendors').innerHTML='';
+    renderBidVendorChecklist();
+    renderBidJobs();
+    setTimeout(()=>{
+      document.getElementById('new-bid-form').style.display='none';
+      document.getElementById('new-bid-toggle-btn').textContent='+ New bid request';
+      resultDiv.innerHTML='';
+    },4000);
+  },selectedVendors.length*600+300);
+}
+
+function renderBidJobs(){
+  const el=document.getElementById('bid-jobs-list');
+  if(!bidJobs.length){el.innerHTML='<div class="empty">No bid requests yet. Create one above to get started.</div>';return;}
+  el.innerHTML=bidJobs.map(job=>{
+    const receivedCount=job.vendors.filter(v=>v.bidStatus==='received').length;
+    const totalCount=job.vendors.length;
+    let statusBadge,statusLabel;
+    if(job.status==='awarded'){statusBadge='badge-bids-awarded';statusLabel='Awarded';}
+    else if(job.status==='closed'){statusBadge='badge-bids-closed';statusLabel='Closed';}
+    else if(receivedCount>0&&receivedCount<totalCount){statusBadge='badge-bids-comparing';statusLabel=receivedCount+'/'+totalCount+' bids in';}
+    else if(receivedCount===totalCount&&totalCount>0){statusBadge='badge-bids-comparing';statusLabel='All bids received';}
+    else{statusBadge='badge-bids-open';statusLabel='Awaiting bids';}
+
+    const vendorRows=job.vendors.map((v,vi)=>`
+      <div class="bid-vendor-row" id="bvr-${job.id}-${vi}">
+        <div style="flex:1;min-width:140px">
+          <div class="bid-vendor-name">${v.name}</div>
+          <div class="bid-vendor-status">${v.contact} · ${v.email}</div>
+          ${v.bidDate?'<div style="font-size:11px;color:#64748b">Bid received: '+v.bidDate+'</div>':''}
+          ${v.bidNotes?'<div style="font-size:11px;color:#475569;margin-top:2px;font-style:italic">"'+v.bidNotes+'"</div>':''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          ${v.bidStatus==='received'
+            ? '<span class="badge badge-normal">Bid received</span><span style="font-size:13px;font-weight:700;color:#15803d">'+( v.bidAmount||'—')+'</span>'
+            : v.bidStatus==='declined'
+              ? '<span class="badge badge-denied">Declined</span>'
+              : '<span class="badge badge-pending">Invited</span>'
+          }
+          ${v.bidStatus!=='received'?`
+            <button onclick="markBidDeclined('${job.id}',${vi})" class="btn-sm btn-deny" style="font-size:11px;padding:4px 8px">Declined</button>
+          `:''}
+          <label class="bid-upload-btn">
+            📎 ${v.bidStatus==='received'?'Replace bid':'Upload bid'}
+            <input type="file" accept="image/*,.pdf,.doc,.docx" onchange="handleBidUpload('${job.id}',${vi},this)"/>
+          </label>
+          ${v.bidStatus==='received'&&job.status!=='awarded'?`<button onclick="awardBid('${job.id}','${v.name}')" style="padding:5px 12px;font-size:12px;font-weight:700;background:#0f172a;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit">★ Award</button>`:''}
+          ${job.awardedTo===v.name?'<span class="badge badge-bids-awarded" style="font-size:11px">★ Awarded</span>':''}
+        </div>
+      </div>
+    `).join('');
+
+    return`<div class="bid-job-card" id="bidjob-${job.id}">
+      <div class="bid-job-header">
+        <div>
+          <div class="bid-job-title">${job.id} — ${job.title}</div>
+          <div class="bid-job-meta">${job.trade} · Created ${job.createdDate}${job.dueFmt?' · Bids due '+job.dueFmt:''}${job.budget?' · Budget: '+job.budget:''}</div>
+          ${job.awardedTo?'<div style="font-size:12px;font-weight:600;color:#15803d;margin-top:4px">★ Awarded to: '+job.awardedTo+'</div>':''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="badge ${statusBadge}">${statusLabel}</span>
+          <span style="font-size:11px;color:#64748b">${receivedCount}/${totalCount} bids received</span>
+        </div>
+      </div>
+
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#475569;line-height:1.6">
+        <strong style="color:#0f172a">Scope:</strong> ${job.scope.substring(0,200)}${job.scope.length>200?'...':''}
+      </div>
+
+      ${vendorRows}
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid #f1f5f9">
+        ${receivedCount>=2?`<button onclick="generateBidReport('${job.id}')" style="padding:7px 16px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit">📊 Generate bid comparison report</button>`:''}
+        ${receivedCount>=1&&receivedCount<2?'<div style="font-size:12px;color:#64748b;padding:6px 0">Receive at least 2 bids to generate a comparison report.</div>':''}
+        ${job.aiReport?`<button onclick="viewBidReport('${job.id}')" style="padding:7px 16px;font-size:12px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:8px;cursor:pointer;font-family:inherit">View last report</button>`:''}
+        <button onclick="deleteBidJob('${job.id}')" style="padding:7px 14px;font-size:12px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:8px;cursor:pointer;font-family:inherit">Delete</button>
+      </div>
+      <div id="bid-report-out-${job.id}"></div>
+    </div>`;
+  }).join('');
+}
+
+function markBidDeclined(jobId,vi){
+  const job=bidJobs.find(b=>b.id===jobId);if(!job)return;
+  job.vendors[vi].bidStatus='declined';
+  saveData();renderBidJobs();
+}
+
+function handleBidUpload(jobId,vi,input){
+  const file=input.files[0];if(!file)return;
+  const job=bidJobs.find(b=>b.id===jobId);if(!job)return;
+
+  // Show inline amount entry after upload
+  const rowEl=document.getElementById('bvr-'+jobId+'-'+vi);
+  if(rowEl){
+    const existingPrompt=document.getElementById('bid-amount-prompt-'+jobId+'-'+vi);
+    if(!existingPrompt){
+      const promptDiv=document.createElement('div');
+      promptDiv.id='bid-amount-prompt-'+jobId+'-'+vi;
+      promptDiv.style.cssText='width:100%;margin-top:8px;padding:10px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px';
+      promptDiv.innerHTML=`
+        <div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:6px">📄 ${file.name} — Enter bid details</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <div><div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:3px">Bid amount *</div><input id="bamt-${jobId}-${vi}" class="bid-amount-input" placeholder="e.g. $8,500"/></div>
+          <div style="flex:1;min-width:160px"><div style="font-size:11px;font-weight:600;color:#64748b;margin-bottom:3px">Notes (optional)</div><input id="bnotes-${jobId}-${vi}" style="padding:6px 10px;font-size:12px;font-family:inherit;background:white;border:1px solid #e2e8f0;border-radius:6px;color:#0f172a;width:100%" placeholder="e.g. Includes primer, 2 coats"/></div>
+          <button onclick="saveBidEntry('${jobId}',${vi})" style="padding:7px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:8px;cursor:pointer;font-family:inherit;flex-shrink:0">Save bid</button>
+        </div>
+      `;
+      rowEl.appendChild(promptDiv);
+    }
+  }
+
+  // Store the file name in the vendor record
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    job.vendors[vi].bidFiles=[{name:file.name,dataUrl:e.target.result}];
+    saveData();
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveBidEntry(jobId,vi){
+  const job=bidJobs.find(b=>b.id===jobId);if(!job)return;
+  const amtEl=document.getElementById('bamt-'+jobId+'-'+vi);
+  const notesEl=document.getElementById('bnotes-'+jobId+'-'+vi);
+  const amt=(amtEl&&amtEl.value.trim())||'';
+  if(!amt){alert('Please enter the bid amount.');return;}
+  job.vendors[vi].bidStatus='received';
+  job.vendors[vi].bidAmount=amt;
+  job.vendors[vi].bidNotes=notesEl?notesEl.value.trim():'';
+  job.vendors[vi].bidDate=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+  // Update job status
+  const recCount=job.vendors.filter(v=>v.bidStatus==='received').length;
+  if(recCount>0&&job.status==='open')job.status='comparing';
+  saveData();updateBidCount();
+  renderBidJobs();
+}
+
+function awardBid(jobId,vendorName){
+  const job=bidJobs.find(b=>b.id===jobId);if(!job)return;
+  if(!confirm('Award this job to '+vendorName+'?\n\nThis will mark the job as awarded and create a work order.'))return;
+  job.awardedTo=vendorName;
+  job.status='awarded';
+  // Create a work order
+  const v=VENDORS.find(vn=>vn.name===vendorName)||job.vendors.find(vv=>vv.name===vendorName)||{name:vendorName,contact:vendorName,email:'',phone:''};
+  const wo={id:'WO-'+Math.floor(1000+Math.random()*9000),issue_summary:job.title+' (bid awarded)',description:job.scope.substring(0,300),category:job.trade.toLowerCase().replace(/ \/ /g,'/'),priority:'normal',priority_reason:'Bid awarded',recommended_action:job.scope.substring(0,200),estimated_time:'Per vendor proposal',access_needed:true,notes_for_vendor:'Bid awarded via competitive bidding process. See bid comparison report.',tenant:'Building',unit:'All units',business:'',tenant_email:'',date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),vendor:{name:v.name,contact:v.contact||v.name,email:v.email||'',phone:v.phone||''},status:'approved',source:'Bid award — '+job.id,estimatedCost:job.vendors.find(vv=>vv.name===vendorName)?.bidAmount||''};
+  workOrders.unshift(wo);
+  updateQueueCount();
+  saveData();
+  renderBidJobs();
+  alert('✅ Job awarded to '+vendorName+'!\n\nWork order '+wo.id+' created and added to the Approval Queue.');
+}
+
+function deleteBidJob(jobId){
+  if(!confirm('Delete this bid request? Cannot be undone.'))return;
+  bidJobs=bidJobs.filter(b=>b.id!==jobId);
+  saveData();updateBidCount();renderBidJobs();
+}
+
+async function generateBidReport(jobId){
+  const job=bidJobs.find(b=>b.id===jobId);if(!job)return;
+  const receivedBids=job.vendors.filter(v=>v.bidStatus==='received');
+  if(receivedBids.length<2){alert('Need at least 2 bids to generate a comparison.');return;}
+
+  const outEl=document.getElementById('bid-report-out-'+jobId);
+  outEl.innerHTML='<div class="loading-row"><div class="spinner"></div>AI analyzing bids and generating comparison report...</div>';
+
+  // Parse amounts to numbers for ranking
+  const parseAmount=s=>{const n=parseFloat((s||'').replace(/[^0-9.]/g,''));return isNaN(n)?Infinity:n;};
+  const sorted=[...receivedBids].sort((a,b)=>parseAmount(a.bidAmount)-parseAmount(b.bidAmount));
+  const lowestBid=sorted[0];
+
+  const bidSummary=receivedBids.map(v=>`Vendor: ${v.name}\nBid Amount: ${v.bidAmount}\nNotes: ${v.bidNotes||'None provided'}\nDate received: ${v.bidDate}`).join('\n\n');
+
+  try{
+    const res=await fetch('/api/claude',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:900,
+        messages:[{role:'user',content:`You are a property management AI. Write a professional bid comparison report for the ownership group.\n\nProperty: 146 Main St, Los Altos\nJob: ${job.title}\nTrade: ${job.trade}\nScope: ${job.scope}\n${job.budget?'Owner budget: '+job.budget:''}\n\nBids received:\n${bidSummary}\n\nWrite a concise report (under 400 words) with these sections:\nSUMMARY\n1-2 sentences on the bidding outcome.\n\nBID COMPARISON\nBrief comparison of each vendor's price and any noted differences.\n\nRECOMMENDATION\nRecommend the best option for the ownership group. Consider price, notes, and value. Be direct and specific.\n\nNOTES\nAny flags or considerations the ownership group should be aware of.`}]
+      })
+    });
+    const data=await res.json();
+    const reportText=data.content&&data.content[0]?data.content[0].text:'Could not generate report — see bid data below.';
+    job.aiReport=reportText;
+    job.reportGenerated=true;
+    saveData();
+    renderBidJobs();
+    outEl.innerHTML='';
+    // Auto-show the report
+    openBidReportModal(job,sorted,lowestBid,reportText);
+  }catch(e){
+    outEl.innerHTML='<div style="color:#b91c1c;font-size:12px;padding:.5rem 0">Error generating AI report. Showing basic comparison below.</div>';
+    const fallback=`SUMMARY\n${receivedBids.length} bids received for ${job.title}.\n\nBID COMPARISON\n${sorted.map((v,i)=>`${i+1}. ${v.name}: ${v.bidAmount}${v.bidNotes?' — '+v.bidNotes:''}`).join('\n')}\n\nRECOMMENDATION\nLowest bid: ${lowestBid.name} at ${lowestBid.bidAmount}. Review all proposals before awarding.`;
+    job.aiReport=fallback;
+    job.reportGenerated=true;
+    saveData();
+    outEl.innerHTML='';
+    openBidReportModal(job,sorted,lowestBid,fallback);
+  }
+}
+
+function viewBidReport(jobId){
+  const job=bidJobs.find(b=>b.id===jobId);if(!job||!job.aiReport)return;
+  const parseAmount=s=>{const n=parseFloat((s||'').replace(/[^0-9.]/g,''));return isNaN(n)?Infinity:n;};
+  const received=job.vendors.filter(v=>v.bidStatus==='received');
+  const sorted=[...received].sort((a,b)=>parseAmount(a.bidAmount)-parseAmount(b.bidAmount));
+  openBidReportModal(job,sorted,sorted[0],job.aiReport);
+}
+
+function openBidReportModal(job,sorted,lowestBid,reportText){
+  const win=window.open('','_blank');
+  const tableRows=sorted.map((v,i)=>{
+    const isLowest=v.name===lowestBid.name;
+    const isAwarded=job.awardedTo===v.name;
+    return`<tr class="${isLowest?'best-row':''}">
+      <td>${i+1}</td>
+      <td><strong>${v.name}</strong>${isAwarded?' <span style="color:#15803d;font-weight:700">★ AWARDED</span>':''}</td>
+      <td style="font-size:16px;font-weight:700;color:${isLowest?'#15803d':'#0f172a'}">${v.bidAmount}</td>
+      <td>${v.bidNotes||'—'}</td>
+      <td>${v.bidDate||'—'}</td>
+      <td>${isLowest?'<span style="background:#f0fdf4;color:#15803d;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700">Lowest</span>':''}</td>
+    </tr>`;
+  }).join('');
+
+  win.document.write(`<!DOCTYPE html><html><head><title>Bid Comparison — ${job.title}</title><style>
+    body{font-family:Arial,sans-serif;padding:40px;max-width:820px;margin:0 auto;color:#0f172a}
+    h1{font-size:22px;font-weight:700;margin-bottom:4px}
+    .subtitle{font-size:13px;color:#64748b;margin-bottom:28px}
+    .section-title{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin:24px 0 10px;border-bottom:2px solid #e2e8f0;padding-bottom:6px}
+    .scope-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;font-size:13px;line-height:1.7;margin-bottom:20px}
+    table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:20px}
+    th{padding:10px 12px;background:#0f172a;color:white;font-size:11px;font-weight:700;text-align:left;text-transform:uppercase}
+    td{padding:9px 12px;border-bottom:1px solid #e2e8f0;vertical-align:top}
+    tr:nth-child(even) td{background:#f8fafc}
+    .best-row td{background:#f0fdf4 !important;font-weight:600}
+    .report-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;font-size:13px;line-height:1.8;white-space:pre-wrap;margin-bottom:20px}
+    .footer{margin-top:32px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center}
+    .pb{margin-bottom:24px;padding:10px 22px;background:#0f172a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+    @media print{.pb{display:none!important}}
+  </style></head><body>
+  <button class="pb" onclick="window.print()">Print / Save as PDF</button>
+  <h1>Bid Comparison Report</h1>
+  <div class="subtitle">
+    ${job.title} · ${job.trade} · 146 Main St, Los Altos<br>
+    ${job.vendors.filter(v=>v.bidStatus==='received').length} bids received · Generated ${new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}
+    ${job.budget?'<br>Owner budget: '+job.budget:''}
+  </div>
+
+  <div class="section-title">Scope of work</div>
+  <div class="scope-box">${job.scope}</div>
+
+  <div class="section-title">Bid summary</div>
+  <table>
+    <thead><tr><th>#</th><th>Vendor</th><th>Bid amount</th><th>Notes</th><th>Date received</th><th>Rank</th></tr></thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+
+  <div class="section-title">AI analysis &amp; recommendation</div>
+  <div class="report-box">${reportText}</div>
+
+  <div class="footer">
+    MaintenanceAI · 146 Main St, Los Altos · Bid Request ${job.id}<br>
+    Matt Brading · Brading Associates, LLC · (408) 234-7016 · matt@bradingassociates.com
+  </div>
+  </body></html>`);
+  win.document.close();
+}
+
+// ── PM ────────────────────────────────────────────────────
+function renderPM(){
+  const sel=document.getElementById('pm-vendor-select');
+  if(sel){const u=[...new Set(VENDORS.map(v=>v.name))];sel.innerHTML=u.map(n=>'<option>'+n+'</option>').join('');}
+  const lt=document.getElementById('pm-log-task');
+  if(lt){const cur=lt.value;lt.innerHTML='<option value="">— Select task —</option>'+pmTasks.map(t=>'<option value="'+t.task+'">'+t.task+'</option>').join('');if(cur)lt.value=cur;}
+  const lv=document.getElementById('pm-log-vendor');
+  if(lv&&lv.options.length===0){const u=[...new Set(VENDORS.map(v=>v.name))];lv.innerHTML=u.map(n=>'<option>'+n+'</option>').join('');}
+  const list=document.getElementById('pm-list');if(!list)return;
+  if(!pmTasks.length){list.innerHTML='<div class="empty">No scheduled tasks yet.</div>';return;}
+  list.innerHTML=pmTasks.map((t,i)=>{
+    const d=new Date(t.next),today=new Date();
+    const due=d<today?'badge-urgent':d-today<7*86400000?'badge-low':'badge-normal';
+    const dl=d<today?'Overdue':d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return'<div class="pm-row" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr auto"><span style="font-size:13px;font-weight:500">'+t.task+'<br><span style="font-size:11px;color:#64748b;font-weight:400">'+t.units+'</span></span><span class="badge" style="background:#f5f3ff;color:#6d28d9;align-self:center">'+t.freq+'</span><span class="badge '+due+'" style="align-self:center">'+dl+'</span><span style="font-size:12px;color:#64748b">'+t.vendor+'</span><span style="font-size:12px;color:#15803d;font-weight:600">'+(t.cost||'—')+'</span><div style="display:flex;gap:4px"><button class="btn-sm btn-email" onclick="dispatchPM('+i+')">Email</button><button onclick="editPM('+i+')" style="padding:4px 8px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit</button><button onclick="deletePM('+i+')" style="padding:4px 8px;font-size:11px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:inherit">Del</button></div></div>';
+  }).join('');
+}
+function addPM(){
+  const task=document.getElementById('pm-task').value.trim(),freq=document.getElementById('pm-freq').value,vendor=document.getElementById('pm-vendor-select').value,unit=document.getElementById('pm-unit').value.trim()||'All units',next=document.getElementById('pm-next').value;
+  if(!task||!next){alert('Please enter a task and next due date.');return;}
+  const cost=document.getElementById('pm-cost').value.trim();
+  pmTasks.push({task,freq,vendor,units:unit,next,cost});
+  document.getElementById('pm-task').value='';document.getElementById('pm-next').value='';document.getElementById('pm-cost').value='';saveData();renderPM();
+}
+function dispatchPM(i){
+  const t=pmTasks[i],vendor=VENDORS.find(v=>v.name===t.vendor)||VENDORS[0];
+  const woId='WO-'+Math.floor(1000+Math.random()*9000),today=new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  workOrders.unshift({id:woId,issue_summary:t.task+' (scheduled)',category:'general',priority:'normal',priority_reason:'Scheduled preventive maintenance',recommended_action:t.task,estimated_time:'1-2 hours',access_needed:true,notes_for_vendor:'Scheduled PM',tenant:'All tenants',unit:t.units,business:'',tenant_email:'',date:today,vendor,status:'emailed',source:'Preventive maintenance'});
+  updateQueueCount();
+  const nm={Monthly:1,Quarterly:3,'Bi-annually':6,Annually:12};
+  const d=new Date(t.next);d.setMonth(d.getMonth()+(nm[t.freq]||12));pmTasks[i].next=d.toISOString().split('T')[0];
+  saveData();renderPM();
+  const subject=encodeURIComponent('Scheduled Maintenance — '+t.task+' — 146 Main St, Los Altos');
+  const body=encodeURIComponent('Dear '+vendor.contact+',\n\nScheduled preventive maintenance work order.\n\nWork Order: '+woId+'\nTask: '+t.task+'\nFrequency: '+t.freq+'\nUnits: '+t.units+'\n\nPlease confirm availability.\n\nThank you,\nMatt Brading\n(408) 234-7016');
+  window.open('mailto:'+vendor.email+'?subject='+subject+'&body='+body);
+}
+function logCompletedPM(){
+  const task=document.getElementById('pm-log-task').value,date=document.getElementById('pm-log-date').value,vendor=document.getElementById('pm-log-vendor').value,notes=document.getElementById('pm-log-notes').value.trim();
+  if(!task){alert('Please select a task.');return;}if(!date){alert('Please enter the date.');return;}
+  const vo=VENDORS.find(v=>v.name===vendor)||VENDORS[0];
+  const dd=new Date(date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  workOrders.unshift({id:'WO-'+Math.floor(1000+Math.random()*9000),issue_summary:task+' — completed '+dd,category:'general',priority:'normal',priority_reason:'PM completed',recommended_action:task,estimated_time:'Completed',access_needed:false,notes_for_vendor:notes||'Logged as completed',tenant:'All tenants',unit:'All units',business:'',tenant_email:'',date:dd,vendor:vo,status:'approved',source:'Completed maintenance log',excludeFromReport:false});
+  saveData();updateQueueCount();
+  document.getElementById('pm-log-result').innerHTML='<span style="color:#15803d">Logged — '+task+' on '+dd+' added to owner report.</span>';
+  document.getElementById('pm-log-task').value='';document.getElementById('pm-log-date').value='';document.getElementById('pm-log-notes').value='';
+}
+function deletePM(i){if(!confirm('Delete this PM task?'))return;pmTasks.splice(i,1);saveData();renderPM();}
+function editPM(i){const t=pmTasks[i];const newTask=prompt('Task name:',t.task);if(newTask===null)return;const newCost=prompt('Estimated cost:',t.cost||'');const newNext=prompt('Next due date (YYYY-MM-DD):',t.next);if(newTask)pmTasks[i].task=newTask.trim();if(newCost!==null)pmTasks[i].cost=newCost.trim();if(newNext)pmTasks[i].next=newNext.trim();saveData();renderPM();}
+
+// ── OWNER REPORT ──────────────────────────────────────────
+function setRange(preset){
+  const now=new Date(),y=now.getFullYear();
+  const s=document.getElementById('rpt-start'),e=document.getElementById('rpt-end');
+  const fmt=d=>d.toISOString().split('T')[0];
+  if(preset==='mtd'){s.value=fmt(new Date(y,now.getMonth(),1));e.value=fmt(now);}
+  else if(preset==='last30'){const d=new Date(now);d.setDate(d.getDate()-30);s.value=fmt(d);e.value=fmt(now);}
+  else if(preset==='q1'){s.value=y+'-01-01';e.value=y+'-03-31';}
+  else if(preset==='q2'){s.value=y+'-04-01';e.value=y+'-06-30';}
+  else if(preset==='q3'){s.value=y+'-07-01';e.value=y+'-09-30';}
+  else if(preset==='q4'){s.value=y+'-10-01';e.value=y+'-12-31';}
+  else if(preset==='biannual1'){s.value=y+'-01-01';e.value=y+'-06-30';}
+  else if(preset==='biannual2'){s.value=y+'-07-01';e.value=y+'-12-31';}
+  else if(preset==='annual'){s.value=y+'-01-01';e.value=y+'-12-31';}
+}
+
+async function generateReport(){
+  const startVal=document.getElementById('rpt-start').value;
+  const endVal=document.getElementById('rpt-end').value;
+  const property=document.getElementById('rpt-property').value.trim();
+  const month=startVal&&endVal?startVal+' to '+endVal:'All dates';
+  const btn=document.getElementById('rpt-btn');btn.disabled=true;btn.textContent='Generating...';
+  document.getElementById('report-output').innerHTML='<div class="loading-row"><div class="spinner"></div>AI compiling owner report...</div>';
+  const startDate=startVal?new Date(startVal+'T00:00:00'):null;
+  const endDate=endVal?new Date(endVal+'T23:59:59'):null;
+  const rWOs=workOrders.filter(w=>{
+    if(w.excludeFromReport)return false;
+    if(!startDate&&!endDate)return true;
+    const woDate=new Date(w.date);
+    if(startDate&&woDate<startDate)return false;
+    if(endDate&&woDate>endDate)return false;
+    return true;
+  });
+  const woSum=rWOs.length?rWOs.map(w=>w.id+': '+w.issue_summary+' (Unit '+w.unit+', Vendor: '+w.vendor.name+', Status: '+(w.status==='completed'?'COMPLETED'+(w.completedDate?' on '+w.completedDate:''):w.status==='emailed'?'PENDING — vendor emailed, awaiting response':w.status==='approved'?'APPROVED — not yet completed':w.status==='denied'?'DENIED':'PENDING')+')').join('\n'):'No work orders this period.';
+  const pendingWOs=rWOs.filter(w=>w.status==='emailed'||w.status==='pending'||w.status==='approved');
+  const pendingSection=pendingWOs.length?pendingWOs.map(w=>'• '+w.id+' — '+w.issue_summary+' (Unit '+w.unit+') — Vendor: '+w.vendor.name+(w.status==='emailed'?', vendor emailed':w.status==='approved'?', approved':'')+(w.statusNotes?'\n  Status: '+w.statusNotes:'')).join('\n'):'None pending.';
+  const pmSum=pmTasks.map(t=>t.task+' — '+t.freq+', next: '+t.next+', vendor: '+t.vendor).join('\n');
+  // Include active bids in report
+  const activeBids=bidJobs.filter(b=>b.status==='open'||b.status==='comparing'||b.status==='awarded');
+  const bidSection=activeBids.length?'\n\nACTIVE BID REQUESTS\n'+activeBids.map(b=>'• '+b.title+' ('+b.trade+'): '+b.vendors.filter(v=>v.bidStatus==='received').length+'/'+b.vendors.length+' bids received'+(b.status==='awarded'?', AWARDED to '+b.awardedTo:'')).join('\n'):'';
+  try{
+    const res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:'Write a professional monthly maintenance report for the property owner.\n\nProperty: '+property+'\nPeriod: '+month+' 2026\n\nWork orders:\n'+woSum+'\n\nPreventive maintenance:\n'+pmSum+bidSection+'\n\nFormat:\nOVERVIEW\n1-2 sentences summarizing the month.\n\nCOMPLETED WORK\n- Only list work orders with status COMPLETED. If none, write "None this period."\n\nPENDING ITEMS (do not rewrite or summarize, copy exactly as provided):\n'+pendingSection+'\n\nPREVENTIVE MAINTENANCE\n- One bullet per scheduled task showing next due date.\n\n'+(activeBids.length?'BID REQUESTS\n- Briefly note any active or awarded bid requests.':'')}]})});
+    const data=await res.json();
+    renderReport(property,month,data.content&&data.content[0]?data.content[0].text:fallbackReport(property,month,rWOs));
+  }catch(e){renderReport(property,month,fallbackReport(property,month,rWOs));}
+  btn.disabled=false;btn.textContent='Generate owner report';
+}
+
+function fallbackReport(property,month,rWOs){
+  const total=rWOs.length,approved=rWOs.filter(w=>w.status==='approved'||w.status==='emailed').length,pending=rWOs.filter(w=>w.status==='pending').length;
+  const woLines=rWOs.length?rWOs.map(w=>w.id+': '+w.issue_summary+' (Unit '+w.unit+', Vendor: '+w.vendor.name+', Status: '+(w.status==='completed'?'COMPLETED'+(w.completedDate?' on '+w.completedDate:''):w.status==='emailed'?'PENDING — vendor emailed':w.status==='approved'?'APPROVED — not yet completed':w.status==='denied'?'DENIED':'PENDING')+(w.statusNotes?', Notes: '+w.statusNotes:'')+')').join('\n'):'• No work orders this period';
+  const pmLines=pmTasks.map(t=>'• '+t.task+' — Next due: '+t.next+' ('+t.vendor+')').join('\n');
+  return'OVERVIEW\n'+total+' work order'+(total!==1?'s':'')+' this period. '+approved+' approved'+(pending>0?', '+pending+' pending':'')+'.\n\nWORK COMPLETED\n'+woLines+'\n\nPREVENTIVE MAINTENANCE\n'+pmLines+'\n\nRECOMMENDATIONS\nPlease review any pending work orders and approve promptly.';
+}
+
+function renderReport(property,month,text){
+  const rWOs=workOrders.filter(w=>!w.excludeFromReport),total=rWOs.length;
+  window._lastReport={property,month,text,total,workOrders:rWOs,pmTasks:pmTasks.slice(),bidJobs:bidJobs.slice()};
+  const woRows=rWOs.map(w=>{const sc=w.status==='completed'||w.status==='emailed'||w.status==='approved'?'badge-sent':w.status==='denied'?'badge-denied':'badge-pending';const sl=w.status==='completed'?'✓ Completed'+(w.completedDate?' — '+w.completedDate:''):w.status==='emailed'?'Emailed':w.status==='approved'?'Approved':w.status==='denied'?'Denied':'Pending';return'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f1f5f9;font-size:13px;gap:8px"><div style="flex:1"><span style="font-weight:500">'+w.id+' — '+w.issue_summary+'</span><span style="font-size:11px;color:#64748b;margin-left:8px">Unit '+w.unit+'</span></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><span style="font-size:11px;color:#64748b">'+w.vendor.name+'</span>'+(w.estimatedCost?'<span style="font-size:11px;font-weight:600;color:#15803d">'+w.estimatedCost+'</span>':'')+'<span class="badge '+sc+'">'+sl+'</span></div></div>';}).join('');
+  const completedWOs=rWOs.filter(w=>w.status==='completed'&&w.estimatedCost);
+  const pendingCostWOs=rWOs.filter(w=>(w.status==='emailed'||w.status==='approved'||w.status==='pending')&&w.estimatedCost);
+  document.getElementById('report-output').innerHTML='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:8px"><div><div style="font-size:15px;font-weight:700">'+property+'</div><div style="font-size:13px;color:#64748b;margin-top:2px">'+month+'</div><div style="font-size:12px;color:#64748b;margin-top:2px">Generated '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'</div></div><button onclick="exportReportPDF()" style="padding:8px 16px;background:#0f172a;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Export PDF</button></div><div class="metric-grid"><div class="metric"><div class="metric-label">Work orders</div><div class="metric-val">'+total+'</div></div><div class="metric"><div class="metric-label">Pending Approval</div><div class="metric-val">'+rWOs.filter(w=>w.status==='pending'||w.status==='owner_pending').length+'</div></div><div class="metric"><div class="metric-label">Pending Completion</div><div class="metric-val">'+rWOs.filter(w=>w.status==='emailed'||w.status==='approved').length+'</div></div><div class="metric"><div class="metric-label">Completed</div><div class="metric-val">'+rWOs.filter(w=>w.status==='completed').length+'</div></div></div><div style="background:#f8fafc;border-radius:8px;padding:1rem;margin-bottom:1rem"><div class="section-label" style="margin-bottom:.5rem">Owner summary</div><div style="font-size:13px;line-height:1.8;white-space:pre-wrap">'+text+'</div></div>'+(rWOs.length?'<div class="section-label" style="margin-bottom:.5rem">Work order log</div>'+woRows+(completedWOs.length?'<div style="text-align:right;padding:8px 0;font-size:13px;font-weight:600;color:#15803d;border-top:2px solid #e2e8f0;margin-top:4px">Completed total: '+completedWOs.map(w=>w.estimatedCost).join(' + ')+'</div>':'')+(pendingCostWOs.length?'<div style="text-align:right;padding:4px 0;font-size:12px;color:#64748b">Pending estimated: '+pendingCostWOs.map(w=>w.estimatedCost).join(' + ')+'</div>':''):'')+'</div>';
+}
+
+function exportReportPDF(){
+  const r=window._lastReport;if(!r){alert('Please generate a report first.');return;}
+  const win=window.open('','_blank');
+  const woR=r.workOrders.map(w=>{const sl=w.status==='completed'?'✓ Completed'+(w.completedDate?' — '+w.completedDate:''):w.status==='emailed'?'Emailed':w.status==='approved'?'Approved':w.status==='denied'?'Denied':'Pending';const c=(w.status==='completed'||w.status==='approved'||w.status==='emailed')?'#15803d':w.status==='denied'?'#b91c1c':'#1d4ed8';return'<tr><td>'+w.id+'</td><td>'+w.issue_summary+'</td><td>Unit '+w.unit+'</td><td>'+w.vendor.name+'</td><td style="color:'+c+';font-weight:600">'+sl+'</td><td style="color:#15803d;font-weight:600">'+(w.estimatedCost||'—')+'</td><td style="color:#64748b;font-size:12px">'+(w.statusNotes||'')+'</td></tr>';}).join('');
+  const pdfCompletedWOs=r.workOrders.filter(w=>w.status==='completed'&&w.estimatedCost);
+  const pdfPendingCostWOs=r.workOrders.filter(w=>(w.status==='emailed'||w.status==='approved'||w.status==='pending')&&w.estimatedCost);
+  const pmR=r.pmTasks.map(t=>'<tr><td>'+t.task+'</td><td>'+t.freq+'</td><td>'+t.next+'</td><td>'+t.vendor+'</td></tr>').join('');
+  const activeBids=(r.bidJobs||[]).filter(b=>b.status!=='closed');
+  const bidR=activeBids.length?'<tr><td colspan="7" style="background:#0f172a;color:white;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.04em;padding:10px 12px">Active Bid Requests</td></tr>'+activeBids.map(b=>`<tr><td colspan="2">${b.id} — ${b.title}</td><td>${b.trade}</td><td>${b.vendors.filter(v=>v.bidStatus==='received').length}/${b.vendors.length} bids</td><td colspan="2" style="color:${b.status==='awarded'?'#15803d':'#1d4ed8'};font-weight:600">${b.status==='awarded'?'Awarded to '+b.awardedTo:'Open'}</td><td></td></tr>`).join(''):'';
+  win.document.write('<!DOCTYPE html><html><head><title>'+r.property+' Report '+r.month+'</title><style>body{font-family:Arial,sans-serif;padding:40px;max-width:820px;margin:0 auto;color:#0f172a}h1{font-size:24px;font-weight:700;margin-bottom:4px}.subtitle{font-size:13px;color:#64748b;margin-bottom:28px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}.metric{background:#f8fafc;border-radius:8px;padding:14px 16px;border:1px solid #e2e8f0}.metric-label{font-size:11px;color:#64748b;margin-bottom:4px;text-transform:uppercase}.metric-val{font-size:26px;font-weight:700}.section-title{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin:24px 0 10px;border-bottom:2px solid #e2e8f0;padding-bottom:6px}.summary{background:#f8fafc;border-radius:8px;padding:16px;font-size:14px;line-height:1.8;border:1px solid #e2e8f0}table{width:100%;border-collapse:collapse;font-size:13px}th{padding:9px 12px;background:#0f172a;color:white;font-size:11px;font-weight:700;text-align:left;text-transform:uppercase}td{padding:8px 12px;border-bottom:1px solid #e2e8f0}tr:nth-child(even) td{background:#f8fafc}.footer{margin-top:36px;padding-top:16px;border-top:2px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center}.pb{margin-bottom:24px;padding:10px 22px;background:#0f172a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}@media print{.pb{display:none!important}}</style></head><body><button class="pb" onclick="window.print()">Print / Save as PDF</button><h1>'+r.property+'</h1><div class="subtitle">Maintenance Report · '+r.month+' · Generated '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+'</div><div class="metrics"><div class="metric"><div class="metric-label">Work orders</div><div class="metric-val">'+r.total+'</div></div><div class="metric"><div class="metric-label">Pending Approval</div><div class="metric-val">'+r.workOrders.filter(w=>w.status==='pending'||w.status==='owner_pending').length+'</div></div><div class="metric"><div class="metric-label">Pending Completion</div><div class="metric-val">'+r.workOrders.filter(w=>w.status==='emailed'||w.status==='approved').length+'</div></div><div class="metric"><div class="metric-label">Completed</div><div class="metric-val">'+r.workOrders.filter(w=>w.status==='completed').length+'</div></div></div><div class="section-title">Owner summary</div><div class="summary">'+r.text+'</div>'+(r.workOrders.length?'<div class="section-title">Work order log</div><table><thead><tr><th>WO #</th><th>Issue</th><th>Unit</th><th>Vendor</th><th>Status</th><th>Cost</th><th>Status Notes</th></tr></thead><tbody>'+woR+bidR+'</tbody></table>'+(pdfCompletedWOs.length?'<div style="text-align:right;padding:8px 0;font-size:13px;font-weight:700;color:#15803d;border-top:2px solid #e2e8f0">Completed total: '+pdfCompletedWOs.map(w=>w.estimatedCost).join(' + ')+'</div>':'')+(pdfPendingCostWOs.length?'<div style="text-align:right;padding:4px 0;font-size:12px;color:#64748b">Pending estimated: '+pdfPendingCostWOs.map(w=>w.estimatedCost).join(' + ')+'</div>':''):'')+'<div class="section-title">Preventive maintenance</div><table><thead><tr><th>Task</th><th>Frequency</th><th>Next due</th><th>Vendor</th></tr></thead><tbody>'+pmR+'</tbody></table><div class="footer">MaintenanceAI · '+r.property+'<br>Matt Brading · Brading Associates, LLC · (408) 234-7016 · matt@bradingassociates.com</div></body></html>');
+  win.document.close();
+}
+
+// ── EXPORT / IMPORT ───────────────────────────────────────
+function exportData(){
+  const blob=new Blob([JSON.stringify({exportDate:new Date().toISOString(),property:'146 Main St, Los Altos',workOrders,maintenanceHistory,pmTasks,bidJobs},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='maintenanceai-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+function importData(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d.workOrders&&!d.pmTasks){document.getElementById('import-result').innerHTML='<span style="color:#b91c1c">Invalid backup file.</span>';return;}
+      if(d.workOrders)workOrders=d.workOrders;if(d.maintenanceHistory)maintenanceHistory=d.maintenanceHistory;if(d.pmTasks&&d.pmTasks.length)pmTasks=d.pmTasks;if(d.bidJobs)bidJobs=d.bidJobs;
+      saveData();updateQueueCount();renderPM();updateBidCount();renderBidJobs();
+      document.getElementById('import-result').innerHTML='<span style="color:#15803d">Imported — '+workOrders.length+' work orders loaded.</span>';
+    }catch(err){document.getElementById('import-result').innerHTML='<span style="color:#b91c1c">Error: '+err.message+'</span>';}
+  };reader.readAsText(file);
+}
+
+// ── WO PDF ────────────────────────────────────────────────
+function downloadWOPDF(woId){
+  const wo=workOrders.find(w=>w.id===woId);if(!wo)return;
+  const win=window.open('','_blank');
+  const sl=wo.status==='completed'?'✓ Completed'+(wo.completedDate?' — '+wo.completedDate:''):wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':'Pending';
+  const color=(wo.status==='completed'||wo.status==='approved'||wo.status==='emailed')?'#15803d':wo.status==='denied'?'#b91c1c':'#1d4ed8';
+  win.document.write('<!DOCTYPE html><html><head><title>Work Order '+wo.id+'</title><style>body{font-family:Arial,sans-serif;padding:40px;max-width:720px;margin:0 auto;color:#0f172a}h1{font-size:20px;font-weight:700;margin-bottom:2px}.sub{font-size:12px;color:#64748b;margin-bottom:24px}.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:20px}table{width:100%;border-collapse:collapse;margin-bottom:20px}td{padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;vertical-align:top}td:first-child{font-weight:600;color:#64748b;width:38%}.section{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin:20px 0 8px;border-bottom:2px solid #e2e8f0;padding-bottom:6px}.footer{margin-top:32px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center}.pb{margin-bottom:24px;padding:10px 22px;background:#0f172a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}@media print{.pb{display:none!important}}</style></head><body><button class="pb" onclick="window.print()">Print / Save as PDF</button><h1>Work Order — '+wo.id+'</h1><div class="sub">146 Main St, Los Altos · '+wo.date+'</div><span class="badge" style="background:'+(wo.priority==='urgent'?'#fef2f2;color:#b91c1c':wo.priority==='normal'?'#f0fdf4;color:#15803d':'#fffbeb;color:#b45309')+'">'+wo.priority.toUpperCase()+' PRIORITY</span><div class="section">Request details</div><table><tr><td>Work order #</td><td>'+wo.id+'</td></tr><tr><td>Tenant</td><td>'+wo.tenant+(wo.business?' — '+wo.business:'')+'</td></tr><tr><td>Unit</td><td>'+wo.unit+'</td></tr><tr><td>Issue</td><td>'+wo.issue_summary+'</td></tr><tr><td>Category</td><td>'+wo.category+'</td></tr><tr><td>Recommended action</td><td>'+wo.recommended_action+'</td></tr><tr><td>Est. time</td><td>'+wo.estimated_time+'</td></tr><tr><td>Access required</td><td>'+(wo.access_needed?'Yes — coordinate with tenant':'No')+'</td></tr>'+(wo.notes_for_vendor?'<tr><td>Notes</td><td>'+wo.notes_for_vendor+'</td></tr>':'')+(wo.estimatedCost?'<tr><td>Estimated cost</td><td style="font-weight:600;color:#15803d">'+wo.estimatedCost+'</td></tr>':'')+(wo.statusNotes?'<tr><td>Status notes</td><td>'+wo.statusNotes+'</td></tr>':'')+'<tr><td>Status</td><td style="color:'+color+';font-weight:700">'+sl+'</td></tr></table><div class="section">Vendor assignment</div><table><tr><td>Vendor</td><td>'+wo.vendor.name+'</td></tr><tr><td>Contact</td><td>'+wo.vendor.contact+'</td></tr><tr><td>Phone</td><td>'+wo.vendor.phone+'</td></tr><tr><td>Email</td><td>'+wo.vendor.email+'</td></tr></table><div class="footer">MaintenanceAI · 146 Main St, Los Altos<br>Matt Brading · Brading Associates, LLC · (408) 234-7016 · matt@bradingassociates.com</div></body></html>');
+  win.document.close();
+  wo.status='approved';saveData();updateQueueCount();
+}
+
+// ── DIRECTORY ─────────────────────────────────────────────
+function renderDirectory(){
+  const tl=document.getElementById('tenant-directory-list');
+  tl.innerHTML=TENANTS.map((t,i)=>'<div style="padding:10px 0;border-bottom:1px solid #f1f5f9"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:13px;font-weight:600">Unit '+t.unit+' — '+t.business+'</div><div style="font-size:12px;color:#64748b;margin-top:2px">'+t.contact+' · '+(t.cell_phone||t.office_phone||'')+' · '+t.email+'</div></div><div style="display:flex;gap:6px;flex-shrink:0"><button onclick="editTenantRow('+i+')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit</button><button onclick="deleteTenant('+i+')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:inherit">Remove</button></div></div><div id="tedit-'+i+'" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-top:8px;border:1px solid #e2e8f0"><div class="row3" style="margin-bottom:8px"><div><div class="section-label">Unit #</div><input id="te-unit-'+i+'" value="'+(t.unit||'')+'"/></div><div><div class="section-label">Business</div><input id="te-business-'+i+'" value="'+(t.business||'')+'"/></div><div><div class="section-label">Contact</div><input id="te-contact-'+i+'" value="'+(t.contact||'')+'"/></div></div><div class="row3" style="margin-bottom:8px"><div><div class="section-label">Office phone</div><input id="te-office-'+i+'" value="'+(t.office_phone||'')+'"/></div><div><div class="section-label">Cell phone</div><input id="te-cell-'+i+'" value="'+(t.cell_phone||'')+'"/></div><div><div class="section-label">Email</div><input id="te-email-'+i+'" value="'+(t.email||'')+'"/></div></div><div style="display:flex;gap:6px"><button onclick="saveTenantEdit('+i+')" style="padding:7px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save</button><button onclick="document.getElementById(\'tedit-'+i+'\').style.display=\'none\'" style="padding:7px 14px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button></div></div></div>').join('');
+  const vl=document.getElementById('vendor-directory-list');
+  vl.innerHTML=VENDORS.map((v,i)=>'<div style="padding:10px 0;border-bottom:1px solid #f1f5f9"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font-size:13px;font-weight:600">'+v.name+' <span style="font-size:11px;color:#64748b;font-weight:400">('+v.trade+')</span></div><div style="font-size:12px;color:#64748b;margin-top:2px">'+v.contact+' · '+formatPhone(v.phone)+' · '+v.email+'</div></div><div style="display:flex;gap:6px;flex-shrink:0"><button onclick="editVendorRow('+i+')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;border-radius:6px;cursor:pointer;font-family:inherit">Edit</button><button onclick="deleteVendor('+i+')" style="padding:4px 10px;font-size:11px;font-weight:600;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;border-radius:6px;cursor:pointer;font-family:inherit">Remove</button></div></div><div id="vedit-'+i+'" style="display:none;background:#f8fafc;border-radius:8px;padding:12px;margin-top:8px;border:1px solid #e2e8f0"><div class="row2" style="margin-bottom:8px"><div><div class="section-label">Vendor name</div><input id="ve-name-'+i+'" value="'+(v.name||'')+'"/></div><div><div class="section-label">Trade</div><input id="ve-trade-'+i+'" value="'+(v.trade||'')+'"/></div></div><div class="row3" style="margin-bottom:8px"><div><div class="section-label">Contact</div><input id="ve-contact-'+i+'" value="'+(v.contact||'')+'"/></div><div><div class="section-label">Phone</div><input id="ve-phone-'+i+'" value="'+(v.phone||'')+'"/></div><div><div class="section-label">Email</div><input id="ve-email-'+i+'" value="'+(v.email||'')+'"/></div></div><div style="display:flex;gap:6px"><button onclick="saveVendorEdit('+i+')" style="padding:7px 14px;font-size:12px;font-weight:600;background:#0f172a;color:white;border:none;border-radius:6px;cursor:pointer;font-family:inherit">Save</button><button onclick="document.getElementById(\'vedit-'+i+'\').style.display=\'none\'" style="padding:7px 14px;font-size:12px;font-weight:600;background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:6px;cursor:pointer;font-family:inherit">Cancel</button></div></div></div>').join('');
+}
+function showAddTenant(){const f=document.getElementById('add-tenant-form');f.style.display=f.style.display==='none'?'block':'none';}
+function addTenant(){
+  const unit=document.getElementById('nt-unit').value.trim(),contact=document.getElementById('nt-contact').value.trim();
+  if(!unit||!contact){alert('Please enter a unit number and contact name.');return;}
+  TENANTS.push({unit,business:document.getElementById('nt-business').value.trim(),contact,office_phone:document.getElementById('nt-office').value.trim(),cell_phone:document.getElementById('nt-cell').value.trim(),email:document.getElementById('nt-email').value.trim()});
+  saveData();['nt-unit','nt-business','nt-contact','nt-office','nt-cell','nt-email'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('add-tenant-form').style.display='none';renderDirectory();
+}
+function editTenantRow(i){const el=document.getElementById('tedit-'+i);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function saveTenantEdit(i){TENANTS[i]={unit:document.getElementById('te-unit-'+i).value.trim(),business:document.getElementById('te-business-'+i).value.trim(),contact:document.getElementById('te-contact-'+i).value.trim(),office_phone:document.getElementById('te-office-'+i).value.trim(),cell_phone:document.getElementById('te-cell-'+i).value.trim(),email:document.getElementById('te-email-'+i).value.trim()};saveData();renderDirectory();}
+function deleteTenant(i){if(!confirm('Remove '+TENANTS[i].contact+'?'))return;TENANTS.splice(i,1);saveData();renderDirectory();}
+function showAddVendor(){const f=document.getElementById('add-vendor-form');f.style.display=f.style.display==='none'?'block':'none';}
+function addVendor(){
+  const name=document.getElementById('nv-name').value.trim();
+  const ts=document.getElementById('nv-trade').value,tc=document.getElementById('nv-trade-custom').value.trim();
+  const trade=ts==='__custom__'?tc:ts;
+  const contact=document.getElementById('nv-contact').value.trim();
+  if(!name||!trade){alert('Please enter a vendor name and trade.');return;}
+  VENDORS.push({name,trade,contact,phone:document.getElementById('nv-phone').value.trim(),email:document.getElementById('nv-email').value.trim()});
+  saveData();['nv-name','nv-contact','nv-phone','nv-email'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nv-trade').value='';document.getElementById('nv-trade-custom').value='';document.getElementById('nv-trade-custom').style.display='none';
+  document.getElementById('add-vendor-form').style.display='none';renderDirectory();
+}
+function editVendorRow(i){const el=document.getElementById('vedit-'+i);if(el)el.style.display=el.style.display==='none'?'block':'none';}
+function saveVendorEdit(i){VENDORS[i]={name:document.getElementById('ve-name-'+i).value.trim(),trade:document.getElementById('ve-trade-'+i).value.trim(),contact:document.getElementById('ve-contact-'+i).value.trim(),phone:document.getElementById('ve-phone-'+i).value.trim(),email:document.getElementById('ve-email-'+i).value.trim()};saveData();renderDirectory();}
+function deleteVendor(i){if(!confirm('Remove '+VENDORS[i].name+'?'))return;VENDORS.splice(i,1);saveData();renderDirectory();}
+function handleTradeSelect(selId,customId){const sel=document.getElementById(selId),custom=document.getElementById(customId);if(!sel||!custom)return;custom.style.display=sel.value==='__custom__'?'block':'none';if(sel.value==='__custom__')custom.focus();}
+function formatPhone(p){const d=(p||'').replace(/\D/g,'');return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p;}
+</script>
 </body>
 </html>
