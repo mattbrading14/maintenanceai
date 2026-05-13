@@ -4,6 +4,10 @@
       "memory": 1024,
       "maxDuration": 30
     },
+    "api/app.js": {
+      "memory": 512,
+      "maxDuration": 10
+    },
     "api/site.js": {
       "memory": 512,
       "maxDuration": 10
@@ -26,10 +30,18 @@
     },
     {
       "src": "/$",
-      "dest": "/api/site.js"
+      "dest": "/api/app.js"
+    },
+    {
+      "src": "/app$",
+      "dest": "/api/app.js"
     },
     {
       "src": "/maintenanceai-website-v2.html$",
+      "dest": "/api/site.js"
+    },
+    {
+      "src": "/website$",
       "dest": "/api/site.js"
     },
     {
