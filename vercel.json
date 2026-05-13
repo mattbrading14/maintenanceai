@@ -30,11 +30,19 @@
     },
     {
       "src": "/$",
-      "dest": "/api/app.js"
+      "dest": "/api/app.js?mode=personal"
     },
     {
-      "src": "/app$",
-      "dest": "/api/app.js"
+      "src": "/146-main$",
+      "dest": "/api/app.js?mode=personal"
+    },
+    {
+      "src": "/public-app$",
+      "dest": "/api/app.js?mode=public"
+    },
+    {
+      "src": "/demo-app$",
+      "dest": "/api/app.js?mode=public"
     },
     {
       "src": "/maintenanceai-website-v2.html$",
