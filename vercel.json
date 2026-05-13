@@ -41,19 +41,19 @@
       "dest": "/index.html"
     },
     {
+      "src": "/website$",
+      "dest": "/maintenanceai-website-v2.html"
+    },
+    {
+      "src": "/maintenanceai-website-v2.html$",
+      "dest": "/maintenanceai-website-v2.html"
+    },
+    {
       "src": "/public-app$",
       "dest": "/api/public-redirect.js"
     },
     {
       "src": "/demo-app$",
-      "dest": "/api/public-redirect.js"
-    },
-    {
-      "src": "/maintenanceai-website-v2.html$",
-      "dest": "/api/public-redirect.js"
-    },
-    {
-      "src": "/website$",
       "dest": "/api/public-redirect.js"
     },
     {
