@@ -82,7 +82,10 @@ function personalAppScript() {
   function parsePastedJson(rawText) {
     let text = String(rawText || '').trim();
     if (!text) throw new Error('Paste the Supabase data JSON first.');
-    text = text.replace(/^```json/i, '').replace(/^```/, '').replace(/```$/, '').trim();
+    const fence = String.fromCharCode(96) + String.fromCharCode(96) + String.fromCharCode(96);
+    if (text.toLowerCase().startsWith(fence + 'json')) text = text.slice(7).trim();
+    if (text.startsWith(fence)) text = text.slice(3).trim();
+    if (text.endsWith(fence)) text = text.slice(0, -3).trim();
     let parsed = JSON.parse(text);
     if (typeof parsed === 'string') parsed = JSON.parse(parsed);
     if (parsed && parsed.data) parsed = parsed.data;
