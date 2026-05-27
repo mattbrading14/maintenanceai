@@ -1,0 +1,38 @@
+name: Keep Supabase project active
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/keep-supabase-active.yml
+  schedule:
+    # Twice weekly, safely inside Supabase's 7-day free-tier inactivity window.
+    - cron: '17 16 * * 1,4'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Ping maintenanceai_data
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    steps:
+      - name: Call Supabase health endpoint
+        run: |
+          set -euo pipefail
+
+          status="$(curl --silent --show-error --location \
+            --output /tmp/supabase-health.json \
+            --write-out "%{http_code}" \
+            "https://rhjssomlybvzjncekgbx.supabase.co/auth/v1/health")"
+
+          echo "Supabase health endpoint returned HTTP ${status}"
+
+          if [ "${status}" -lt 200 ] || [ "${status}" -ge 500 ]; then
+            cat /tmp/supabase-health.json || true
+            exit 1
+          fi
