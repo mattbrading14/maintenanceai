@@ -4,6 +4,11 @@
       "memory": 1024,
       "maxDuration": 30
     },
+    "api/private-app.js": {
+      "memory": 128,
+      "maxDuration": 10,
+      "includeFiles": "index.html"
+    },
     "api/public-redirect.js": {
       "memory": 128,
       "maxDuration": 10
@@ -26,19 +31,19 @@
     },
     {
       "src": "/$",
-      "dest": "/index.html"
+      "dest": "/api/private-app.js"
     },
     {
       "src": "/index.html$",
-      "dest": "/index.html"
+      "dest": "/api/private-app.js"
     },
     {
       "src": "/app$",
-      "dest": "/index.html"
+      "dest": "/api/private-app.js"
     },
     {
       "src": "/146-main$",
-      "dest": "/index.html"
+      "dest": "/api/private-app.js"
     },
     {
       "src": "/website$",
