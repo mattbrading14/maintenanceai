@@ -616,7 +616,7 @@ async function handleScreenshot(file){
     const issues=(parsed.issues&&parsed.issues.length)?parsed.issues:[{title:'Maintenance request',description:'See image for details',category:'general',priority:'normal',recommended_action:'Review and assess'}];
     const newWOs=issues.map(issue=>{
       const vendor=matchVendor(issue.category);
-      return{id:'WO-'+Math.floor(1000+Math.random()*9000),issue_summary:issue.title,description:issue.description,category:issue.category,priority:issue.priority||'normal',priority_reason:'From screenshot',recommended_action:issue.recommended_action,estimated_time:'1-2 hours',access_needed:true,notes_for_vendor:issue.description,tenant:matchedTenant?matchedTenant.contact:(parsed.matched_tenant_name||'Unknown'),unit:matchedTenant?matchedTenant.unit:(parsed.matched_tenant_unit||'Unknown'),business:matchedTenant?matchedTenant.business:'',tenant_email:matchedTenant?matchedTenant.email:'',date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),vendor,status:'pending',source:'Screenshot',photos:[],excludeFromReport:false,estimatedCost:issue.estimated_cost||''};
+      return{id:'WO-'+Math.floor(1000+Math.random()*9000),issue_summary:issue.title,description:issue.description,category:issue.category,priority:issue.priority||'normal',priority_reason:'From screenshot',recommended_action:issue.recommended_action,estimated_time:'1-2 hours',access_needed:true,notes_for_vendor:issue.description,tenant:matchedTenant?matchedTenant.contact:(parsed.matched_tenant_name||'Unknown'),unit:matchedTenant?matchedTenant.unit:(parsed.matched_tenant_unit||'Unknown'),business:matchedTenant?matchedTenant.business:'',tenant_email:matchedTenant?matchedTenant.email:'',tenant_phone:matchedTenant?tenantPhone(matchedTenant):'',date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),vendor,status:'pending',source:'Screenshot',photos:[],excludeFromReport:false,estimatedCost:issue.estimated_cost||''};
     });
     newWOs.forEach(wo=>workOrders.unshift(wo));
     updateQueueCount();saveData();
@@ -730,7 +730,7 @@ function submitCallLog(){
   if(!title){alert('Please enter a work order title.');return;}
   if(!service){alert('Please select a service type.');return;}
   const costMap={plumbing:'$150-$400',hvac:'$200-$500',electrical:'$150-$350',locksmith:'$100-$250',fire:'$200-$600',extinguisher:'$100-$300',hood:'$300-$800',general:'$100-$300',other:'$100-$300'};
-  const wo={id:'WO-'+Math.floor(1000+Math.random()*9000),issue_summary:title,description:desc,category:service,priority,priority_reason:'Phone call',recommended_action:desc||title,estimated_time:'1-2 hours',access_needed:access==='yes',notes_for_vendor:notes,tenant:tenant.contact,unit:tenant.unit,business:tenant.business,tenant_email:tenant.email,date:new Date(datetime).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),vendor,status:ownerApproval?'owner_pending':'pending',source:tenantUnit==='103'?'Building walkthrough':'Phone call',photos,ownerName,ownerEmail,estimatedCost:costMap[service]||'$100-$300'};
+  const wo={id:'WO-'+Math.floor(1000+Math.random()*9000),issue_summary:title,description:desc,category:service,priority,priority_reason:'Phone call',recommended_action:desc||title,estimated_time:'1-2 hours',access_needed:access==='yes',notes_for_vendor:notes,tenant:tenant.contact,unit:tenant.unit,business:tenant.business,tenant_email:tenant.email,tenant_phone:tenantPhone(tenant),date:new Date(datetime).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),vendor,status:ownerApproval?'owner_pending':'pending',source:tenantUnit==='103'?'Building walkthrough':'Phone call',photos,ownerName,ownerEmail,estimatedCost:costMap[service]||'$100-$300'};
   workOrders.unshift(wo);updateQueueCount();saveData();
   const bc=priority==='urgent'?'badge-urgent':priority==='normal'?'badge-normal':'badge-low';
   document.getElementById('call-result').innerHTML='<div style="border:1px solid #86efac;border-radius:12px;padding:1rem;margin-top:.75rem;background:#fff"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem"><span style="font-size:13px;font-weight:600">Work order created: '+wo.id+'</span><span class="badge '+bc+'">'+priority+' priority</span></div><div style="font-size:13px;color:#15803d">✅ Added to Approval Queue</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="btn-sm btn-pdf" onclick="downloadWOPDF(\''+wo.id+'\')">Download WO PDF</button><button class="btn-sm btn-email" onclick="emailWO(\''+wo.id+'\',\'call-result\')">Approve &amp; email vendor</button><button class="btn-sm btn-deny" onclick="denyWO(\''+wo.id+'\',\'call-result\')">Deny</button><button class="btn-sm" onclick="markComplete(\''+wo.id+'\',\'call-result\')" style="padding:5px 12px;background:#f0fdf4;color:#15803d;border:1px solid #86efac;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:600;font-size:12px">✓ Complete</button></div><div id="action-'+wo.id+'" style="margin-top:8px;font-size:12px"></div></div>';
@@ -740,9 +740,9 @@ function submitCallLog(){
 // ── WORK ORDER ACTIONS ────────────────────────────────────
 function emailWO(id,ctx){
   const wo=workOrders.find(w=>w.id===id);if(!wo)return;
-  wo.status='emailed';updateQueueCount();saveData();
+  syncTenantAccessContact(wo);wo.status='emailed';updateQueueCount();saveData();
   const subject=encodeURIComponent('Work Order '+wo.id+' — '+wo.issue_summary+' — 146 Main St, Los Altos');
-  const body=encodeURIComponent('Dear '+wo.vendor.contact+',\n\nNew work order at 146 Main St, Los Altos.\n\nWork Order: '+wo.id+'\nDate: '+wo.date+'\nTenant: '+wo.tenant+' — Unit '+wo.unit+(wo.business?' ('+wo.business+')':'')+'\nIssue: '+wo.issue_summary+'\nPriority: '+wo.priority+'\n\nAction: '+wo.recommended_action+'\nAccess Required: '+(wo.access_needed?'Yes — coordinate with tenant':'No')+(wo.notes_for_vendor?'\nNotes: '+wo.notes_for_vendor:'')+'\n\nPlease confirm receipt.\n\nThank you,\nMatt Brading\nBrading Associates, LLC\n(408) 234-7016');
+  const body=encodeURIComponent('Dear '+wo.vendor.contact+',\n\nNew work order at 146 Main St, Los Altos.\n\nWork Order: '+wo.id+'\nDate: '+wo.date+'\nTenant: '+wo.tenant+' — Unit '+wo.unit+(wo.business?' ('+wo.business+')':'')+'\nIssue: '+wo.issue_summary+'\nPriority: '+wo.priority+'\n\nAction: '+wo.recommended_action+'\n'+tenantAccessEmailText(wo)+(wo.notes_for_vendor?'\nNotes: '+wo.notes_for_vendor:'')+'\n\nPlease confirm receipt.\n\nThank you,\nMatt Brading\nBrading Associates, LLC\n(408) 234-7016');
   window.open('mailto:'+wo.vendor.email+'?subject='+subject+'&body='+body);
   const el=document.getElementById((ctx==='queue'?'qaction-':'action-')+id);
   if(el)el.innerHTML='<span style="color:#6d28d9">Email opened to '+wo.vendor.contact+'</span>';
@@ -801,7 +801,7 @@ function renderQueue(){
   }).join('');
 }
 
-function assignTenant(id,unit){if(!unit)return;const wo=workOrders.find(w=>w.id===id),t=TENANTS.find(t=>t.unit===unit);if(!wo||!t)return;wo.tenant=t.contact;wo.unit=t.unit;wo.business=t.business;wo.tenant_email=t.email;saveData();renderQueue();}
+function assignTenant(id,unit){if(!unit)return;const wo=workOrders.find(w=>w.id===id),t=TENANTS.find(t=>t.unit===unit);if(!wo||!t)return;wo.tenant=t.contact;wo.unit=t.unit;wo.business=t.business;wo.tenant_email=t.email;wo.tenant_phone=tenantPhone(t);saveData();renderQueue();}
 function toggleEditWO(id){const p=document.getElementById('edit-'+id.replace('-','_'));if(p)p.style.display=p.style.display==='none'?'block':'none';}
 function cancelWOEdit(id){const p=document.getElementById('edit-'+id.replace('-','_'));if(p)p.style.display='none';}
 function saveWOEdit(id){
@@ -810,7 +810,7 @@ function saveWOEdit(id){
   const t=document.getElementById('et-'+s).value.trim();
   if(!t){alert('Please enter a title.');return;}
   wo.issue_summary=t;wo.description=document.getElementById('ed-'+s).value.trim();wo.priority=document.getElementById('ep-'+s).value;wo.recommended_action=wo.description||t;
-  const nu=document.getElementById('eten-'+s).value;if(nu){const tn=TENANTS.find(t=>t.unit===nu);if(tn){wo.tenant=tn.contact;wo.unit=tn.unit;wo.business=tn.business;wo.tenant_email=tn.email;}}
+  const nu=document.getElementById('eten-'+s).value;if(nu){const tn=TENANTS.find(t=>t.unit===nu);if(tn){wo.tenant=tn.contact;wo.unit=tn.unit;wo.business=tn.business;wo.tenant_email=tn.email;wo.tenant_phone=tenantPhone(tn);}}
   const nv=document.getElementById('ev-'+s).value;if(nv){const vn=VENDORS.find(v=>v.name===nv);if(vn)wo.vendor=vn;}
   saveData();renderQueue();
 }
@@ -1402,10 +1402,11 @@ function importData(input){
 // ── WO PDF ────────────────────────────────────────────────
 function downloadWOPDF(woId){
   const wo=workOrders.find(w=>w.id===woId);if(!wo)return;
+  syncTenantAccessContact(wo);
   const win=window.open('','_blank');
   const sl=wo.status==='completed'?'✓ Completed'+(wo.completedDate?' — '+wo.completedDate:''):wo.status==='emailed'?'Emailed to vendor':wo.status==='approved'?'Approved':wo.status==='denied'?'Denied':'Pending';
   const color=(wo.status==='completed'||wo.status==='approved'||wo.status==='emailed')?'#15803d':wo.status==='denied'?'#b91c1c':'#1d4ed8';
-  win.document.write('<!DOCTYPE html><html><head><title>Work Order '+wo.id+'</title><style>body{font-family:Arial,sans-serif;padding:40px;max-width:720px;margin:0 auto;color:#0f172a}h1{font-size:20px;font-weight:700;margin-bottom:2px}.sub{font-size:12px;color:#64748b;margin-bottom:24px}.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:20px}table{width:100%;border-collapse:collapse;margin-bottom:20px}td{padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;vertical-align:top}td:first-child{font-weight:600;color:#64748b;width:38%}.section{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin:20px 0 8px;border-bottom:2px solid #e2e8f0;padding-bottom:6px}.footer{margin-top:32px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center}.pb{margin-bottom:24px;padding:10px 22px;background:#0f172a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}@media print{.pb{display:none!important}}</style></head><body><button class="pb" onclick="window.print()">Print / Save as PDF</button><h1>Work Order — '+wo.id+'</h1><div class="sub">146 Main St, Los Altos · '+wo.date+'</div><span class="badge" style="background:'+(wo.priority==='urgent'?'#fef2f2;color:#b91c1c':wo.priority==='normal'?'#f0fdf4;color:#15803d':'#fffbeb;color:#b45309')+'">'+wo.priority.toUpperCase()+' PRIORITY</span><div class="section">Request details</div><table><tr><td>Work order #</td><td>'+wo.id+'</td></tr><tr><td>Tenant</td><td>'+wo.tenant+(wo.business?' — '+wo.business:'')+'</td></tr><tr><td>Unit</td><td>'+wo.unit+'</td></tr><tr><td>Issue</td><td>'+wo.issue_summary+'</td></tr><tr><td>Category</td><td>'+wo.category+'</td></tr><tr><td>Recommended action</td><td>'+wo.recommended_action+'</td></tr><tr><td>Est. time</td><td>'+wo.estimated_time+'</td></tr><tr><td>Access required</td><td>'+(wo.access_needed?'Yes — coordinate with tenant':'No')+'</td></tr>'+(wo.notes_for_vendor?'<tr><td>Notes</td><td>'+wo.notes_for_vendor+'</td></tr>':'')+(wo.estimatedCost?'<tr><td>Estimated cost</td><td style="font-weight:600;color:#15803d">'+wo.estimatedCost+'</td></tr>':'')+(wo.statusNotes?'<tr><td>Status notes</td><td>'+wo.statusNotes+'</td></tr>':'')+'<tr><td>Status</td><td style="color:'+color+';font-weight:700">'+sl+'</td></tr></table><div class="section">Vendor assignment</div><table><tr><td>Vendor</td><td>'+wo.vendor.name+'</td></tr><tr><td>Contact</td><td>'+wo.vendor.contact+'</td></tr><tr><td>Phone</td><td>'+wo.vendor.phone+'</td></tr><tr><td>Email</td><td>'+wo.vendor.email+'</td></tr></table><div class="footer">MaintenanceAI · 146 Main St, Los Altos<br>Matt Brading · Brading Associates, LLC · (408) 234-7016 · matt@bradingassociates.com</div></body></html>');
+  win.document.write('<!DOCTYPE html><html><head><title>Work Order '+wo.id+'</title><style>body{font-family:Arial,sans-serif;padding:40px;max-width:720px;margin:0 auto;color:#0f172a}h1{font-size:20px;font-weight:700;margin-bottom:2px}.sub{font-size:12px;color:#64748b;margin-bottom:24px}.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:20px}table{width:100%;border-collapse:collapse;margin-bottom:20px}td{padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;vertical-align:top}td:first-child{font-weight:600;color:#64748b;width:38%}.section{font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;margin:20px 0 8px;border-bottom:2px solid #e2e8f0;padding-bottom:6px}.footer{margin-top:32px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:11px;color:#94a3b8;text-align:center}.pb{margin-bottom:24px;padding:10px 22px;background:#0f172a;color:white;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}@media print{.pb{display:none!important}}</style></head><body><button class="pb" onclick="window.print()">Print / Save as PDF</button><h1>Work Order — '+wo.id+'</h1><div class="sub">146 Main St, Los Altos · '+wo.date+'</div><span class="badge" style="background:'+(wo.priority==='urgent'?'#fef2f2;color:#b91c1c':wo.priority==='normal'?'#f0fdf4;color:#15803d':'#fffbeb;color:#b45309')+'">'+wo.priority.toUpperCase()+' PRIORITY</span><div class="section">Request details</div><table><tr><td>Work order #</td><td>'+wo.id+'</td></tr><tr><td>Tenant</td><td>'+wo.tenant+(wo.business?' — '+wo.business:'')+'</td></tr><tr><td>Unit</td><td>'+wo.unit+'</td></tr><tr><td>Issue</td><td>'+wo.issue_summary+'</td></tr><tr><td>Category</td><td>'+wo.category+'</td></tr><tr><td>Recommended action</td><td>'+wo.recommended_action+'</td></tr><tr><td>Est. time</td><td>'+wo.estimated_time+'</td></tr>'+tenantAccessPdfRows(wo)+(wo.notes_for_vendor?'<tr><td>Notes</td><td>'+wo.notes_for_vendor+'</td></tr>':'')+(wo.estimatedCost?'<tr><td>Estimated cost</td><td style="font-weight:600;color:#15803d">'+wo.estimatedCost+'</td></tr>':'')+(wo.statusNotes?'<tr><td>Status notes</td><td>'+wo.statusNotes+'</td></tr>':'')+'<tr><td>Status</td><td style="color:'+color+';font-weight:700">'+sl+'</td></tr></table><div class="section">Vendor assignment</div><table><tr><td>Vendor</td><td>'+wo.vendor.name+'</td></tr><tr><td>Contact</td><td>'+wo.vendor.contact+'</td></tr><tr><td>Phone</td><td>'+wo.vendor.phone+'</td></tr><tr><td>Email</td><td>'+wo.vendor.email+'</td></tr></table><div class="footer">MaintenanceAI · 146 Main St, Los Altos<br>Matt Brading · Brading Associates, LLC · (408) 234-7016 · matt@bradingassociates.com</div></body></html>');
   win.document.close();
   wo.status='approved';saveData();updateQueueCount();
 }
@@ -1444,6 +1445,62 @@ function editVendorRow(i){const el=document.getElementById('vedit-'+i);if(el)el.
 function saveVendorEdit(i){VENDORS[i]={name:document.getElementById('ve-name-'+i).value.trim(),trade:document.getElementById('ve-trade-'+i).value.trim(),contact:document.getElementById('ve-contact-'+i).value.trim(),phone:document.getElementById('ve-phone-'+i).value.trim(),email:document.getElementById('ve-email-'+i).value.trim()};saveData();renderDirectory();}
 function deleteVendor(i){if(!confirm('Remove '+VENDORS[i].name+'?'))return;VENDORS.splice(i,1);saveData();renderDirectory();}
 function handleTradeSelect(selId,customId){const sel=document.getElementById(selId),custom=document.getElementById(customId);if(!sel||!custom)return;custom.style.display=sel.value==='__custom__'?'block':'none';if(sel.value==='__custom__')custom.focus();}
+function cleanText(v){return (v==null?'':String(v)).trim();}
+function escapeHtml(v){return cleanText(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function tenantPhone(t){return t?cleanText(t.cell_phone)||cleanText(t.office_phone):'';}
+function tenantForWO(wo){
+  const unit=cleanText(wo&&wo.unit).replace(/^unit\s+/i,'');
+  return TENANTS.find(t=>cleanText(t.unit).toLowerCase()===unit.toLowerCase())||
+    TENANTS.find(t=>cleanText(t.email)&&cleanText(t.email).toLowerCase()===cleanText(wo&&wo.tenant_email).toLowerCase())||
+    TENANTS.find(t=>cleanText(t.contact).toLowerCase()===cleanText(wo&&wo.tenant).toLowerCase())||
+    null;
+}
+function syncTenantAccessContact(wo){
+  if(!wo)return wo;
+  const t=tenantForWO(wo);
+  if(t){
+    wo.tenant=cleanText(wo.tenant)||t.contact;
+    wo.unit=cleanText(wo.unit)==='Unknown'?t.unit:(cleanText(wo.unit)||t.unit);
+    wo.business=cleanText(wo.business)||t.business;
+    wo.tenant_email=cleanText(wo.tenant_email)||t.email;
+    wo.tenant_phone=cleanText(wo.tenant_phone)||tenantPhone(t);
+  }
+  return wo;
+}
+function tenantAccessDetails(wo){
+  syncTenantAccessContact(wo);
+  const t=tenantForWO(wo);
+  return {
+    name:cleanText(wo&&wo.tenant)||cleanText(t&&t.contact),
+    unit:cleanText(wo&&wo.unit)||cleanText(t&&t.unit),
+    business:cleanText(wo&&wo.business)||cleanText(t&&t.business),
+    phone:cleanText(wo&&wo.tenant_phone)||tenantPhone(t),
+    email:cleanText(wo&&wo.tenant_email)||cleanText(t&&t.email)
+  };
+}
+function tenantAccessLabel(c){
+  return [c.name,c.unit?'Unit '+c.unit:'',c.business].filter(Boolean).join(' - ');
+}
+function tenantAccessEmailText(wo){
+  if(!wo.access_needed)return 'Access Required: No';
+  const c=tenantAccessDetails(wo);
+  const lines=['Access Required: Yes - coordinate with tenant'];
+  const label=tenantAccessLabel(c);
+  if(label)lines.push('Tenant access contact: '+label);
+  if(c.phone)lines.push('Tenant phone: '+formatPhone(c.phone));
+  if(c.email)lines.push('Tenant email: '+c.email);
+  return lines.join('\n');
+}
+function tenantAccessPdfRows(wo){
+  if(!wo.access_needed)return '<tr><td>Access required</td><td>No</td></tr>';
+  const c=tenantAccessDetails(wo);
+  let rows='<tr><td>Access required</td><td>Yes - coordinate with tenant</td></tr>';
+  const label=tenantAccessLabel(c);
+  if(label)rows+='<tr><td>Tenant access contact</td><td>'+escapeHtml(label)+'</td></tr>';
+  if(c.phone)rows+='<tr><td>Tenant phone</td><td>'+escapeHtml(formatPhone(c.phone))+'</td></tr>';
+  if(c.email)rows+='<tr><td>Tenant email</td><td>'+escapeHtml(c.email)+'</td></tr>';
+  return rows;
+}
 function formatPhone(p){const d=(p||'').replace(/\D/g,'');return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p;}
 </script>
 </body>
