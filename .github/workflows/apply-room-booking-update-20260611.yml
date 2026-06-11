@@ -45,7 +45,7 @@ jobs:
           if [ -f api/room-booking.js ] && grep -q "Room bookings" index.html; then
             echo "Room booking update already applied."
           else
-            git apply --whitespace=nowarn /tmp/room-booking-update.patch
+            git apply --ignore-whitespace --whitespace=nowarn /tmp/room-booking-update.patch
           fi
 
           node --check api/claude.js
