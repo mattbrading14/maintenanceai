@@ -1,0 +1,14 @@
+diff --git a/index.html b/index.html
+--- a/index.html
++++ b/index.html
+@@ -2087,9 +2087,8 @@ async function syncRoomBooking(booking){
+     const data=await res.json().catch(()=>({}));
+     if(data.configured===false){
+       booking.calendarSynced=false;
+-      booking.syncMessage='Calendar automation is not configured on the server. Opened a Google Calendar draft instead.';
++      booking.syncMessage='Calendar automation is not configured on the server. Use Calendar draft if you need to add this event manually.';
+       booking.lastSyncAt=new Date().toISOString();
+-      openCalendarForRoomBooking(booking);
+       await saveData();renderRoomBookings();renderRoomBookingReport();updateBookingCount();
+       return;
+     }
