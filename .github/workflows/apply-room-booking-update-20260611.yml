@@ -27,7 +27,18 @@ jobs:
 
           cat .github/room-booking-update-20260611/part*.b64 | tr -d '\r\n' > /tmp/room-booking-update.patch.gz.b64
           actual_len="$(wc -c < /tmp/room-booking-update.patch.gz.b64 | tr -d ' ')"
-          echo "Patch base64 bytes: ${actual_len}"
+          echo "Patch base64 bytes before padding: ${actual_len}"
+          remainder=$(( actual_len % 4 ))
+          if [ "${remainder}" = "2" ]; then
+            printf '==' >> /tmp/room-booking-update.patch.gz.b64
+          elif [ "${remainder}" = "3" ]; then
+            printf '=' >> /tmp/room-booking-update.patch.gz.b64
+          elif [ "${remainder}" != "0" ]; then
+            echo "Invalid base64 length: ${actual_len}" >&2
+            exit 1
+          fi
+          actual_len="$(wc -c < /tmp/room-booking-update.patch.gz.b64 | tr -d ' ')"
+          echo "Patch base64 bytes after padding: ${actual_len}"
           test "${actual_len}" = "29304"
           echo "232bf6b54f240eeb4d1be00af1412ea64a9277015cae93f738833fc110d3ea15  /tmp/room-booking-update.patch.gz.b64" | sha256sum -c -
           base64 -d /tmp/room-booking-update.patch.gz.b64 | gzip -dc > /tmp/room-booking-update.patch
