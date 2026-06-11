@@ -350,20 +350,33 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
     </div>
 
     <div class="card">
+      <div class="section-label">Upload a screenshot of a room booking email, text, or voicemail transcript</div>
+      <div class="upload-zone">
+        <input type="file" accept="image/*" onchange="handleRoomBookingScreenshot(this.files[0])"/>
+        <div class="upload-zone-icon">📅</div>
+        <div class="upload-zone-title">Tap to upload booking request</div>
+        <div class="upload-zone-sub">AI reads requested rooms, date, time, renter contact, kitchen use, and purpose</div>
+      </div>
+      <div id="booking-screenshot-preview" style="margin-top:12px"></div>
+      <div id="booking-screenshot-result"></div>
+    </div>
+
+    <div class="card" id="room-booking-form-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:.75rem">
         <div>
-          <div style="font-size:15px;font-weight:700;color:#0f172a">New room reservation</div>
-          <div style="font-size:12px;color:#64748b;margin-top:2px">Select one or more rooms. Kitchen can be added to Dining Room reservations.</div>
+          <div style="font-size:15px;font-weight:700;color:#0f172a">Manual booking request</div>
+          <div style="font-size:12px;color:#64748b;margin-top:2px">Use this when the screenshot is missing details or you want to enter a calendar request yourself.</div>
         </div>
         <button class="btn-sm btn-pdf" onclick="clearRoomBookingForm()">Clear</button>
       </div>
+      <div id="rb-editing-note" style="display:none;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:12px;color:#92400e"></div>
       <div class="row3">
         <div><div class="section-label">Renter name *</div><input id="rb-name" placeholder="Name"/></div>
         <div><div class="section-label">Organization</div><input id="rb-org" placeholder="Group, company, or tenant"/></div>
-        <div><div class="section-label">Email *</div><input id="rb-email" placeholder="renter@email.com"/></div>
+        <div><div class="section-label">Email</div><input id="rb-email" placeholder="renter@email.com"/></div>
       </div>
       <div class="row3">
-        <div><div class="section-label">Phone</div><input id="rb-phone" placeholder="650-555-0100"/></div>
+        <div><div class="section-label">Phone / text number</div><input id="rb-phone" placeholder="650-555-0100"/></div>
         <div><div class="section-label">Use type</div><select id="rb-type" onchange="updateRoomBookingEstimate()"><option value="external">External / non-tenant</option><option value="masonic">Masonic concordant body</option><option value="tenant">Tenant use</option><option value="tenant_celebration">Tenant/building celebration - no charge</option><option value="masonic_exception">Lodge/OES/AMD stated meeting - no charge</option><option value="no_charge">Other no charge event</option></select></div>
         <div><div class="section-label">Purpose</div><input id="rb-purpose" placeholder="Meeting, dinner, event..."/></div>
       </div>
@@ -387,8 +400,8 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
       </div>
       <div style="margin-bottom:8px"><div class="section-label">Internal notes</div><textarea id="rb-notes" rows="2" placeholder="Setup notes, special terms, rate override, follow-up..."></textarea></div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        <button class="btn-primary" onclick="addRoomBooking('pending')" style="margin-top:0;max-width:210px">Save request</button>
-        <button class="btn-primary" onclick="addRoomBooking('booked')" style="margin-top:0;max-width:260px;background:#15803d">Book and sync</button>
+        <button class="btn-primary" onclick="addRoomBooking('pending')" style="margin-top:0;max-width:230px">Save for approval</button>
+        <button class="btn-primary" onclick="addRoomBooking('booked')" style="margin-top:0;max-width:260px;background:#15803d">Book and sync now</button>
         <span id="rb-estimate" style="font-size:12px;color:#64748b"></span>
       </div>
       <div id="rb-availability" style="font-size:12px;color:#64748b;margin-top:6px"></div>
@@ -1549,6 +1562,178 @@ function deletePM(i){if(!confirm('Delete this PM task?'))return;pmTasks.splice(i
 function editPM(i){const t=pmTasks[i];const newTask=prompt('Task name:',t.task);if(newTask===null)return;const newCost=prompt('Estimated cost:',t.cost||'');const newNext=prompt('Next due date (YYYY-MM-DD):',t.next);if(newTask)pmTasks[i].task=newTask.trim();if(newCost!==null)pmTasks[i].cost=newCost.trim();if(newNext)pmTasks[i].next=newNext.trim();saveData();renderPM();}
 
 // ROOM BOOKINGS
+let editingRoomBookingId=null;
+async function handleRoomBookingScreenshot(file){
+  if(!file)return;
+  const preview=document.getElementById('booking-screenshot-preview');
+  const result=document.getElementById('booking-screenshot-result');
+  preview.innerHTML='<img src="'+URL.createObjectURL(file)+'" style="max-width:100%;border-radius:8px;margin-bottom:12px"/>';
+  result.innerHTML='<div class="loading-row"><div class="spinner"></div>Reading booking request...</div>';
+  try{
+    const base64=await compressImage(file,900,0.55);
+    const today=new Date().toISOString().slice(0,10);
+    result.innerHTML='<div class="loading-row"><div class="spinner"></div>Extracting calendar details...</div>';
+    const res=await fetch('/api/claude',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1200,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:base64}},
+          {type:'text',text:'You are a room-rental booking assistant for 146 Main St, Los Altos. Read this screenshot of an email, text message, or voicemail transcript and extract a calendar reservation request. Today is '+today+'. Convert relative dates into YYYY-MM-DD when possible. Valid rooms are Dining Room, Conference Room, Lodge Room. Kitchen may be added only with Dining Room. Valid use types are external, masonic, tenant, tenant_celebration, masonic_exception, no_charge. If a field is missing, use an empty string or empty array. Return ONLY valid JSON:\n{"renter_name":"","organization":"","email":"","phone":"","type":"external|masonic|tenant|tenant_celebration|masonic_exception|no_charge","purpose":"","rooms":["Dining Room"],"kitchen":false,"date":"YYYY-MM-DD","start":"HH:MM","end":"HH:MM","notes":"brief source notes","confidence":"high|medium|low","missing_fields":["field names"]}'}
+        ]}]
+      })
+    });
+    const data=await res.json();
+    if(!data.content||!data.content[0])throw new Error('No response from AI');
+    const booking=roomBookingFromAI(parseAiJson(data.content[0].text));
+    booking.source='Screenshot';
+    booking.originalFileName=file.name||'booking screenshot';
+    booking.missingFields=roomBookingMissingFields(booking);
+    roomBookings.unshift(booking);
+    if(booking.missingFields.length)loadRoomBookingIntoForm(booking.id,false);
+    await saveData();
+    renderRoomBookings();
+    renderRoomBookingReport();
+    updateBookingCount();
+    const missing=booking.missingFields.length?'<div style="font-size:12px;color:#92400e;margin-top:8px"><strong>Needs details:</strong> '+booking.missingFields.map(escapeHtml).join(', ')+'. The draft has been loaded into the manual form.</div>':'';
+    result.innerHTML='<div style="border:1px solid #86efac;border-radius:12px;padding:1rem;margin-top:.75rem;background:#fff"><div style="font-size:13px;font-weight:600;color:#15803d;margin-bottom:6px">Booking request created for approval.</div><div style="font-size:12px;color:#64748b">'+escapeHtml(formatRoomBookingDate(booking))+' · '+escapeHtml(displayRoomBookingName(booking))+' · '+escapeHtml((booking.rooms||[]).join(', ')||'Room not found')+'</div>'+missing+'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="btn-sm btn-email" onclick="approveRoomBooking(\''+booking.id+'\')">Book and sync</button><button class="btn-sm btn-pdf" onclick="loadRoomBookingIntoForm(\''+booking.id+'\')">Edit details</button></div></div>';
+  }catch(err){
+    result.innerHTML='<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:1rem;margin-top:.75rem;font-size:13px;color:#b91c1c"><strong>Error reading booking request: '+escapeHtml(err.message||err)+'</strong><br><br>Use the manual booking request form below to enter it for approval.</div>';
+  }
+}
+function parseAiJson(rawText){
+  try{return JSON.parse(String(rawText||'').replace(/```json|```/g,'').trim());}
+  catch(e){
+    const m=String(rawText||'').match(/\{[\s\S]*\}/);
+    if(m)return JSON.parse(m[0]);
+  }
+  throw new Error('AI response could not be read as booking details');
+}
+function normalizeRoomNames(rooms,kitchen){
+  const raw=(Array.isArray(rooms)?rooms:[]).join(' | ').toLowerCase();
+  const found=[];
+  if(raw.includes('dining'))found.push('Dining Room');
+  if(raw.includes('conference'))found.push('Conference Room');
+  if(raw.includes('lodge'))found.push('Lodge Room');
+  if(kitchen&&!found.includes('Dining Room'))found.push('Dining Room');
+  return found;
+}
+function normalizeRoomBookingType(type){
+  const value=String(type||'').toLowerCase();
+  if(['masonic','tenant','tenant_celebration','masonic_exception','no_charge'].includes(value))return value;
+  if(value.includes('tenant')&&value.includes('celebration'))return'tenant_celebration';
+  if(value.includes('tenant'))return'tenant';
+  if(value.includes('masonic')||value.includes('lodge')||value.includes('oes')||value.includes('amd'))return'masonic';
+  if(value.includes('free')||value.includes('no charge'))return'no_charge';
+  return'external';
+}
+function cleanBookingTime(value){
+  const raw=String(value||'').trim();
+  const match=raw.match(/^(\d{1,2}):(\d{2})/);
+  if(!match)return'';
+  const h=Math.max(0,Math.min(23,Number(match[1])));
+  return String(h).padStart(2,'0')+':'+match[2];
+}
+function roomBookingFromAI(parsed){
+  const rooms=normalizeRoomNames(parsed.rooms,parsed.kitchen);
+  const type=normalizeRoomBookingType(parsed.type);
+  const date=/^\d{4}-\d{2}-\d{2}$/.test(String(parsed.date||''))?parsed.date:'';
+  const start=cleanBookingTime(parsed.start);
+  const end=cleanBookingTime(parsed.end);
+  const kitchen=!!parsed.kitchen&&rooms.includes('Dining Room');
+  const hours=bookingHours(date,start,end);
+  const estimatedAmount=estimateBookingAmount(rooms,type,hours,kitchen);
+  return {
+    id:'RB-'+Date.now().toString(36).toUpperCase(),
+    createdAt:new Date().toISOString(),
+    status:'pending',
+    name:String(parsed.renter_name||'').trim(),
+    organization:String(parsed.organization||'').trim(),
+    email:String(parsed.email||'').trim(),
+    phone:String(parsed.phone||'').trim(),
+    type,
+    purpose:String(parsed.purpose||'').trim(),
+    rooms,
+    kitchen,
+    date,
+    start,
+    end,
+    hours,
+    estimatedAmount,
+    amount:estimatedAmount,
+    notes:[String(parsed.notes||'').trim(),parsed.confidence?'AI confidence: '+parsed.confidence:''].filter(Boolean).join('\n'),
+    calendarSynced:false,
+    cleanupEmailStatus:kitchen?'queued':'not_required'
+  };
+}
+function displayRoomBookingName(booking){
+  return booking.name||booking.organization||'Unknown renter';
+}
+function roomBookingMissingFields(booking){
+  const rooms=Array.isArray(booking.rooms)?booking.rooms:[];
+  const missing=[];
+  if(!booking.name)missing.push('renter name');
+  if(booking.kitchen&&!booking.email)missing.push('email for kitchen cleanup form');
+  else if(!booking.email&&!booking.phone)missing.push('email or phone');
+  if(!booking.date)missing.push('date');
+  if(!booking.start)missing.push('start time');
+  if(!booking.end)missing.push('end time');
+  if(!rooms.length)missing.push('room');
+  if(booking.kitchen&&!rooms.includes('Dining Room'))missing.push('Dining Room for kitchen');
+  return missing;
+}
+function validateRoomBookingReady(booking){
+  const missing=roomBookingMissingFields(booking);
+  booking.missingFields=missing;
+  if(missing.length){
+    alert('This booking still needs: '+missing.join(', ')+'. I loaded it into the manual form so you can finish it.');
+    loadRoomBookingIntoForm(booking.id);
+    return false;
+  }
+  return true;
+}
+function setRoomBookingEditingNote(booking){
+  const note=document.getElementById('rb-editing-note');
+  if(!note)return;
+  if(!booking){
+    note.style.display='none';
+    note.innerHTML='';
+    return;
+  }
+  const missing=roomBookingMissingFields(booking);
+  note.style.display='block';
+  note.innerHTML='Editing booking draft '+escapeHtml(booking.id)+(missing.length?'. Needs: '+missing.map(escapeHtml).join(', ')+'.':'. Save it for approval or book and sync when ready.');
+}
+function loadRoomBookingIntoForm(id,scroll){
+  const booking=roomBookings.find(b=>b.id===id);
+  if(!booking)return;
+  editingRoomBookingId=id;
+  const set=(field,value)=>{const el=document.getElementById(field);if(el)el.value=value||'';};
+  set('rb-name',booking.name);
+  set('rb-org',booking.organization);
+  set('rb-email',booking.email);
+  set('rb-phone',booking.phone);
+  set('rb-purpose',booking.purpose);
+  set('rb-date',booking.date);
+  set('rb-start',booking.start);
+  set('rb-end',booking.end);
+  set('rb-notes',booking.notes);
+  const type=document.getElementById('rb-type');
+  if(type)type.value=booking.type||'external';
+  const rooms=Array.isArray(booking.rooms)?booking.rooms:[];
+  document.querySelectorAll('#rb-room-grid input[type=checkbox]').forEach(input=>{
+    input.checked=rooms.includes(input.value);
+    toggleRoomPick(input);
+  });
+  const kitchen=document.getElementById('rb-kitchen');
+  if(kitchen)kitchen.checked=!!booking.kitchen&&rooms.includes('Dining Room');
+  const amount=document.getElementById('rb-amount');
+  if(amount)amount.value=(booking.amount||booking.amount===0)?roomBookingMoney(booking.amount):'';
+  updateKitchenAvailability();
+  updateRoomBookingEstimate();
+  setRoomBookingEditingNote(booking);
+  if(scroll!==false)document.getElementById('room-booking-form-card')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function roomBookingMoney(v){
   const n=Number(v)||0;
   return '$'+n.toLocaleString('en-US',{maximumFractionDigits:0});
@@ -1688,10 +1873,12 @@ function formatAvailabilityEvent(event){
   return (event.summary||'Busy')+(time?' '+time:'');
 }
 function clearRoomBookingForm(){
+  editingRoomBookingId=null;
   ['rb-name','rb-org','rb-email','rb-phone','rb-purpose','rb-date','rb-start','rb-end','rb-amount','rb-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const type=document.getElementById('rb-type');if(type)type.value='external';
   document.querySelectorAll('#rb-room-grid input[type=checkbox]').forEach(input=>{input.checked=false;toggleRoomPick(input);});
   const kitchen=document.getElementById('rb-kitchen');if(kitchen)kitchen.checked=false;
+  setRoomBookingEditingNote(null);
   updateKitchenAvailability();
   updateRoomBookingEstimate();
 }
@@ -1700,10 +1887,13 @@ function buildRoomBooking(status){
   const kitchen=document.getElementById('rb-kitchen')?.checked&&rooms.includes('Dining Room');
   const name=document.getElementById('rb-name').value.trim();
   const email=document.getElementById('rb-email').value.trim();
+  const phone=document.getElementById('rb-phone').value.trim();
   const date=document.getElementById('rb-date').value;
   const start=document.getElementById('rb-start').value;
   const end=document.getElementById('rb-end').value;
-  if(!name||!email||!date||!start||!end){alert('Please enter renter name, email, date, start, and end time.');return null;}
+  if(!name||!date||!start||!end){alert('Please enter renter name, date, start, and end time.');return null;}
+  if(!email&&!phone){alert('Please enter either an email or phone number.');return null;}
+  if(kitchen&&!email){alert('Kitchen reservations need an email so the cleanup form can be sent after the reservation.');return null;}
   if(!rooms.length){alert('Please select at least one room.');return null;}
   if(document.getElementById('rb-kitchen')?.checked&&!rooms.includes('Dining Room')){alert('Kitchen can only be added to a Dining Room reservation.');return null;}
   const hours=bookingHours(date,start,end);
@@ -1724,7 +1914,7 @@ function buildRoomBooking(status){
     name,
     organization:document.getElementById('rb-org').value.trim(),
     email,
-    phone:document.getElementById('rb-phone').value.trim(),
+    phone,
     type,
     purpose:document.getElementById('rb-purpose').value.trim(),
     rooms,
@@ -1741,9 +1931,29 @@ function buildRoomBooking(status){
   };
 }
 async function addRoomBooking(status){
-  const booking=buildRoomBooking(status);
+  let booking=buildRoomBooking(status);
   if(!booking)return;
-  roomBookings.unshift(booking);
+  const existingIndex=editingRoomBookingId?roomBookings.findIndex(b=>b.id===editingRoomBookingId):-1;
+  if(existingIndex>=0){
+    const existing=roomBookings[existingIndex];
+    booking={
+      ...existing,
+      ...booking,
+      id:existing.id,
+      createdAt:existing.createdAt||booking.createdAt,
+      source:existing.source||booking.source||'Manual',
+      originalFileName:existing.originalFileName||booking.originalFileName||'',
+      calendarSynced:false,
+      calendarEventId:'',
+      syncMessage:existing.calendarSynced?'Edited locally. Sync again to update the calendar.':'',
+      lastSyncAt:existing.lastSyncAt||'',
+      missingFields:[]
+    };
+    roomBookings[existingIndex]=booking;
+  }else{
+    booking.source='Manual';
+    roomBookings.unshift(booking);
+  }
   clearRoomBookingForm();
   await saveData();
   renderRoomBookings();
@@ -1804,13 +2014,21 @@ function renderRoomBookings(){
 function renderRoomBookingCard(booking){
   const statusClass=booking.status==='pending'?'badge-pending':booking.status==='denied'?'badge-urgent':booking.calendarSynced?'badge-sync':'badge-booked';
   const statusLabel=booking.status==='pending'?'Pending':booking.status==='denied'?'Declined':booking.calendarSynced?'Synced':'Booked';
+  const rooms=Array.isArray(booking.rooms)?booking.rooms:[];
+  const missing=roomBookingMissingFields(booking);
+  const contact=booking.email||booking.phone||'No contact';
   const actions=booking.status==='pending'
-    ? '<button class="btn-sm btn-approve" onclick="approveRoomBooking(\''+booking.id+'\')">Book and sync</button><button class="btn-sm btn-deny" onclick="denyRoomBooking(\''+booking.id+'\')">Decline</button>'
-    : '<button class="btn-sm btn-email" onclick="syncRoomBookingById(\''+booking.id+'\')">Sync</button><button class="btn-sm btn-pdf" onclick="openCalendarForRoomBookingById(\''+booking.id+'\')">Calendar draft</button>';
-  const cleanup=booking.kitchen?'<span class="badge badge-sync">Kitchen cleanup form</span>':'';
+    ? '<button class="btn-sm btn-pdf" onclick="loadRoomBookingIntoForm(\''+booking.id+'\')">Edit details</button><button class="btn-sm btn-approve" onclick="approveRoomBooking(\''+booking.id+'\')">Book and sync</button><button class="btn-sm btn-deny" onclick="denyRoomBooking(\''+booking.id+'\')">Decline</button>'
+    : '<button class="btn-sm btn-pdf" onclick="loadRoomBookingIntoForm(\''+booking.id+'\')">Edit details</button><button class="btn-sm btn-email" onclick="syncRoomBookingById(\''+booking.id+'\')">Sync</button><button class="btn-sm btn-pdf" onclick="openCalendarForRoomBookingById(\''+booking.id+'\')">Calendar draft</button>';
+  const source=booking.source?'<span class="badge badge-pending">'+escapeHtml(booking.source)+'</span>':'';
+  const cleanup=(booking.kitchen?'<span class="badge badge-sync">Kitchen cleanup form</span>':'')+source;
+  const missingNotice=missing.length?'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12px;color:#92400e"><b>Needs details:</b> '+missing.map(escapeHtml).join(', ')+'</div>':'';
+  const displayOrganization=booking.name?booking.organization:'';
+  booking={...booking,name:displayRoomBookingName(booking),organization:displayOrganization,email:contact,rooms:rooms.length?rooms:['Room not selected']};
   return '<div class="booking-item">'+
     '<div class="booking-top"><div><div class="booking-title">'+escapeHtml(booking.name)+(booking.organization?' - '+escapeHtml(booking.organization):'')+'</div><div class="booking-meta">'+escapeHtml(formatRoomBookingDate(booking))+' · '+escapeHtml(booking.rooms.join(', '))+'</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><span class="badge '+statusClass+'">'+statusLabel+'</span>'+cleanup+'</div></div>'+
     '<div class="booking-details"><div><div class="detail-label">Use</div><div class="detail-val">'+escapeHtml(roomBookingTypeLabel(booking.type))+'</div></div><div><div class="detail-label">Internal rent</div><div class="detail-val">'+roomBookingMoney(booking.amount)+'</div></div><div><div class="detail-label">Hours</div><div class="detail-val">'+Number(booking.hours||0).toFixed((booking.hours||0)%1?1:0)+'</div></div><div><div class="detail-label">Contact</div><div class="detail-val">'+escapeHtml(booking.email)+'</div></div></div>'+
+    missingNotice+
     (booking.purpose?'<div class="booking-meta"><b>Purpose:</b> '+escapeHtml(booking.purpose)+'</div>':'')+
     (booking.notes?'<div class="booking-meta"><b>Internal notes:</b> '+escapeHtml(booking.notes)+'</div>':'')+
     (booking.syncMessage?'<div class="booking-meta"><b>Sync:</b> '+escapeHtml(booking.syncMessage)+'</div>':'')+
@@ -1830,6 +2048,7 @@ function roomBookingTypeLabel(type){
 async function approveRoomBooking(id){
   const booking=roomBookings.find(b=>b.id===id);
   if(!booking)return;
+  if(!validateRoomBookingReady(booking)){await saveData();renderRoomBookings();renderRoomBookingReport();updateBookingCount();return;}
   booking.status='booked';
   await saveData();
   await syncRoomBooking(booking);
@@ -1851,6 +2070,7 @@ async function syncRoomBookingById(id){
   if(booking)await syncRoomBooking(booking);
 }
 async function syncRoomBooking(booking){
+  if(!validateRoomBookingReady(booking)){await saveData();renderRoomBookings();renderRoomBookingReport();updateBookingCount();return;}
   booking.status='booked';
   try{
     booking.syncMessage='Syncing with Google Calendar...';
@@ -1893,13 +2113,13 @@ async function syncRoomBooking(booking){
 function publicRoomBookingPayload(booking){
   return {
     id:booking.id,
-    name:booking.name,
+    name:displayRoomBookingName(booking),
     organization:booking.organization,
     email:booking.email,
     phone:booking.phone,
     type:booking.type,
     purpose:booking.purpose,
-    rooms:booking.rooms,
+    rooms:Array.isArray(booking.rooms)?booking.rooms:[],
     kitchen:!!booking.kitchen,
     date:booking.date,
     start:booking.start,
@@ -1917,18 +2137,20 @@ function openCalendarForRoomBookingById(id){
   if(booking)openCalendarForRoomBooking(booking);
 }
 function openCalendarForRoomBooking(booking){
+  if(!validateRoomBookingReady(booking))return;
+  const rooms=Array.isArray(booking.rooms)?booking.rooms:[];
   const details=[
     'Room reservation request',
-    'Renter: '+booking.name,
+    'Renter: '+displayRoomBookingName(booking),
     booking.organization?'Organization: '+booking.organization:'',
-    'Email: '+booking.email,
+    booking.email?'Email: '+booking.email:'',
     booking.phone?'Phone: '+booking.phone:'',
-    'Rooms: '+booking.rooms.join(', '),
+    'Rooms: '+rooms.join(', '),
     booking.kitchen?'Kitchen cleanup form required after reservation.':'Kitchen not reserved.',
     booking.purpose?'Purpose: '+booking.purpose:''
   ].filter(Boolean).join('\n');
   const dates=calendarDateStamp(booking.date,booking.start)+'/'+calendarDateStamp(booking.date,booking.end);
-  const url='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Room Rental - '+booking.rooms.join(', '))+'&dates='+dates+'&details='+encodeURIComponent(details)+'&location='+encodeURIComponent('146 Main St, Los Altos')+(roomBookingSettings.calendarId?'&add='+encodeURIComponent(roomBookingSettings.calendarId):'');
+  const url='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Room Rental - '+rooms.join(', '))+'&dates='+dates+'&details='+encodeURIComponent(details)+'&location='+encodeURIComponent('146 Main St, Los Altos')+(roomBookingSettings.calendarId?'&add='+encodeURIComponent(roomBookingSettings.calendarId):'');
   window.open(url,'_blank');
 }
 function updateRoomCalendarFrame(){
@@ -1976,13 +2198,13 @@ function renderRoomBookingReport(){
   const out=document.getElementById('room-booking-report');
   if(!out)return;
   if(!rows.length){out.innerHTML='<div class="empty">No room bookings in this date range.</div>';return;}
-  const body=rows.map(b=>'<tr><td>'+escapeHtml(formatRoomBookingDate(b))+'</td><td>'+escapeHtml(b.name)+'</td><td>'+escapeHtml(b.rooms.join(', '))+(b.kitchen?' + Kitchen':'')+'</td><td>'+escapeHtml(roomBookingTypeLabel(b.type))+'</td><td>'+escapeHtml(b.status)+'</td><td style="text-align:right">'+roomBookingMoney(b.amount||b.estimatedAmount)+'</td></tr>').join('');
+  const body=rows.map(b=>{const rooms=Array.isArray(b.rooms)?b.rooms:[];return '<tr><td>'+escapeHtml(formatRoomBookingDate(b))+'</td><td>'+escapeHtml(displayRoomBookingName(b))+'</td><td>'+escapeHtml(rooms.join(', '))+(b.kitchen?' + Kitchen':'')+'</td><td>'+escapeHtml(roomBookingTypeLabel(b.type))+'</td><td>'+escapeHtml(b.status)+'</td><td style="text-align:right">'+roomBookingMoney(b.amount||b.estimatedAmount)+'</td></tr>';}).join('');
   out.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px"><div style="font-size:12px;color:#64748b">Booked rent: <b style="color:#0f172a">'+roomBookingMoney(bookedRent)+'</b> · Potential rent: <b style="color:#0f172a">'+roomBookingMoney(potential)+'</b></div><button class="btn-sm btn-email" onclick="copyRoomBookingReport()">Copy report</button></div><div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr><th style="text-align:left;padding:8px;border-bottom:1px solid #e2e8f0">Date</th><th style="text-align:left;padding:8px;border-bottom:1px solid #e2e8f0">Renter</th><th style="text-align:left;padding:8px;border-bottom:1px solid #e2e8f0">Rooms</th><th style="text-align:left;padding:8px;border-bottom:1px solid #e2e8f0">Use</th><th style="text-align:left;padding:8px;border-bottom:1px solid #e2e8f0">Status</th><th style="text-align:right;padding:8px;border-bottom:1px solid #e2e8f0">Rent</th></tr></thead><tbody>'+body+'</tbody></table></div>';
 }
 function roomBookingReportText(rows,bookedRent,potential){
   const s=document.getElementById('rb-report-start')?.value||'';
   const e=document.getElementById('rb-report-end')?.value||'';
-  return ['146 Main St Room Rent Report',s&&e?'Date range: '+s+' to '+e:'Date range: all dates','Booked rent: '+roomBookingMoney(bookedRent),'Potential rent: '+roomBookingMoney(potential),'',...rows.map(b=>formatRoomBookingDate(b)+' | '+b.name+' | '+b.rooms.join(', ')+(b.kitchen?' + Kitchen':'')+' | '+b.status+' | '+roomBookingMoney(b.amount||b.estimatedAmount))].join('\n');
+  return ['146 Main St Room Rent Report',s&&e?'Date range: '+s+' to '+e:'Date range: all dates','Booked rent: '+roomBookingMoney(bookedRent),'Potential rent: '+roomBookingMoney(potential),'',...rows.map(b=>{const rooms=Array.isArray(b.rooms)?b.rooms:[];return formatRoomBookingDate(b)+' | '+displayRoomBookingName(b)+' | '+rooms.join(', ')+(b.kitchen?' + Kitchen':'')+' | '+b.status+' | '+roomBookingMoney(b.amount||b.estimatedAmount);})].join('\n');
 }
 async function copyRoomBookingReport(){
   const rows=roomBookingReportRows();
