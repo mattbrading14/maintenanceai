@@ -1,0 +1,1 @@
+trigger room booking edit state fix 2026-06-11
