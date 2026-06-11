@@ -4,6 +4,14 @@
       "memory": 1024,
       "maxDuration": 30
     },
+    "api/room-booking.js": {
+      "memory": 128,
+      "maxDuration": 10
+    },
+    "api/room-booking-availability.js": {
+      "memory": 128,
+      "maxDuration": 10
+    },
     "api/private-app.js": {
       "memory": 128,
       "maxDuration": 10,
