@@ -646,6 +646,7 @@ const DEFAULT_PM=[
 ];
 let workOrders=[],maintenanceHistory=[],pmTasks=[...DEFAULT_PM],bidJobs=[],roomBookings=[];
 let activeWorkOrderView='queue';
+var editingRoomBookingId=null;
 const DEFAULT_ROOM_CALENDAR_ID='lamtareservations@gmail.com';
 let roomBookingSettings={calendarId:DEFAULT_ROOM_CALENDAR_ID,automationUrl:'',cleanupFormUrl:''};
 const NO_CHARGE_ROOM_BOOKING_TYPES=['no_charge','tenant_celebration','masonic_exception'];
@@ -1562,7 +1563,6 @@ function deletePM(i){if(!confirm('Delete this PM task?'))return;pmTasks.splice(i
 function editPM(i){const t=pmTasks[i];const newTask=prompt('Task name:',t.task);if(newTask===null)return;const newCost=prompt('Estimated cost:',t.cost||'');const newNext=prompt('Next due date (YYYY-MM-DD):',t.next);if(newTask)pmTasks[i].task=newTask.trim();if(newCost!==null)pmTasks[i].cost=newCost.trim();if(newNext)pmTasks[i].next=newNext.trim();saveData();renderPM();}
 
 // ROOM BOOKINGS
-let editingRoomBookingId=null;
 async function handleRoomBookingScreenshot(file){
   if(!file)return;
   const preview=document.getElementById('booking-screenshot-preview');
