@@ -1,0 +1,47 @@
+name: Apply room booking AI intake
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/room-booking-ai-intake-20260611-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Apply room booking update
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 -d .github/room-booking-ai-intake-20260611.patch.gz.b64 | gunzip > /tmp/room-booking-ai-intake.patch
+          git apply --ignore-whitespace --whitespace=nowarn /tmp/room-booking-ai-intake.patch
+          node --check api/claude.js
+          node --check api/room-booking.js
+          node --check api/room-booking-availability.js
+          node <<'NODE'
+          const fs=require('fs');
+          const html=fs.readFileSync('index.html','utf8');
+          const scripts=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]);
+          for(const script of scripts)new Function(script);
+          for(const text of ['handleRoomBookingScreenshot','loadRoomBookingIntoForm','Save for approval','Tap to upload booking request','validateRoomBookingReady','Phone / text number']){
+            if(!html.includes(text))throw new Error('Missing '+text);
+          }
+          NODE
+          rm -f .github/room-booking-ai-intake-20260611.patch.gz.b64 .github/room-booking-ai-intake-20260611-trigger.txt .github/workflows/apply-room-booking-ai-intake-20260611.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git status --short
+          git commit -m 'Add AI room booking intake'
+          git push origin HEAD:main
