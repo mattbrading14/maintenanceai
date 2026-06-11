@@ -1,6 +1,7 @@
 name: Apply room booking update
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
