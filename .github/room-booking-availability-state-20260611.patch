@@ -1,0 +1,19 @@
+diff --git a/index.html b/index.html
+--- a/index.html
++++ b/index.html
+@@ -647,6 +647,7 @@ const DEFAULT_PM=[
+ let workOrders=[],maintenanceHistory=[],pmTasks=[...DEFAULT_PM],bidJobs=[],roomBookings=[];
+ let activeWorkOrderView='queue';
+ var editingRoomBookingId=null;
++var roomAvailabilityTimer=null,roomAvailabilityState={key:'',conflicts:[]};
+ const DEFAULT_ROOM_CALENDAR_ID='lamtareservations@gmail.com';
+ let roomBookingSettings={calendarId:DEFAULT_ROOM_CALENDAR_ID,automationUrl:'',cleanupFormUrl:''};
+ const NO_CHARGE_ROOM_BOOKING_TYPES=['no_charge','tenant_celebration','masonic_exception'];
+@@ -1742,7 +1743,6 @@ function roomBookingAmount(v){
+   const n=parseFloat(String(v||'').replace(/[^0-9.]/g,''));
+   return isNaN(n)?0:n;
+ }
+-let roomAvailabilityTimer=null,roomAvailabilityState={key:'',conflicts:[]};
+ function selectedRoomNames(){
+   return [...document.querySelectorAll('#rb-room-grid input[type=checkbox]:checked')].map(i=>i.value);
+ }
