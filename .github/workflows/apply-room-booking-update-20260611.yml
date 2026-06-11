@@ -1,0 +1,72 @@
+name: Apply room booking update
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/room-booking-update-20260611-trigger.txt
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Apply room booking update
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat .github/room-booking-update-20260611/part*.b64 > /tmp/room-booking-update.patch.gz.b64
+          test "$(wc -c < /tmp/room-booking-update.patch.gz.b64)" = "29304"
+          echo "232bf6b54f240eeb4d1be00af1412ea64a9277015cae93f738833fc110d3ea15  /tmp/room-booking-update.patch.gz.b64" | sha256sum -c -
+          base64 -d /tmp/room-booking-update.patch.gz.b64 | gzip -dc > /tmp/room-booking-update.patch
+
+          if [ -f api/room-booking.js ] && grep -q "Room bookings" index.html; then
+            echo "Room booking update already applied."
+          else
+            git apply --whitespace=nowarn /tmp/room-booking-update.patch
+          fi
+
+          node --check api/claude.js
+          node --check api/room-booking.js
+          node --check api/room-booking-availability.js
+
+          node <<'NODE'
+          const fs = require('fs');
+          const html = fs.readFileSync('index.html', 'utf8');
+          const scripts = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/gi)].map(match => match[1]);
+          for (const script of scripts) new Function(script);
+          for (const text of ['Approval queue','Approved','Completed','Denied','Deleted','Room bookings','checkRoomAvailability','renderRoomBookingReport']) {
+            if (!html.includes(text)) throw new Error('Missing expected app text: ' + text);
+          }
+          const config = JSON.parse(fs.readFileSync('vercel.json','utf8'));
+          if (!config.functions['api/room-booking.js']) throw new Error('room booking function config missing');
+          if (!config.functions['api/room-booking-availability.js']) throw new Error('availability function config missing');
+          const appsScript = fs.readFileSync('google-apps-script/room-rental-automation.gs', 'utf8');
+          new Function(appsScript);
+          for (const text of ['doPost','createCalendarEvent_','getOrCreateCleanupForm_','sendDueKitchenCleanupEmails','onKitchenCleanupSubmit']) {
+            if (!appsScript.includes(text)) throw new Error('Missing Apps Script helper: ' + text);
+          }
+          NODE
+
+          rm -rf .github/room-booking-update-20260611
+          rm -f .github/workflows/apply-room-booking-update-20260611.yml
+          rm -f .github/room-booking-update-20260611-trigger.txt
+
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Add room booking workflow and status tabs"
+            git push origin HEAD:main
+          fi
