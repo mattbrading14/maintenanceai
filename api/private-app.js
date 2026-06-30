@@ -332,18 +332,18 @@ const OFFICE_LEADS_PATCH = String.raw`
     var state={prospects:[],log:[],updatedAt:null};
     var editingId=null;
     var offices=[
-      ['100',925,3.35,'Retail',1],['101/102',423,5,'Office',1],['104',174,5,'Office',1],
-      ['201',256,5,'Office',2],['202',265,5,'Office',2],['203',165,5,'Office',2],['204/205',312,5,'Office',2],
-      ['207',155,5,'Office',2],['208',341,5,'Office',2],['209',162,5,'Office',2],['210',180,5,'Office',2],
-      ['211',180,5,'Office',2],['212/213',252,5,'Office',2],['214',144,5,'Office',2],['215',144,5,'Office',2],
-      ['216',126,5,'Office',2],['217',285,5,'Office',2]
-    ].map(function(o){return {number:o[0],sqft:o[1],rate:o[2],type:o[3],floor:o[4]};});
+      ['100',925,3.35,3098.75,'Retail',1],['101/102',423,5,2115,'Office',1],['104',174,5,870,'Office',1],
+      ['201',256,5,1280,'Office',2],['202',265,5,1325,'Office',2],['203',165,5,825,'Office',2],['204/205',312,5,1560,'Office',2],
+      ['207',155,5,775,'Office',2],['208',341,5,1705,'Office',2],['209',162,5,810,'Office',2],['210',180,5,900,'Office',2],
+      ['211',180,5,900,'Office',2],['212/213',252,5,1260,'Office',2],['214',144,5,720,'Office',2],['215',144,5,720,'Office',2],
+      ['216',126,5,630,'Office',2],['217',285,5,1425,'Office',2]
+    ].map(function(o){return {number:o[0],sqft:o[1],rate:o[2],monthlyRent:o[3],type:o[4],floor:o[5]};});
 
     function q(id){return document.getElementById(id);}
     function clean(v){return (v==null?'':String(v)).trim();}
     function html(v){return clean(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-    function money(v){return '$'+(Number(v)||0).toLocaleString('en-US',{maximumFractionDigits:0});}
-    function rent(o){return Math.round((Number(o.sqft)||0)*(Number(o.rate)||0));}
+    function money(v){var n=Number(v)||0;var cents=Math.abs(n%1)>0.001;return '$'+n.toLocaleString('en-US',{minimumFractionDigits:cents?2:0,maximumFractionDigits:cents?2:0});}
+    function rent(o){var m=Number(o&&o.monthlyRent);return isFinite(m)&&m>0?m:Math.round((Number(o&&o.sqft)||0)*(Number(o&&o.rate)||0));}
     function floorLabel(f){return f===1?'1st floor':f===2?'2nd floor':f===3?'3rd floor':clean(f)+'th floor';}
     function statusLabel(s){return {active:'Active',contacted:'Contacted',no_interest:'No longer interested',leased:'Leased',archived:'Archived'}[s]||'Active';}
     function fmtDate(v){var d=new Date(v);return v&&!isNaN(d.getTime())?d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';}
