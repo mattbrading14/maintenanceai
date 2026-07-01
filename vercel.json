@@ -17,6 +17,11 @@
       "maxDuration": 10,
       "includeFiles": "index.html"
     },
+    "api/private-app-with-lead-screenshot.js": {
+      "memory": 128,
+      "maxDuration": 10,
+      "includeFiles": "index.html"
+    },
     "api/public-redirect.js": {
       "memory": 128,
       "maxDuration": 10
@@ -39,19 +44,19 @@
     },
     {
       "src": "/$",
-      "dest": "/api/private-app.js"
+      "dest": "/api/private-app-with-lead-screenshot.js"
     },
     {
       "src": "/index.html$",
-      "dest": "/api/private-app.js"
+      "dest": "/api/private-app-with-lead-screenshot.js"
     },
     {
       "src": "/app$",
-      "dest": "/api/private-app.js"
+      "dest": "/api/private-app-with-lead-screenshot.js"
     },
     {
       "src": "/146-main$",
-      "dest": "/api/private-app.js"
+      "dest": "/api/private-app-with-lead-screenshot.js"
     },
     {
       "src": "/website$",
