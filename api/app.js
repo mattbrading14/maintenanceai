@@ -33,6 +33,102 @@ const OFFICE_LEADS_PATCH = String.raw`
     function selectedOffice(){var v=q('ol-office')?q('ol-office').value:'';return offices.find(function(o){return o.number===v;})||offices[0];}
     function eligible(){return state.prospects.filter(function(p){return clean(p.email)&&(!p.status||p.status==='active'||p.status==='contacted');});}
 
+    function stripLeadCodeFences(rawText){
+      var tick=String.fromCharCode(96), fence=tick+tick+tick;
+      return String(rawText||'').replace(new RegExp(fence+'json|'+fence,'g'),'').trim();
+    }
+    function parseLeadAiJson(rawText){
+      var text=stripLeadCodeFences(rawText);
+      try{return JSON.parse(text);}
+      catch(e){
+        var start=text.indexOf('{'), end=text.lastIndexOf('}');
+        if(start>-1&&end>start)return JSON.parse(text.slice(start,end+1));
+      }
+      throw new Error('AI response could not be read as prospect details');
+    }
+    function leadDigits(v){return clean(v).split('').filter(function(ch){return ch>='0'&&ch<='9';}).join('');}
+    function leadNotesFromAI(data){
+      var parts=[];
+      function add(label,value){value=clean(value);if(value)parts.push(label+': '+value);}
+      add('Source summary',data.source_summary);
+      add('Size preference',data.size_preference);
+      add('Floor preference',data.floor_preference);
+      add('Budget',data.budget);
+      add('Office type',data.office_type_preference);
+      add('Timing',data.timing);
+      add('Notes',data.notes);
+      add('AI confidence',data.confidence);
+      return parts.join('\n');
+    }
+    function findLeadMatch(p){
+      var email=clean(p.email).toLowerCase(), phone=leadDigits(p.phone);
+      return state.prospects.find(function(x){
+        var xe=clean(x.email).toLowerCase(), xp=leadDigits(x.phone);
+        return (email&&xe&&email===xe)||(phone&&xp&&phone===xp);
+      })||null;
+    }
+    function fillLeadForm(p){
+      editingId=p&&p.id||null;
+      if(q('ol-name'))q('ol-name').value=p&&p.name||'';
+      if(q('ol-email'))q('ol-email').value=p&&p.email||'';
+      if(q('ol-phone'))q('ol-phone').value=p&&p.phone||'';
+      if(q('ol-status'))q('ol-status').value=p&&p.status||'active';
+      if(q('ol-date'))q('ol-date').value=clean(p&&p.createdAt).slice(0,10)||new Date().toISOString().split('T')[0];
+      if(q('ol-notes'))q('ol-notes').value=p&&p.notes||'';
+      if(q('ol-save-btn'))q('ol-save-btn').textContent=editingId?'Update prospect':'Save prospect';
+    }
+    function leadFromAI(data,file){
+      var name=clean(data.name)||clean(data.prospect_name)||clean(data.sender_name);
+      var email=clean(data.email);
+      var phone=clean(data.phone);
+      if(!name)name=email?email.split('@')[0]:(phone?'Prospect from '+phone:'Prospect from screenshot');
+      var notes=leadNotesFromAI(data);
+      return {id:uid(),createdAt:new Date().toISOString(),lastContactedAt:null,name:name,email:email,phone:phone,status:'active',notes:notes,source:'Screenshot',originalFileName:file&&file.name||'prospect screenshot'};
+    }
+    function leadFileToBase64(file){
+      return new Promise(function(resolve,reject){
+        var reader=new FileReader();
+        reader.onload=function(e){resolve(String(e.target.result||'').split(',')[1]||'');};
+        reader.onerror=function(){reject(new Error('Could not read screenshot'));};
+        reader.readAsDataURL(file);
+      });
+    }
+    async function readLeadScreenshot(file){
+      if(!file)return;
+      buildPanel();
+      var preview=q('ol-screenshot-preview'), result=q('ol-screenshot-result');
+      if(preview)preview.innerHTML='<img src="'+URL.createObjectURL(file)+'" style="max-width:100%;border-radius:8px;margin:8px 0 10px;border:1px solid #e2e8f0"/>';
+      if(result)result.innerHTML='<div class="loading-row"><div class="spinner"></div>Reading prospective tenant message...</div>';
+      try{
+        var base64=typeof compressImage==='function'?await compressImage(file,900,0.55):await leadFileToBase64(file);
+        if(result)result.innerHTML='<div class="loading-row"><div class="spinner"></div>Extracting contact details...</div>';
+        var prompt='You are a leasing assistant for 146 Main St, Los Altos. Read this screenshot of an email, text message, or voicemail transcript from a prospective office tenant. Extract the prospect contact details and any office-search preferences. If a field is missing, use an empty string. Return ONLY valid JSON with this exact shape: {"name":"","email":"","phone":"","size_preference":"","floor_preference":"","budget":"","office_type_preference":"","timing":"","notes":"","source_summary":"","confidence":"high|medium|low"}';
+        var res=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:base64}},{type:'text',text:prompt}]}]})});
+        var data=await res.json();
+        if(!data.content||!data.content[0])throw new Error(data.error&&data.error.message||'No response from AI');
+        var prospect=leadFromAI(parseLeadAiJson(data.content[0].text),file);
+        if(!clean(prospect.name)&&!clean(prospect.email)&&!clean(prospect.phone)&&!clean(prospect.notes))throw new Error('No prospective tenant details found in the screenshot');
+        var existing=findLeadMatch(prospect), saved=existing||prospect, updated=!!existing;
+        if(existing){
+          existing.name=clean(prospect.name)||existing.name;
+          existing.email=clean(prospect.email)||existing.email;
+          existing.phone=clean(prospect.phone)||existing.phone;
+          existing.status=existing.status||'active';
+          existing.notes=[clean(existing.notes),clean(prospect.notes)].filter(Boolean).join('\n\n');
+          existing.source='Screenshot';
+          existing.originalFileName=prospect.originalFileName;
+        }else{
+          state.prospects.unshift(prospect);
+        }
+        fillLeadForm(saved);
+        await saveCloud();
+        renderOfficeLeads();
+        if(result)result.innerHTML='<div style="border:1px solid #86efac;border-radius:12px;padding:12px;margin-top:10px;background:#fff"><div style="font-size:13px;font-weight:700;color:#15803d;margin-bottom:4px">'+(updated?'Prospect updated':'Prospect added to waitlist')+'</div><div style="font-size:12px;color:#64748b">'+html(saved.name||'Unnamed prospect')+(saved.email?' - '+html(saved.email):'')+(saved.phone?' - '+html(saved.phone):'')+'</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"><button class="btn-sm btn-soft" onclick="olEdit(\''+html(saved.id)+'\')">Review details</button>'+(saved.email?'<button class="btn-sm btn-blue" onclick="olEmailOne(\''+html(saved.id)+'\')">Email</button>':'')+'</div></div>';
+      }catch(err){
+        if(result)result.innerHTML='<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px;margin-top:10px;font-size:13px;color:#b91c1c"><strong>Error reading prospect screenshot: '+html(err.message||err)+'</strong><br><br>Use the fields below to enter the prospect manually.</div>';
+      }
+    }
+
     function loadLocal(){try{var saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');if(Array.isArray(saved.prospects))state.prospects=saved.prospects;if(Array.isArray(saved.log))state.log=saved.log;if(saved.updatedAt)state.updatedAt=saved.updatedAt;}catch(e){}}
     function saveLocal(){state.updatedAt=new Date().toISOString();try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
     async function saveCloud(){
@@ -74,7 +170,7 @@ const OFFICE_LEADS_PATCH = String.raw`
       if(q('tab-office-leads'))return;
       addStyles();
       var p=document.createElement('div');p.id='tab-office-leads';p.className='panel';
-      p.innerHTML='<div class="metric-grid" id="ol-metrics"></div><div class="ol-grid"><div class="card"><div class="ol-toolbar"><div><div style="font-size:15px;font-weight:700;color:#0f172a">Prospective tenants</div><div class="ol-small">Office space waitlist</div></div><button class="btn-sm btn-soft" onclick="olClearForm()">Clear</button></div><div class="ol-form-grid"><div><div class="section-label">Name *</div><input id="ol-name" placeholder="Name"/></div><div><div class="section-label">Email</div><input id="ol-email" type="email" placeholder="email@example.com"/></div><div><div class="section-label">Phone</div><input id="ol-phone" placeholder="(000) 000-0000"/></div></div><div class="ol-row2"><div><div class="section-label">Status</div><select id="ol-status"><option value="active">Active</option><option value="contacted">Contacted</option><option value="no_interest">No longer interested</option><option value="leased">Leased</option><option value="archived">Archived</option></select></div><div><div class="section-label">Date added</div><input id="ol-date" type="date"/></div></div><div style="margin-bottom:8px"><div class="section-label">Notes</div><textarea id="ol-notes" rows="4" placeholder="Size preference, floor preference, budget, timing, business type..."></textarea></div><button class="btn-primary" id="ol-save-btn" onclick="olSaveProspect()">Save prospect</button></div><div class="card"><div class="ol-toolbar"><div><div style="font-size:15px;font-weight:700;color:#0f172a">Availability email</div><div class="ol-small" id="ol-recipient-count">0 eligible recipients</div></div><button class="btn-sm btn-soft" onclick="olCopyBcc()">Copy BCC</button></div><div style="margin-bottom:8px"><div class="section-label">Available office</div><select id="ol-office" onchange="olRenderEmail()">'+officeOptions()+'</select></div><div class="ol-summary" id="ol-summary"></div><div style="margin-bottom:8px"><div class="section-label">Extra email note</div><textarea id="ol-email-note" rows="2" oninput="olRenderEmail()" placeholder="Move-in timing, showing availability, lease terms..."></textarea></div><div class="section-label">Email preview</div><div class="ol-preview" id="ol-preview"></div><div class="ol-actions"><button class="btn-sm btn-dark" onclick="olEmailAll()">Open email to prospects</button><button class="btn-sm btn-soft" onclick="olCopyEmail()">Copy email text</button><span id="ol-copy-status" class="ol-small"></span></div></div></div><div class="card"><div class="ol-toolbar"><div><div style="font-size:15px;font-weight:700;color:#0f172a">Prospect list</div><div class="ol-small" id="ol-updated"></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="ol-search" placeholder="Search prospects" oninput="olRenderProspects()" style="max-width:210px"/><select id="ol-filter" onchange="olRenderProspects()" style="max-width:170px"><option value="all">All statuses</option><option value="active">Active</option><option value="contacted">Contacted</option><option value="no_interest">No longer interested</option><option value="leased">Leased</option><option value="archived">Archived</option></select></div></div><div id="ol-list"><div class="empty">No prospects saved yet.</div></div></div><div class="card"><div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Office inventory</div><div class="ol-small">From the current office list</div><div class="ol-table-wrap"><table class="ol-table"><thead><tr><th>Office</th><th>Sq ft</th><th>$/sf</th><th>Monthly rent</th><th>Type</th><th>Floor</th></tr></thead><tbody>'+inventoryRows()+'</tbody></table></div></div>';
+      p.innerHTML='<div class="metric-grid" id="ol-metrics"></div><div class="ol-grid"><div class="card"><div class="ol-toolbar"><div><div style="font-size:15px;font-weight:700;color:#0f172a">Prospective tenants</div><div class="ol-small">Office space waitlist</div></div><button class="btn-sm btn-soft" onclick="olClearForm()">Clear</button></div><div style="margin-bottom:10px"><div class="section-label">Read prospect screenshot</div><div class="upload-zone" style="padding:1.15rem .85rem"><input type="file" accept="image/*" onchange="olReadScreenshot(this.files[0]);this.value=''"/><div class="upload-zone-icon" style="font-size:18px;font-weight:800;color:#0f172a">AI</div><div class="upload-zone-title">Tap to upload email, text, or voicemail screenshot</div><div class="upload-zone-sub">Adds name, email, phone, and office-search notes to the waitlist</div></div><div id="ol-screenshot-preview"></div><div id="ol-screenshot-result"></div></div><div class="ol-form-grid"><div><div class="section-label">Name *</div><input id="ol-name" placeholder="Name"/></div><div><div class="section-label">Email</div><input id="ol-email" type="email" placeholder="email@example.com"/></div><div><div class="section-label">Phone</div><input id="ol-phone" placeholder="(000) 000-0000"/></div></div><div class="ol-row2"><div><div class="section-label">Status</div><select id="ol-status"><option value="active">Active</option><option value="contacted">Contacted</option><option value="no_interest">No longer interested</option><option value="leased">Leased</option><option value="archived">Archived</option></select></div><div><div class="section-label">Date added</div><input id="ol-date" type="date"/></div></div><div style="margin-bottom:8px"><div class="section-label">Notes</div><textarea id="ol-notes" rows="4" placeholder="Size preference, floor preference, budget, timing, business type..."></textarea></div><button class="btn-primary" id="ol-save-btn" onclick="olSaveProspect()">Save prospect</button></div><div class="card"><div class="ol-toolbar"><div><div style="font-size:15px;font-weight:700;color:#0f172a">Availability email</div><div class="ol-small" id="ol-recipient-count">0 eligible recipients</div></div><button class="btn-sm btn-soft" onclick="olCopyBcc()">Copy BCC</button></div><div style="margin-bottom:8px"><div class="section-label">Available office</div><select id="ol-office" onchange="olRenderEmail()">'+officeOptions()+'</select></div><div class="ol-summary" id="ol-summary"></div><div style="margin-bottom:8px"><div class="section-label">Extra email note</div><textarea id="ol-email-note" rows="2" oninput="olRenderEmail()" placeholder="Move-in timing, showing availability, lease terms..."></textarea></div><div class="section-label">Email preview</div><div class="ol-preview" id="ol-preview"></div><div class="ol-actions"><button class="btn-sm btn-dark" onclick="olEmailAll()">Open email to prospects</button><button class="btn-sm btn-soft" onclick="olCopyEmail()">Copy email text</button><span id="ol-copy-status" class="ol-small"></span></div></div></div><div class="card"><div class="ol-toolbar"><div><div style="font-size:15px;font-weight:700;color:#0f172a">Prospect list</div><div class="ol-small" id="ol-updated"></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="ol-search" placeholder="Search prospects" oninput="olRenderProspects()" style="max-width:210px"/><select id="ol-filter" onchange="olRenderProspects()" style="max-width:170px"><option value="all">All statuses</option><option value="active">Active</option><option value="contacted">Contacted</option><option value="no_interest">No longer interested</option><option value="leased">Leased</option><option value="archived">Archived</option></select></div></div><div id="ol-list"><div class="empty">No prospects saved yet.</div></div></div><div class="card"><div style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px">Office inventory</div><div class="ol-small">From the current office list</div><div class="ol-table-wrap"><table class="ol-table"><thead><tr><th>Office</th><th>Sq ft</th><th>$/sf</th><th>Monthly rent</th><th>Type</th><th>Floor</th></tr></thead><tbody>'+inventoryRows()+'</tbody></table></div></div>';
       var first=document.querySelector('.panel');
       if(first&&first.parentNode){first.parentNode.appendChild(p);}else{(document.querySelector('.app')||document.body).appendChild(p);p.classList.add('active');p.style.display='block';}
       if(q('ol-date'))q('ol-date').value=new Date().toISOString().split('T')[0];
@@ -120,11 +216,11 @@ const OFFICE_LEADS_PATCH = String.raw`
     function renderOfficeLeads(){renderMetrics();renderEmail();renderProspects();}
     function clearForm(){editingId=null;['ol-name','ol-email','ol-phone','ol-notes'].forEach(function(id){if(q(id))q(id).value='';});if(q('ol-status'))q('ol-status').value='active';if(q('ol-date'))q('ol-date').value=new Date().toISOString().split('T')[0];if(q('ol-save-btn'))q('ol-save-btn').textContent='Save prospect';}
     function saveProspect(){
-      var name=clean(q('ol-name')&&q('ol-name').value), email=clean(q('ol-email')&&q('ol-email').value), phone=clean(q('ol-phone')&&q('ol-phone').value);
-      if(!name){alert('Please enter a name.');return;} if(!email&&!phone){alert('Please enter an email or phone number.');return;}
+      var name=clean(q('ol-name')&&q('ol-name').value), email=clean(q('ol-email')&&q('ol-email').value), phone=clean(q('ol-phone')&&q('ol-phone').value), notes=clean(q('ol-notes')&&q('ol-notes').value);
+      if(!name){alert('Please enter a name.');return;} if(!email&&!phone&&!notes){alert('Please enter an email, phone number, or notes.');return;}
       var existing=editingId?state.prospects.find(function(p){return p.id===editingId;}):null;
       var p=existing||{id:uid(),createdAt:new Date().toISOString(),lastContactedAt:null};
-      p.name=name;p.email=email;p.phone=phone;p.status=(q('ol-status')&&q('ol-status').value)||'active';p.createdAt=(q('ol-date')&&q('ol-date').value)||p.createdAt;p.notes=clean(q('ol-notes')&&q('ol-notes').value);
+      p.name=name;p.email=email;p.phone=phone;p.status=(q('ol-status')&&q('ol-status').value)||'active';p.createdAt=(q('ol-date')&&q('ol-date').value)||p.createdAt;p.notes=notes;
       if(!existing)state.prospects.unshift(p);
       clearForm();saveCloud();renderOfficeLeads();
     }
@@ -137,7 +233,7 @@ const OFFICE_LEADS_PATCH = String.raw`
     function copyBcc(){var text=eligible().map(function(p){return p.email;}).join(', ');if(!text){alert('No eligible email addresses to copy.');return;}copyText(text,'BCC copied');}
     function copyEmail(){var email=buildEmail(selectedOffice());copyText('Subject: '+email.subject+'\n\n'+email.body,'Email copied');}
 
-    window.showOfficeLeads=showOfficeLeads;window.olSaveProspect=saveProspect;window.olClearForm=clearForm;window.olEdit=editLead;window.olDelete=deleteLead;window.olEmailAll=emailAll;window.olEmailOne=emailOne;window.olCopyBcc=copyBcc;window.olCopyEmail=copyEmail;window.olRenderEmail=renderEmail;window.olRenderProspects=renderProspects;window.loadOfficeLeadsCloud=loadCloud;
+    window.showOfficeLeads=showOfficeLeads;window.olSaveProspect=saveProspect;window.olClearForm=clearForm;window.olEdit=editLead;window.olDelete=deleteLead;window.olEmailAll=emailAll;window.olEmailOne=emailOne;window.olCopyBcc=copyBcc;window.olCopyEmail=copyEmail;window.olReadScreenshot=readLeadScreenshot;window.olRenderEmail=renderEmail;window.olRenderProspects=renderProspects;window.loadOfficeLeadsCloud=loadCloud;
     loadLocal();
     if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){install();loadCloud();});}else{install();loadCloud();}
     setTimeout(install,800);setTimeout(install,1800);
