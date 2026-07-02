@@ -123,7 +123,6 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
       if(match)return match[1];
       return known[index]||'';
     }
-    function closeMenu(){var nav=q('mobile-section-nav');if(nav){nav.classList.remove('open');var current=nav.querySelector('.mobile-section-current');if(current)current.setAttribute('aria-expanded','false');}}
     function activateTab(index){
       var allTabs=tabs();
       var tab=allTabs[index];
@@ -134,7 +133,6 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
         try{tab.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));}
         catch(error){if(typeof tab.click==='function')tab.click();}
       }
-      closeMenu();
       setTimeout(updateMenu,60);
       var panel=name?q('tab-'+name):null;
       if(panel)panel.scrollIntoView({behavior:'smooth',block:'start'});
@@ -147,49 +145,35 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
       if(!nav){
         nav=document.createElement('div');
         nav.id='mobile-section-nav';
-        nav.innerHTML='<button type="button" class="mobile-section-current" aria-expanded="false"><span id="mobile-section-current-label">Sections</span><span class="mobile-section-chevron">v</span></button><div class="mobile-section-list" role="menu"></div>';
+        nav.innerHTML='<label class="mobile-section-label" for="mobile-section-select">Section</label><select id="mobile-section-select" class="mobile-section-select" aria-label="Choose section"></select>';
         originalTabs.parentNode.insertBefore(nav,originalTabs);
-        nav.querySelector('.mobile-section-current').addEventListener('click',function(event){
-          event.preventDefault();
-          event.stopPropagation();
-          nav.classList.toggle('open');
-          this.setAttribute('aria-expanded',nav.classList.contains('open')?'true':'false');
-        });
-        nav.querySelector('.mobile-section-list').addEventListener('click',function(event){
-          var button=event.target.closest&&event.target.closest('.mobile-section-option');
-          if(!button)return;
-          event.preventDefault();
-          event.stopPropagation();
-          activateTab(Number(button.getAttribute('data-tab-index')));
-        });
-        nav.querySelector('.mobile-section-list').addEventListener('touchend',function(event){
-          var button=event.target.closest&&event.target.closest('.mobile-section-option');
-          if(!button)return;
-          event.preventDefault();
-          event.stopPropagation();
-          activateTab(Number(button.getAttribute('data-tab-index')));
-        },{passive:false});
-        document.addEventListener('click',function(event){if(!nav.contains(event.target))closeMenu();});
+        nav.querySelector('.mobile-section-select').addEventListener('change',function(){activateTab(Number(this.value));});
       }
       var allTabs=tabs();
       var current=activeTab();
       var currentIndex=allTabs.indexOf(current);
-      var currentLabel=q('mobile-section-current-label');
-      if(currentLabel)currentLabel.textContent=labelFor(current);
-      var list=nav.querySelector('.mobile-section-list');
-      if(!list)return;
+      if(currentIndex<0)currentIndex=0;
+      var select=q('mobile-section-select');
+      if(!select)return;
       var signature=currentIndex+'|'+allTabs.map(labelFor).join('|');
-      if(signature===lastMenuSignature)return;
-      lastMenuSignature=signature;
-      list.innerHTML=allTabs.map(function(tab,index){
-        return '<button type="button" class="mobile-section-option'+(index===currentIndex?' active':'')+'" data-tab-index="'+index+'" data-tab-name="'+tabName(tab,index)+'" role="menuitem">'+labelFor(tab)+'</button>';
-      }).join('');
+      if(signature!==lastMenuSignature){
+        lastMenuSignature=signature;
+        select.innerHTML='';
+        allTabs.forEach(function(tab,index){
+          var option=document.createElement('option');
+          option.value=String(index);
+          option.textContent=labelFor(tab);
+          option.setAttribute('data-tab-name',tabName(tab,index));
+          select.appendChild(option);
+        });
+      }
+      select.value=String(currentIndex);
     }
     function install(){
       if(document.querySelector('style[data-mobile-section-menu-style]'))return;
       var style=document.createElement('style');
       style.setAttribute('data-mobile-section-menu-style','');
-      style.textContent='.mobile-section-current,.mobile-section-option{font-family:inherit}.mobile-section-current{display:none}.mobile-section-list{display:none}@media(max-width:680px){.tabs{display:none!important}#mobile-section-nav{display:block;position:relative;z-index:10000;margin-bottom:1rem}.mobile-section-current{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;color:#0f172a;font-size:15px;font-weight:700;box-shadow:0 1px 2px rgba(15,23,42,.04);cursor:pointer;touch-action:manipulation}.mobile-section-chevron{font-size:14px;color:#334155;line-height:1}.mobile-section-list{position:absolute;left:0;right:0;top:calc(100% + 8px);z-index:10001;background:#fff;border:1px solid #cbd5e1;border-radius:14px;box-shadow:0 18px 38px rgba(15,23,42,.18);padding:8px;pointer-events:auto}.mobile-section-option{display:block;width:100%;padding:12px 10px;border:0;border-radius:10px;background:#fff;color:#0f172a;text-align:left;font-size:14px;font-weight:700;cursor:pointer;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:rgba(29,78,216,.12)}.mobile-section-option+.mobile-section-option{margin-top:2px}.mobile-section-option.active{background:#eff6ff;color:#1d4ed8}.mobile-section-option:active{background:#f1f5f9}#mobile-section-nav.open .mobile-section-list{display:block}#mobile-section-nav.open .mobile-section-chevron{transform:rotate(180deg)}}';
+      style.textContent='#mobile-section-nav{display:none}.mobile-section-label,.mobile-section-select{font-family:inherit}@media(max-width:680px){.tabs{display:none!important}#mobile-section-nav{display:block;position:relative;z-index:1;margin-bottom:1rem}.mobile-section-label{display:block;margin:0 0 6px;color:#475569;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.mobile-section-select{display:block;width:100%;min-height:48px;padding:12px 40px 12px 14px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;color:#0f172a;font-size:15px;font-weight:800;box-shadow:0 1px 2px rgba(15,23,42,.04);cursor:pointer;touch-action:manipulation;pointer-events:auto}}';
       document.head.appendChild(style);
       updateMenu();
     }
