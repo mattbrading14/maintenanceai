@@ -22,6 +22,11 @@
       "maxDuration": 10,
       "includeFiles": "index.html"
     },
+    "api/private-app-with-turnovers.js": {
+      "memory": 128,
+      "maxDuration": 10,
+      "includeFiles": "index.html"
+    },
     "api/public-redirect.js": {
       "memory": 128,
       "maxDuration": 10
@@ -44,19 +49,19 @@
     },
     {
       "src": "/$",
-      "dest": "/api/private-app-with-lead-screenshot.js"
+      "dest": "/api/private-app-with-turnovers.js"
     },
     {
       "src": "/index.html$",
-      "dest": "/api/private-app-with-lead-screenshot.js"
+      "dest": "/api/private-app-with-turnovers.js"
     },
     {
       "src": "/app$",
-      "dest": "/api/private-app-with-lead-screenshot.js"
+      "dest": "/api/private-app-with-turnovers.js"
     },
     {
       "src": "/146-main$",
-      "dest": "/api/private-app-with-lead-screenshot.js"
+      "dest": "/api/private-app-with-turnovers.js"
     },
     {
       "src": "/website$",
