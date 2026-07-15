@@ -1,4 +1,4 @@
-const privateApp = require('./private-app.js');
+const privateApp = require('./private-app-with-lead-screenshot.js');
 const officeTurnoverAddon = require('./office-turnover-addon.js');
 
 function appendBeforeBody(html, patch) {
