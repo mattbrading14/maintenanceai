@@ -1,4 +1,5 @@
 const privateApp = require('./private-app.js');
+const officeTurnoverAddon = require('./office-turnover-addon.js');
 
 const OFFICE_LEAD_SCREENSHOT_ADDON = String.raw`
 <script data-maintenanceai-office-lead-screenshot-addon>
@@ -101,7 +102,6 @@ const OFFICE_LEAD_SCREENSHOT_ADDON = String.raw`
 </script>
 `;
 
-
 const MOBILE_SECTION_MENU_ADDON = String.raw`
 <script data-maintenanceai-mobile-section-menu>
 (function(){
@@ -113,31 +113,90 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
     function q(id){return document.getElementById(id);}
     function tabs(){return Array.prototype.slice.call(document.querySelectorAll('.tabs .tab'));}
     function activeTab(){return tabs().find(function(tab){return tab.classList.contains('active');})||tabs()[0]||null;}
-    function labelFor(tab){return clean(tab&&tab.textContent)||'Sections';}
+    function rawLabel(tab){return clean(tab&&tab.textContent)||'Sections';}
     function tabName(tab,index){
-      var known=['screenshot','logcall','queue','approved','completed','denied','deleted','bids','bookings','pm','history','report','directory','office-leads'];
-      var attr=tab&&(tab.getAttribute('data-tab')||tab.getAttribute('data-section')||tab.getAttribute('aria-controls'));
+      if(!tab)return '';
+      if(tab.id==='tab-button-office-leads')return 'office-leads';
+      if(tab.id==='tab-button-turnovers')return 'turnovers';
+      var attr=tab.getAttribute('data-tab')||tab.getAttribute('data-section')||tab.getAttribute('aria-controls');
       if(attr)return attr.replace(/^tab-/,'');
-      var onclick=tab&&tab.getAttribute('onclick')||'';
+      var onclick=tab.getAttribute('onclick')||'';
       var match=onclick.match(/switchTab\(['"]([^'"]+)['"]\)/);
       if(match)return match[1];
-      return known[index]||'';
+      var text=rawLabel(tab).toLowerCase();
+      if(text.indexOf('screenshot')>-1)return 'screenshot';
+      if(text.indexOf('log a call')>-1)return 'logcall';
+      if(text.indexOf('approval')>-1)return 'queue';
+      if(text.indexOf('approved')>-1)return 'approved';
+      if(text.indexOf('completed')>-1)return 'completed';
+      if(text.indexOf('denied')>-1)return 'denied';
+      if(text.indexOf('deleted')>-1)return 'deleted';
+      if(text.indexOf('bid')>-1)return 'bids';
+      if(text.indexOf('turnover')>-1)return 'turnovers';
+      if(text.indexOf('room')>-1)return 'bookings';
+      if(text.indexOf('preventive')>-1)return 'pm';
+      if(text.indexOf('history')>-1)return 'history';
+      if(text.indexOf('owner')>-1)return 'report';
+      if(text.indexOf('settings')>-1)return 'directory';
+      if(text.indexOf('office leads')>-1)return 'office-leads';
+      return '';
+    }
+    var LABELS={
+      screenshot:'Screenshot request',logcall:'Log a call',queue:'Pending approval',approved:'Approved',completed:'Completed',denied:'Denied',deleted:'Deleted',bids:'Bid requests',
+      pm:'Preventive maintenance',history:'Maintenance history',
+      'office-leads':'Prospective tenants',turnovers:'Turnovers',
+      bookings:'Room bookings',report:'Owner report',directory:'Settings'
+    };
+    var GROUPS=[
+      {id:'work-orders',label:'Work orders',names:['screenshot','logcall','queue','approved','completed','denied','deleted','bids']},
+      {id:'maintenance',label:'Preventive maintenance',names:['pm','history']},
+      {id:'leasing',label:'Leads & turnovers',names:['office-leads','turnovers']},
+      {id:'bookings',label:'Room bookings',names:['bookings']},
+      {id:'reports',label:'Owner reports',names:['report']},
+      {id:'settings',label:'Settings',names:['directory']}
+    ];
+    function itemLabel(item){return LABELS[item.name]||rawLabel(item.tab);}
+    function allItems(){return tabs().map(function(tab,index){return {tab:tab,index:index,name:tabName(tab,index),label:rawLabel(tab)};});}
+    function groupFor(name){return GROUPS.find(function(group){return group.names.indexOf(name)>-1;})||GROUPS[0];}
+    function itemsForGroup(groupId){
+      var items=allItems();
+      var group=GROUPS.find(function(g){return g.id===groupId;})||GROUPS[0];
+      return group.names.map(function(name){return items.find(function(item){return item.name===name;});}).filter(Boolean);
+    }
+    function availableGroups(){
+      var items=allItems();
+      return GROUPS.filter(function(group){return group.names.some(function(name){return items.some(function(item){return item.name===name;});});});
     }
     function activateTab(index){
-      var allTabs=tabs();
-      var tab=allTabs[index];
-      var name=tabName(tab,index);
+      var item=allItems().find(function(candidate){return candidate.index===index;});
+      if(!item)return;
+      var name=item.name;
       if(name==='office-leads'&&typeof window.showOfficeLeads==='function')window.showOfficeLeads();
+      else if(name==='turnovers'&&typeof window.showTurnovers==='function')window.showTurnovers();
       else if(name&&typeof window.switchTab==='function')window.switchTab(name);
-      else if(tab){
-        try{tab.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));}
-        catch(error){if(typeof tab.click==='function')tab.click();}
+      else if(item.tab){
+        try{item.tab.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));}
+        catch(error){if(typeof item.tab.click==='function')item.tab.click();}
       }
       setTimeout(updateMenu,60);
       var panel=name?q('tab-'+name):null;
       if(panel)panel.scrollIntoView({behavior:'smooth',block:'start'});
     }
-    var lastMenuSignature='';
+    function renderSectionOptions(groupId,currentIndex){
+      var section=q('mobile-section-select');
+      if(!section)return;
+      var items=itemsForGroup(groupId);
+      section.innerHTML='';
+      items.forEach(function(item){
+        var option=document.createElement('option');
+        option.value=String(item.index);
+        option.textContent=itemLabel(item);
+        option.setAttribute('data-tab-name',item.name);
+        section.appendChild(option);
+      });
+      if(items.some(function(item){return item.index===currentIndex;}))section.value=String(currentIndex);
+      else if(items[0])section.value=String(items[0].index);
+    }
     function updateMenu(){
       var originalTabs=document.querySelector('.tabs');
       if(!originalTabs)return;
@@ -145,35 +204,35 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
       if(!nav){
         nav=document.createElement('div');
         nav.id='mobile-section-nav';
-        nav.innerHTML='<label class="mobile-section-label" for="mobile-section-select">Section</label><select id="mobile-section-select" class="mobile-section-select" aria-label="Choose section"></select>';
+        nav.innerHTML='<div class="mobile-section-field"><label class="mobile-section-label" for="mobile-category-select">Category</label><select id="mobile-category-select" class="mobile-section-select" aria-label="Choose category"></select></div><div class="mobile-section-field"><label class="mobile-section-label" for="mobile-section-select">Section</label><select id="mobile-section-select" class="mobile-section-select" aria-label="Choose section"></select></div>';
         originalTabs.parentNode.insertBefore(nav,originalTabs);
-        nav.querySelector('.mobile-section-select').addEventListener('change',function(){activateTab(Number(this.value));});
+        q('mobile-category-select').addEventListener('change',function(){renderSectionOptions(this.value,-1);var section=q('mobile-section-select');if(section&&section.value)activateTab(Number(section.value));});
+        q('mobile-section-select').addEventListener('change',function(){activateTab(Number(this.value));});
       }
-      var allTabs=tabs();
       var current=activeTab();
-      var currentIndex=allTabs.indexOf(current);
-      if(currentIndex<0)currentIndex=0;
-      var select=q('mobile-section-select');
-      if(!select)return;
-      var signature=currentIndex+'|'+allTabs.map(labelFor).join('|');
-      if(signature!==lastMenuSignature){
-        lastMenuSignature=signature;
-        select.innerHTML='';
-        allTabs.forEach(function(tab,index){
-          var option=document.createElement('option');
-          option.value=String(index);
-          option.textContent=labelFor(tab);
-          option.setAttribute('data-tab-name',tabName(tab,index));
-          select.appendChild(option);
-        });
-      }
-      select.value=String(currentIndex);
+      var items=allItems();
+      var currentItem=items.find(function(item){return item.tab===current;})||items[0];
+      var currentIndex=currentItem?currentItem.index:0;
+      var currentGroup=groupFor(currentItem&&currentItem.name);
+      var category=q('mobile-category-select');
+      if(!category)return;
+      var groups=availableGroups();
+      var previous=category.value;
+      category.innerHTML='';
+      groups.forEach(function(group){
+        var option=document.createElement('option');
+        option.value=group.id;
+        option.textContent=group.label;
+        category.appendChild(option);
+      });
+      category.value=groups.some(function(group){return group.id===currentGroup.id;})?currentGroup.id:(previous||groups[0]&&groups[0].id||'work-orders');
+      renderSectionOptions(category.value,currentIndex);
     }
     function install(){
       if(document.querySelector('style[data-mobile-section-menu-style]'))return;
       var style=document.createElement('style');
       style.setAttribute('data-mobile-section-menu-style','');
-      style.textContent='#mobile-section-nav{display:none}.mobile-section-label,.mobile-section-select{font-family:inherit}@media(max-width:680px){.tabs{display:none!important}#mobile-section-nav{display:block;position:relative;z-index:1;margin-bottom:1rem}.mobile-section-label{display:block;margin:0 0 6px;color:#475569;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.mobile-section-select{display:block;width:100%;min-height:48px;padding:12px 40px 12px 14px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;color:#0f172a;font-size:15px;font-weight:800;box-shadow:0 1px 2px rgba(15,23,42,.04);cursor:pointer;touch-action:manipulation;pointer-events:auto}}';
+      style.textContent='#mobile-section-nav{display:none}.mobile-section-label,.mobile-section-select{font-family:inherit}@media(max-width:680px){.tabs{display:none!important}#mobile-section-nav{display:grid;gap:8px;position:relative;z-index:1;margin-bottom:1rem}.mobile-section-label{display:block;margin:0 0 6px;color:#475569;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.mobile-section-select{display:block;width:100%;min-height:48px;padding:12px 40px 12px 14px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;color:#0f172a;font-size:15px;font-weight:800;box-shadow:0 1px 2px rgba(15,23,42,.04);cursor:pointer;touch-action:manipulation;pointer-events:auto}.mobile-section-field{min-width:0}}';
       document.head.appendChild(style);
       updateMenu();
     }
@@ -212,6 +271,9 @@ module.exports = async function handler(req, res) {
       }
       if (typeof html === 'string' && !html.includes('data-maintenanceai-mobile-section-menu')) {
         html = appendBeforeBody(html, MOBILE_SECTION_MENU_ADDON);
+      }
+      if (typeof html === 'string' && !html.includes('data-maintenanceai-office-turnovers')) {
+        html = appendBeforeBody(html, officeTurnoverAddon);
       }
       res.status(statusCode).send(html);
     }
