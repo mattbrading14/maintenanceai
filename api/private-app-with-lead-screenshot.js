@@ -161,7 +161,30 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
 
     function allItems(){return tabs().map(function(tab,index){return {tab:tab,index:index,name:tabName(tab,index),label:rawLabel(tab)};});}
     function groupFor(name){return GROUPS.find(function(group){return group.names.indexOf(name)>-1;})||GROUPS[0];}
-    function itemLabel(item){return LABELS[item.name]||item.label||'Section';}
+    function countFor(item){
+      if(!item||!item.name)return null;
+      var ids={queue:'queue-count',approved:'approved-count',completed:'completed-count',denied:'denied-count',deleted:'deleted-count',bids:'bid-count',bookings:'booking-count'};
+      var id=ids[item.name];
+      if(!id)return null;
+      var el=q(id);
+      if(!el)return null;
+      var text=clean(el.textContent).replace(/[^0-9-]/g,'');
+      if(text==='')return null;
+      var count=parseInt(text,10);
+      return isNaN(count)?null:count;
+    }
+    function itemLabel(item){
+      var label=LABELS[item.name]||item.label||'Section';
+      var count=countFor(item);
+      return count===null?label:label+' - '+count;
+    }
+    function needsAttention(item){
+      if(!item)return false;
+      return (item.name==='queue'||item.name==='bids')&&Number(countFor(item)||0)>0;
+    }
+    function groupNeedsAttention(groupId,items){
+      return itemsForGroup(groupId,items).some(needsAttention);
+    }
     function itemsForGroup(groupId,items){
       items=items||allItems();
       var group=GROUPS.find(function(g){return g.id===groupId;})||GROUPS[0];
@@ -224,14 +247,14 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
       if(!categoryWrap||!sectionWrap)return false;
       categoryWrap.innerHTML='';
       groups.forEach(function(group){
-        var b=button(group.label,'mobile-category-button'+(group.id===selectedGroupId?' active':''));
+        var b=button(group.label,'mobile-category-button'+(group.id===selectedGroupId?' active':'')+(groupNeedsAttention(group.id,items)?' needs-attention':''));
         b.setAttribute('aria-pressed',group.id===selectedGroupId?'true':'false');
-        b.addEventListener('click',function(){selectedGroupId=group.id;lastSignature='';render();});
+        b.addEventListener('click',function(){selectedGroupId=group.id;lastSignature='';var first=itemsForGroup(group.id,items)[0];if(first)activateItem(first);else render();});
         categoryWrap.appendChild(b);
       });
       sectionWrap.innerHTML='';
       sectionItems.forEach(function(item){
-        var b=button(itemLabel(item),'mobile-section-button'+(item.index===currentIndex?' active':''));
+        var b=button(itemLabel(item),'mobile-section-button'+(item.index===currentIndex?' active':'')+(needsAttention(item)?' needs-attention':''));
         b.setAttribute('aria-pressed',item.index===currentIndex?'true':'false');
         b.addEventListener('click',function(){activateItem(item);});
         sectionWrap.appendChild(b);
@@ -242,7 +265,7 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
       if(!document.querySelector('style[data-mobile-section-menu-style]')){
         var style=document.createElement('style');
         style.setAttribute('data-mobile-section-menu-style','');
-        style.textContent='#mobile-section-nav{display:none}.mobile-category-button,.mobile-section-button,.mobile-section-heading{font-family:inherit}@media(max-width:900px){body.mai-mobile-nav-ready .tabs{display:none!important}body.mai-mobile-nav-ready #mobile-section-nav{display:block;position:relative;z-index:1;margin-bottom:1rem}.mobile-section-heading{margin:0 0 6px;color:#475569;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.mobile-category-buttons{display:flex;gap:8px;overflow-x:auto;padding:0 0 8px;margin:0 0 10px;-webkit-overflow-scrolling:touch}.mobile-category-button,.mobile-section-button{min-height:44px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;color:#0f172a;font-size:14px;font-weight:800;box-shadow:0 1px 2px rgba(15,23,42,.04);cursor:pointer;touch-action:manipulation}.mobile-category-button{flex:0 0 auto;padding:10px 12px;white-space:nowrap}.mobile-section-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mobile-section-button{width:100%;padding:10px 8px;line-height:1.15}.mobile-category-button.active,.mobile-section-button.active{border-color:#2563eb;background:#eff6ff;color:#1d4ed8}.mobile-category-button:active,.mobile-section-button:active{background:#f1f5f9}}';
+        style.textContent='#mobile-section-nav{display:none}.mobile-category-button,.mobile-section-button,.mobile-section-heading{font-family:inherit}@media(max-width:900px){body.mai-mobile-nav-ready .tabs{display:none!important}body.mai-mobile-nav-ready #mobile-section-nav{display:block;position:relative;z-index:1;margin-bottom:1rem}.mobile-section-heading{margin:0 0 6px;color:#475569;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.mobile-category-buttons{display:flex;gap:8px;overflow-x:auto;padding:0 0 8px;margin:0 0 10px;-webkit-overflow-scrolling:touch}.mobile-category-button,.mobile-section-button{min-height:44px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;color:#0f172a;font-size:14px;font-weight:800;box-shadow:0 1px 2px rgba(15,23,42,.04);cursor:pointer;touch-action:manipulation}.mobile-category-button{flex:0 0 auto;padding:10px 12px;white-space:nowrap}.mobile-section-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mobile-section-button{width:100%;padding:10px 8px;line-height:1.15}.mobile-category-button.needs-attention,.mobile-section-button.needs-attention{border-color:#f59e0b;background:#fffbeb;color:#92400e}.mobile-category-button.active,.mobile-section-button.active{border-color:#2563eb;background:#eff6ff;color:#1d4ed8}.mobile-category-button.active.needs-attention,.mobile-section-button.active.needs-attention{border-color:#f97316;background:#fff7ed;color:#9a3412;box-shadow:0 0 0 2px rgba(249,115,22,.14)}.mobile-category-button:active,.mobile-section-button:active{background:#f1f5f9}}';
         document.head.appendChild(style);
       }
       render();
