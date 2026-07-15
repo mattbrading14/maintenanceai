@@ -182,20 +182,13 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
       var panel=name?q('tab-'+name):null;
       if(panel)panel.scrollIntoView({behavior:'smooth',block:'start'});
     }
-    function renderSectionOptions(groupId,currentIndex){
-      var section=q('mobile-section-select');
-      if(!section)return;
-      var items=itemsForGroup(groupId);
-      section.innerHTML='';
-      items.forEach(function(item){
-        var option=document.createElement('option');
-        option.value=String(item.index);
-        option.textContent=itemLabel(item);
-        option.setAttribute('data-tab-name',item.name);
-        section.appendChild(option);
-      });
-      if(items.some(function(item){return item.index===currentIndex;}))section.value=String(currentIndex);
-      else if(items[0])section.value=String(items[0].index);
+    var selectedGroupId='';
+    function makeButton(text,className){
+      var button=document.createElement('button');
+      button.type='button';
+      button.className=className;
+      button.textContent=text;
+      return button;
     }
     function updateMenu(){
       var originalTabs=document.querySelector('.tabs');
@@ -204,35 +197,45 @@ const MOBILE_SECTION_MENU_ADDON = String.raw`
       if(!nav){
         nav=document.createElement('div');
         nav.id='mobile-section-nav';
-        nav.innerHTML='<div class="mobile-section-field"><label class="mobile-section-label" for="mobile-category-select">Category</label><select id="mobile-category-select" class="mobile-section-select" aria-label="Choose category"></select></div><div class="mobile-section-field"><label class="mobile-section-label" for="mobile-section-select">Section</label><select id="mobile-section-select" class="mobile-section-select" aria-label="Choose section"></select></div>';
+        nav.innerHTML='<div class="mobile-section-heading">Category</div><div id="mobile-category-buttons" class="mobile-category-buttons" aria-label="Choose category"></div><div class="mobile-section-heading">Section</div><div id="mobile-section-buttons" class="mobile-section-buttons" aria-label="Choose section"></div>';
         originalTabs.parentNode.insertBefore(nav,originalTabs);
-        q('mobile-category-select').addEventListener('change',function(){renderSectionOptions(this.value,-1);var section=q('mobile-section-select');if(section&&section.value)activateTab(Number(section.value));});
-        q('mobile-section-select').addEventListener('change',function(){activateTab(Number(this.value));});
       }
       var current=activeTab();
       var items=allItems();
       var currentItem=items.find(function(item){return item.tab===current;})||items[0];
       var currentIndex=currentItem?currentItem.index:0;
       var currentGroup=groupFor(currentItem&&currentItem.name);
-      var category=q('mobile-category-select');
-      if(!category)return;
       var groups=availableGroups();
-      var previous=category.value;
-      category.innerHTML='';
+      if(!selectedGroupId||!groups.some(function(group){return group.id===selectedGroupId;}))selectedGroupId=currentGroup.id;
+      if(currentGroup&&currentGroup.id!==selectedGroupId)selectedGroupId=currentGroup.id;
+      var categoryWrap=q('mobile-category-buttons');
+      var sectionWrap=q('mobile-section-buttons');
+      if(!categoryWrap||!sectionWrap)return;
+      categoryWrap.innerHTML='';
       groups.forEach(function(group){
-        var option=document.createElement('option');
-        option.value=group.id;
-        option.textContent=group.label;
-        category.appendChild(option);
+        var button=makeButton(group.label,'mobile-category-button'+(group.id===selectedGroupId?' active':''));
+        button.setAttribute('aria-pressed',group.id===selectedGroupId?'true':'false');
+        button.addEventListener('click',function(){
+          selectedGroupId=group.id;
+          var first=itemsForGroup(group.id)[0];
+          if(first)activateTab(first.index);
+          else updateMenu();
+        });
+        categoryWrap.appendChild(button);
       });
-      category.value=groups.some(function(group){return group.id===currentGroup.id;})?currentGroup.id:(previous||groups[0]&&groups[0].id||'work-orders');
-      renderSectionOptions(category.value,currentIndex);
+      sectionWrap.innerHTML='';
+      itemsForGroup(selectedGroupId).forEach(function(item){
+        var button=makeButton(itemLabel(item),'mobile-section-button'+(item.index===currentIndex?' active':''));
+        button.setAttribute('aria-pressed',item.index===currentIndex?'true':'false');
+        button.addEventListener('click',function(){activateTab(item.index);});
+        sectionWrap.appendChild(button);
+      });
     }
     function install(){
       if(document.querySelector('style[data-mobile-section-menu-style]'))return;
       var style=document.createElement('style');
       style.setAttribute('data-mobile-section-menu-style','');
-      style.textContent='#mobile-section-nav{display:none}.mobile-section-label,.mobile-section-select{font-family:inherit}@media(max-width:680px){.tabs{display:none!important}#mobile-section-nav{display:grid;gap:8px;position:relative;z-index:1;margin-bottom:1rem}.mobile-section-label{display:block;margin:0 0 6px;color:#475569;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.mobile-section-select{display:block;width:100%;min-height:48px;padding:12px 40px 12px 14px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;color:#0f172a;font-size:15px;font-weight:800;box-shadow:0 1px 2px rgba(15,23,42,.04);cursor:pointer;touch-action:manipulation;pointer-events:auto}.mobile-section-field{min-width:0}}';
+      style.textContent='#mobile-section-nav{display:none}.mobile-category-button,.mobile-section-button,.mobile-section-heading{font-family:inherit}@media(max-width:900px){.tabs{display:none!important}#mobile-section-nav{display:block;position:relative;z-index:1;margin-bottom:1rem}.mobile-section-heading{margin:0 0 6px;color:#475569;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.mobile-section-heading+.mobile-section-buttons{margin-top:0}.mobile-category-buttons{display:flex;gap:8px;overflow-x:auto;padding:0 0 8px;margin:0 0 10px;-webkit-overflow-scrolling:touch}.mobile-category-button,.mobile-section-button{min-height:44px;border:1px solid #dbe4ee;border-radius:12px;background:#fff;color:#0f172a;font-size:14px;font-weight:800;box-shadow:0 1px 2px rgba(15,23,42,.04);cursor:pointer;touch-action:manipulation}.mobile-category-button{flex:0 0 auto;padding:10px 12px;white-space:nowrap}.mobile-section-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mobile-section-button{width:100%;padding:10px 8px;line-height:1.15}.mobile-category-button.active,.mobile-section-button.active{border-color:#2563eb;background:#eff6ff;color:#1d4ed8}.mobile-category-button:active,.mobile-section-button:active{background:#f1f5f9}}';
       document.head.appendChild(style);
       updateMenu();
     }
