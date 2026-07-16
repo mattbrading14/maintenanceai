@@ -1,5 +1,6 @@
 const privateApp = require('./private-app-with-lead-screenshot.js');
 const officeTurnoverAddon = require('./office-turnover-addon.js');
+const ownerReportDateRangeAddon = require('./owner-report-date-range-addon.js');
 
 function appendBeforeBody(html, patch) {
   const closingBodyIndex = html.toLowerCase().lastIndexOf('</body>');
@@ -21,6 +22,9 @@ module.exports = async function handler(req, res) {
       let html = body;
       if (typeof html === 'string' && !html.includes('data-maintenanceai-office-turnovers')) {
         html = appendBeforeBody(html, officeTurnoverAddon);
+      }
+      if (typeof html === 'string' && !html.includes('data-maintenanceai-owner-report-date-range')) {
+        html = appendBeforeBody(html, ownerReportDateRangeAddon);
       }
       res.status(statusCode).send(html);
     }
