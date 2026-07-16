@@ -52,32 +52,70 @@ const OWNER_REPORT_DATE_RANGE_ADDON = String.raw`
       var total=(summary.range||Math.abs(summary.high-summary.low)>0.005)?money(summary.low)+' - '+money(summary.high):money(summary.low);
       return label+': '+total+(summary.unpriced?' ('+summary.unpriced+' without cost)':'');
     }
+    function isConfirmedCompletedCost(wo){
+      var cost=parseCost(wo&&wo.estimatedCost);
+      return !!(wo&&wo.status==='completed'&&cost&&!cost.range);
+    }
+    function isEstimatedCostRow(wo){
+      if(!wo)return false;
+      if(wo.status==='completed')return !isConfirmedCompletedCost(wo);
+      return wo.status==='emailed'||wo.status==='approved'||wo.status==='pending'||wo.status==='owner_pending';
+    }
     function reportTotals(rows){
       rows=Array.isArray(rows)?rows:[];
-      var completed=summarizeCosts(rows.filter(function(wo){return wo&&wo.status==='completed';}));
-      var estimated=summarizeCosts(rows.filter(function(wo){return wo&&(wo.status==='emailed'||wo.status==='approved'||wo.status==='pending'||wo.status==='owner_pending');}));
+      var completed=summarizeCosts(rows.filter(isConfirmedCompletedCost));
+      var estimated=summarizeCosts(rows.filter(isEstimatedCostRow));
       return {
         completed:totalText('Completed total',completed),
-        estimated:totalText('Pending estimated total',estimated)
+        estimated:totalText('Estimated total',estimated)
       };
+    }
+    function totalLineStyle(kind){
+      if(kind==='completed')return 'text-align:right;padding:8px 0;font-size:13px;font-weight:600;color:#15803d;border-top:2px solid #e2e8f0;margin-top:4px';
+      return 'text-align:right;padding:4px 0;font-size:12px;color:#64748b';
+    }
+    function totalLineMarkup(text,kind){
+      return text?'<div style="'+totalLineStyle(kind)+'">'+text+'</div>':'';
+    }
+    function addTotalLine(parent,text,kind){
+      if(!parent||!text)return;
+      var el=document.createElement('div');
+      el.setAttribute('data-maintenanceai-report-total',kind);
+      el.style.cssText=totalLineStyle(kind);
+      el.textContent=text;
+      parent.appendChild(el);
     }
     function updateReportFooterTotals(){
       var report=q('report-output');
       var rows=window._lastReport&&Array.isArray(window._lastReport.workOrders)?window._lastReport.workOrders:[];
       var totals=reportTotals(rows);
       if(!report)return;
+      Array.prototype.slice.call(report.querySelectorAll('[data-maintenanceai-report-total]')).forEach(function(el){
+        if(el.parentNode)el.parentNode.removeChild(el);
+      });
       Array.prototype.slice.call(report.querySelectorAll('div')).forEach(function(el){
         var text=(el.textContent||'').trim();
-        if(totals.completed&&text.indexOf('Completed total:')===0)el.textContent=totals.completed;
-        if(totals.estimated&&text.indexOf('Pending estimated:')===0)el.textContent=totals.estimated;
+        if(text.indexOf('Completed total:')===0||text.indexOf('Pending estimated:')===0||text.indexOf('Estimated total:')===0){
+          el.style.display='none';
+        }
       });
+      var card=report.querySelector('.card')||report.firstElementChild||report;
+      addTotalLine(card,totals.completed,'completed');
+      addTotalLine(card,totals.estimated,'estimated');
     }
     function replaceReportTotalMarkup(markup){
       if(typeof markup!=='string')return markup;
       var rows=window._lastReport&&Array.isArray(window._lastReport.workOrders)?window._lastReport.workOrders:[];
       var totals=reportTotals(rows);
-      if(totals.completed)markup=markup.replace(/Completed total: [^<]*/g,totals.completed);
-      if(totals.estimated)markup=markup.replace(/Pending estimated: [^<]*/g,totals.estimated);
+      var totalsHtml=totalLineMarkup(totals.completed,'completed')+totalLineMarkup(totals.estimated,'estimated');
+      markup=markup.replace(/<div[^>]*>(?:Completed total|Pending estimated|Pending estimated total|Estimated total): [^<]*<\/div>/g,'');
+      if(totalsHtml){
+        if(markup.indexOf('<div class="section-title">Preventive maintenance</div>')>-1){
+          markup=markup.replace('<div class="section-title">Preventive maintenance</div>',totalsHtml+'<div class="section-title">Preventive maintenance</div>');
+        }else{
+          markup+=totalsHtml;
+        }
+      }
       return markup;
     }
     function installRenderPatch(){
