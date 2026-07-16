@@ -61,45 +61,78 @@ const OWNER_REPORT_DATE_RANGE_ADDON = String.raw`
       var notes=[];
       var status=cleanText(wo&&wo.statusNotes);
       var vendor=cleanText(wo&&wo.notes_for_vendor);
-      if(status)notes.push({label:'Status',text:status});
-      if(vendor&&!sameNote(vendor,status)&&!sameNote(vendor,wo&&wo.issue_summary)&&!sameNote(vendor,wo&&wo.recommended_action)){
-        notes.push({label:'Notes',text:vendor});
-      }
+      if(status)notes.push({label:'Status note',text:status});
+      if(vendor&&!sameNote(vendor,status))notes.push({label:'Job notes',text:vendor});
       return notes;
     }
     function ownerReportNoteText(wo){
       return ownerReportNotes(wo).map(function(note){return note.label+': '+note.text;}).join('\n');
     }
-    function findWorkOrderReportRow(report,wo){
-      if(!report||!wo||!wo.id)return null;
-      var spans=Array.prototype.slice.call(report.querySelectorAll('span'));
-      for(var i=0;i<spans.length;i++){
-        if(cleanText(spans[i].textContent).indexOf(wo.id+' ')===0){
-          var row=spans[i].parentElement;
-          while(row&&row!==report){
-            if(row.style&&row.style.borderBottom)return row;
-            row=row.parentElement;
-          }
-        }
-      }
-      return null;
+    function statusLabel(wo){
+      if(!wo)return 'Pending';
+      if(wo.status==='completed')return 'Completed'+(wo.completedDate?' - '+cleanText(wo.completedDate):'');
+      if(wo.status==='emailed')return 'Emailed';
+      if(wo.status==='approved')return 'Approved';
+      if(wo.status==='denied')return 'Denied';
+      if(wo.status==='owner_pending')return 'Needs owner approval';
+      return 'Pending';
     }
-    function annotateReportNotes(){
+    function statusColors(wo){
+      if(wo&&wo.status==='denied')return {background:'#fef2f2',color:'#b91c1c',border:'#fecaca'};
+      if(wo&&(wo.status==='completed'||wo.status==='emailed'||wo.status==='approved'))return {background:'#f0fdf4',color:'#15803d',border:'#86efac'};
+      return {background:'#eff6ff',color:'#1d4ed8',border:'#bfdbfe'};
+    }
+    function findWorkOrderLogLabel(report){
+      var labels=Array.prototype.slice.call(report.querySelectorAll('div'));
+      return labels.find(function(el){return cleanText(el.textContent)==='Work order log';})||null;
+    }
+    function hideOriginalWorkOrderRows(label){
+      var node=label?label.nextElementSibling:null;
+      while(node){
+        if(node.getAttribute&&node.getAttribute('data-maintenanceai-work-order-log'))break;
+        var text=cleanText(node.textContent);
+        if(text.indexOf('Completed total:')===0||text.indexOf('Pending estimated:')===0||text.indexOf('Estimated total:')===0)break;
+        if(node.style&&(node.style.borderBottom||node.querySelector&&node.querySelector('.badge'))){
+          node.style.display='none';
+          node=node.nextElementSibling;
+          continue;
+        }
+        break;
+      }
+    }
+    function noteHtml(wo){
+      var notes=ownerReportNotes(wo);
+      if(!notes.length)return '';
+      return '<div style="margin-top:8px;padding:8px 10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#475569;font-size:12px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere">'+notes.map(function(note){return '<div><b style="color:#334155">'+escapeHtml(note.label)+':</b> '+escapeHtml(note.text)+'</div>';}).join('')+'</div>';
+    }
+    function workOrderLogRowHtml(wo){
+      var colors=statusColors(wo);
+      var vendor=cleanText(wo&&wo.vendor&&wo.vendor.name)||'No vendor';
+      var cost=cleanText(wo&&wo.estimatedCost);
+      return '<div data-maintenanceai-work-order-row="'+escapeHtml(wo&&wo.id)+'" style="padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:13px;max-width:100%;overflow-wrap:anywhere;box-sizing:border-box">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap;max-width:100%">'
+        +'<div style="flex:1 1 190px;min-width:0;max-width:100%;overflow-wrap:anywhere"><div style="font-weight:600;color:#0f172a;line-height:1.35;overflow-wrap:anywhere">'+escapeHtml(wo&&wo.id)+' - '+escapeHtml(wo&&wo.issue_summary)+'</div><div style="font-size:11px;color:#64748b;margin-top:2px;overflow-wrap:anywhere">Unit '+escapeHtml(wo&&wo.unit)+'</div></div>'
+        +'<div style="display:flex;align-items:center;gap:6px;flex:0 1 auto;flex-wrap:wrap;justify-content:flex-start;min-width:0;max-width:100%;overflow-wrap:anywhere"><span style="font-size:11px;color:#64748b;overflow-wrap:anywhere">'+escapeHtml(vendor)+'</span>'+(cost?'<span style="font-size:11px;font-weight:700;color:#15803d;overflow-wrap:anywhere">'+escapeHtml(cost)+'</span>':'')+'<span style="display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 8px;background:'+colors.background+';color:'+colors.color+';border:1px solid '+colors.border+'">'+escapeHtml(statusLabel(wo))+'</span></div>'
+        +'</div>'+noteHtml(wo)+'</div>';
+    }
+    function renderReportWorkOrderLog(){
       var report=q('report-output');
       var rows=window._lastReport&&Array.isArray(window._lastReport.workOrders)?window._lastReport.workOrders:[];
       if(!report||!rows.length)return;
-      rows.forEach(function(wo){
-        var noteText=ownerReportNoteText(wo);
-        if(!noteText)return;
-        var row=findWorkOrderReportRow(report,wo);
-        if(!row||row.querySelector('[data-maintenanceai-report-note="'+wo.id+'"]'))return;
-        var target=row.firstElementChild||row;
-        var note=document.createElement('div');
-        note.setAttribute('data-maintenanceai-report-note',wo.id);
-        note.style.cssText='margin-top:6px;padding:6px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#475569;font-size:12px;line-height:1.45;white-space:pre-wrap';
-        note.textContent=noteText;
-        target.appendChild(note);
-      });
+      report.style.maxWidth='100%';
+      report.style.overflowX='hidden';
+      var card=report.querySelector('.card')||report.firstElementChild||report;
+      if(card&&card.style){card.style.maxWidth='100%';card.style.overflowX='hidden';card.style.boxSizing='border-box';}
+      var label=findWorkOrderLogLabel(report);
+      if(!label)return;
+      hideOriginalWorkOrderRows(label);
+      var existing=report.querySelector('[data-maintenanceai-work-order-log]');
+      if(existing&&existing.parentNode)existing.parentNode.removeChild(existing);
+      var wrap=document.createElement('div');
+      wrap.setAttribute('data-maintenanceai-work-order-log','');
+      wrap.style.cssText='max-width:100%;overflow:hidden;box-sizing:border-box';
+      wrap.innerHTML=rows.map(workOrderLogRowHtml).join('');
+      label.insertAdjacentElement('afterend',wrap);
     }
     function workOrderWithExportNotes(wo){
       var copy={};
@@ -186,8 +219,8 @@ const OWNER_REPORT_DATE_RANGE_ADDON = String.raw`
         workOrders=selectedReportWorkOrders(reportSource);
         try{result=originalRenderReport.call(this,property,month,text);}
         finally{workOrders=previousWorkOrders;}
+        renderReportWorkOrderLog();
         updateReportFooterTotals();
-        annotateReportNotes();
         return result;
       };
       window.renderReport.__dateRangeAware=true;
