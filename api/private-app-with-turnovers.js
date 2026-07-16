@@ -23,6 +23,7 @@ module.exports = async function handler(req, res) {
       if (typeof html === 'string' && !html.includes('data-maintenanceai-office-turnovers')) {
         html = appendBeforeBody(html, officeTurnoverAddon);
       }
+      // Keep the owner report log scoped to the selected report dates.
       if (typeof html === 'string' && !html.includes('data-maintenanceai-owner-report-date-range')) {
         html = appendBeforeBody(html, ownerReportDateRangeAddon);
       }
