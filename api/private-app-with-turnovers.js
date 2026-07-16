@@ -52,6 +52,62 @@ const OWNER_REPORT_DATE_RANGE_ADDON = String.raw`
       var total=(summary.range||Math.abs(summary.high-summary.low)>0.005)?money(summary.low)+' - '+money(summary.high):money(summary.low);
       return label+': '+total+(summary.unpriced?' ('+summary.unpriced+' without cost)':'');
     }
+    function cleanText(value){return (value==null?'':String(value)).trim();}
+    function sameNote(a,b){return cleanText(a).toLowerCase()===cleanText(b).toLowerCase();}
+    function escapeHtml(value){
+      return cleanText(value).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});
+    }
+    function ownerReportNotes(wo){
+      var notes=[];
+      var status=cleanText(wo&&wo.statusNotes);
+      var vendor=cleanText(wo&&wo.notes_for_vendor);
+      if(status)notes.push({label:'Status',text:status});
+      if(vendor&&!sameNote(vendor,status)&&!sameNote(vendor,wo&&wo.issue_summary)&&!sameNote(vendor,wo&&wo.recommended_action)){
+        notes.push({label:'Notes',text:vendor});
+      }
+      return notes;
+    }
+    function ownerReportNoteText(wo){
+      return ownerReportNotes(wo).map(function(note){return note.label+': '+note.text;}).join('\n');
+    }
+    function findWorkOrderReportRow(report,wo){
+      if(!report||!wo||!wo.id)return null;
+      var spans=Array.prototype.slice.call(report.querySelectorAll('span'));
+      for(var i=0;i<spans.length;i++){
+        if(cleanText(spans[i].textContent).indexOf(wo.id+' ')===0){
+          var row=spans[i].parentElement;
+          while(row&&row!==report){
+            if(row.style&&row.style.borderBottom)return row;
+            row=row.parentElement;
+          }
+        }
+      }
+      return null;
+    }
+    function annotateReportNotes(){
+      var report=q('report-output');
+      var rows=window._lastReport&&Array.isArray(window._lastReport.workOrders)?window._lastReport.workOrders:[];
+      if(!report||!rows.length)return;
+      rows.forEach(function(wo){
+        var noteText=ownerReportNoteText(wo);
+        if(!noteText)return;
+        var row=findWorkOrderReportRow(report,wo);
+        if(!row||row.querySelector('[data-maintenanceai-report-note="'+wo.id+'"]'))return;
+        var target=row.firstElementChild||row;
+        var note=document.createElement('div');
+        note.setAttribute('data-maintenanceai-report-note',wo.id);
+        note.style.cssText='margin-top:6px;padding:6px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;color:#475569;font-size:12px;line-height:1.45;white-space:pre-wrap';
+        note.textContent=noteText;
+        target.appendChild(note);
+      });
+    }
+    function workOrderWithExportNotes(wo){
+      var copy={};
+      for(var key in wo){copy[key]=wo[key];}
+      var noteText=ownerReportNoteText(wo);
+      if(noteText)copy.statusNotes=escapeHtml(noteText).replace(/\n/g,'<br>');
+      return copy;
+    }
     function isConfirmedCompletedCost(wo){
       var cost=parseCost(wo&&wo.estimatedCost);
       return !!(wo&&wo.status==='completed'&&cost&&!cost.range);
@@ -131,6 +187,7 @@ const OWNER_REPORT_DATE_RANGE_ADDON = String.raw`
         try{result=originalRenderReport.call(this,property,month,text);}
         finally{workOrders=previousWorkOrders;}
         updateReportFooterTotals();
+        annotateReportNotes();
         return result;
       };
       window.renderReport.__dateRangeAware=true;
@@ -142,6 +199,9 @@ const OWNER_REPORT_DATE_RANGE_ADDON = String.raw`
       var originalExportReportPDF=window.exportReportPDF;
       window.exportReportPDF=function(){
         var originalOpen=window.open;
+        var report=window._lastReport;
+        var originalWorkOrders=report&&Array.isArray(report.workOrders)?report.workOrders:null;
+        if(originalWorkOrders)report.workOrders=originalWorkOrders.map(workOrderWithExportNotes);
         window.open=function(){
           var popup=originalOpen.apply(window,arguments);
           if(popup&&popup.document&&typeof popup.document.write==='function'){
@@ -151,7 +211,7 @@ const OWNER_REPORT_DATE_RANGE_ADDON = String.raw`
           return popup;
         };
         try{return originalExportReportPDF.apply(this,arguments);}
-        finally{window.open=originalOpen;}
+        finally{if(originalWorkOrders)report.workOrders=originalWorkOrders;window.open=originalOpen;}
       };
       window.exportReportPDF.__summedTotals=true;
       return true;
