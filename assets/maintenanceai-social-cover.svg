@@ -1,18 +1,85 @@
-<svg width="1500" height="500" viewBox="0 0 1500 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
-  <title id="title">MaintenanceAI social cover</title>
-  <desc id="desc">MaintenanceAI social media cover image.</desc>
-  <rect width="1500" height="500" fill="#FFFDF8"/>
-  <rect x="44" y="44" width="1412" height="412" rx="36" fill="#0D1B16"/>
-  <g transform="translate(112 96)">
-    <rect width="308" height="308" rx="66" fill="#16653D"/>
-    <path d="M63 156L154 81L245 156V242H63V156Z" fill="none" stroke="#FFFFFF" stroke-width="15" stroke-linejoin="round"/>
-    <path d="M99 172L132 205L217 120" fill="none" stroke="#7BE5AA" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="134" y="191" width="38" height="51" rx="8" fill="#FFFFFF"/>
-    <circle cx="219" cy="84" r="8" fill="#7BE5AA"/>
-    <circle cx="239" cy="104" r="6" fill="#7BE5AA" opacity=".82"/>
-    <path d="M219 84L239 104" stroke="#7BE5AA" stroke-width="5" stroke-linecap="round" opacity=".82"/>
+<svg width="1584" height="396" viewBox="0 0 1584 396" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">MaintenanceAI LinkedIn banner</title>
+  <desc id="desc">A LinkedIn profile banner for MaintenanceAI highlighting the newest property management workflows.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1584" y2="396" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D1B16"/>
+      <stop offset=".58" stop-color="#123F2B"/>
+      <stop offset="1" stop-color="#16653D"/>
+    </linearGradient>
+    <radialGradient id="mintGlow" cx="82%" cy="16%" r="58%">
+      <stop offset="0" stop-color="#7BE5AA" stop-opacity=".32"/>
+      <stop offset="1" stop-color="#7BE5AA" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="cardShadow" x="-15%" y="-25%" width="130%" height="150%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#06120D" flood-opacity=".24"/>
+    </filter>
+  </defs>
+  <rect width="1584" height="396" fill="#FFFDF8"/>
+  <rect x="24" y="24" width="1536" height="348" rx="34" fill="url(#bg)"/>
+  <rect x="24" y="24" width="1536" height="348" rx="34" fill="url(#mintGlow)"/>
+
+  <g opacity=".13" stroke="#FFFFFF" stroke-width="1">
+    <path d="M70 330H1514"/>
+    <path d="M70 282H1514"/>
+    <path d="M70 234H1514"/>
+    <path d="M70 186H1514"/>
+    <path d="M70 138H1514"/>
+    <path d="M70 90H1514"/>
+    <path d="M142 54V342"/>
+    <path d="M286 54V342"/>
+    <path d="M430 54V342"/>
+    <path d="M574 54V342"/>
+    <path d="M718 54V342"/>
+    <path d="M862 54V342"/>
+    <path d="M1006 54V342"/>
+    <path d="M1150 54V342"/>
+    <path d="M1294 54V342"/>
+    <path d="M1438 54V342"/>
   </g>
-  <text x="480" y="218" font-family="Inter, Arial, sans-serif" font-size="86" font-weight="800" letter-spacing="0" fill="#FFFFFF">Maintenance<tspan fill="#7BE5AA">AI</tspan></text>
-  <text x="486" y="288" font-family="Inter, Arial, sans-serif" font-size="31" font-weight="600" fill="#D9E7DF">Maintenance operations for property managers</text>
-  <text x="486" y="344" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500" fill="#95A9A0">Work orders | bid requests | preventive maintenance | owner reports</text>
+
+  <g transform="translate(88 76)" filter="url(#cardShadow)">
+    <rect width="286" height="224" rx="28" fill="#FFFDF8"/>
+    <rect x="22" y="22" width="70" height="70" rx="18" fill="#16653D"/>
+    <path d="M36 57L57 40L78 57V78H36V57Z" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M45 62L54 71L76 49" fill="none" stroke="#7BE5AA" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="108" y="49" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#0D1B16">MaintenanceAI</text>
+    <text x="108" y="75" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#66736D">Property command center</text>
+    <rect x="24" y="116" width="238" height="14" rx="7" fill="#E8F6EE"/>
+    <rect x="24" y="146" width="176" height="14" rx="7" fill="#DAE5DE"/>
+    <rect x="24" y="176" width="210" height="14" rx="7" fill="#BFE4CC"/>
+  </g>
+
+  <g font-family="Inter, Arial, sans-serif">
+    <text x="462" y="116" font-size="58" font-weight="800" letter-spacing="0" fill="#FFFFFF">Maintenance<tspan fill="#7BE5AA">AI</tspan></text>
+    <text x="466" y="164" font-size="25" font-weight="700" fill="#E8F6EE">Maintenance operations for modern property managers</text>
+    <text x="466" y="206" font-size="18" font-weight="500" fill="#B8C9C0">Work orders, bid requests, PM history, owner reports, leasing leads, turnovers, and room bookings in one workflow.</text>
+  </g>
+
+  <g font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800">
+    <g transform="translate(466 250)">
+      <rect width="134" height="40" rx="20" fill="#E8F6EE"/>
+      <text x="67" y="26" text-anchor="middle" fill="#16653D">Work orders</text>
+    </g>
+    <g transform="translate(612 250)">
+      <rect width="122" height="40" rx="20" fill="#E8F3FB"/>
+      <text x="61" y="26" text-anchor="middle" fill="#1F5C84">Bid requests</text>
+    </g>
+    <g transform="translate(746 250)">
+      <rect width="144" height="40" rx="20" fill="#FFF4DB"/>
+      <text x="72" y="26" text-anchor="middle" fill="#8A5A16">Owner reports</text>
+    </g>
+    <g transform="translate(902 250)">
+      <rect width="132" height="40" rx="20" fill="#E8F6EE"/>
+      <text x="66" y="26" text-anchor="middle" fill="#16653D">Tenant leads</text>
+    </g>
+    <g transform="translate(1046 250)">
+      <rect width="114" height="40" rx="20" fill="#E8F3FB"/>
+      <text x="57" y="26" text-anchor="middle" fill="#1F5C84">Turnovers</text>
+    </g>
+    <g transform="translate(1172 250)">
+      <rect width="132" height="40" rx="20" fill="#FFF4DB"/>
+      <text x="66" y="26" text-anchor="middle" fill="#8A5A16">Room bookings</text>
+    </g>
+  </g>
 </svg>
