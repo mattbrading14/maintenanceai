@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>MaintenanceAI | Maintenance Operations for Property Managers</title>
-<meta name="description" content="MaintenanceAI helps property managers automate work orders, bid requests, preventive maintenance, vendor coordination, and owner reporting." />
+<meta name="description" content="MaintenanceAI helps property managers automate work orders, bid requests, preventive maintenance, owner reports, leasing leads, turnovers, and room bookings." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet" />
@@ -528,7 +528,7 @@ h2 {
 }
 .featured ul { color: rgba(255,255,255,.76); }
 .price-card li::before {
-  content: "✓";
+  content: "âœ“";
   display: inline-block;
   margin-right: 8px;
   color: var(--green);
@@ -614,7 +614,7 @@ footer {
     <span>MaintenanceAI</span>
   </a>
   <div class="nav-links">
-    <a href="#platform">Platform</a>
+    <a href="#platform">Services</a>
     <a href="#workflows">Workflows</a>
     <a href="#fit">Who it is for</a>
     <a href="#pricing">Pricing</a>
@@ -629,8 +629,8 @@ footer {
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-inner">
       <span class="eyebrow">Now in beta</span>
-      <h1 id="hero-title">Maintenance operations for property managers.</h1>
-      <p>MaintenanceAI turns tenant requests, vendor bids, recurring maintenance, and owner updates into one organized workflow. Less chasing, cleaner reporting, and fewer expensive surprises.</p>
+      <h1 id="hero-title">Property operations for the work that falls between systems.</h1>
+      <p>MaintenanceAI turns tenant requests, bid requests, preventive maintenance, leasing leads, office or apartment turnovers, room bookings, and owner updates into one organized workflow. Less chasing, cleaner reporting, and fewer expensive surprises.</p>
       <div class="hero-actions">
         <a class="btn primary" href="#contact">Get beta access</a>
         <a class="btn secondary" href="#platform">See the system</a>
@@ -645,7 +645,9 @@ footer {
         <div class="preview-tabs">
           <span class="pill dark">Work Orders</span>
           <span class="pill">Bid Requests</span>
-          <span class="pill">Preventive Maintenance</span>
+          <span class="pill">Leasing Leads</span>
+          <span class="pill">Turnovers</span>
+          <span class="pill">Room Bookings</span>
           <span class="pill">Owner Reports</span>
         </div>
       </div>
@@ -653,42 +655,42 @@ footer {
         <div class="panel">
           <div class="panel-title">
             <div>
-              <h3>Bid comparison ready</h3>
-              <p>Three contractors responded to the same scope. AI has ranked the best value.</p>
+              <h3>Screenshot turned into a task</h3>
+              <p>Messages, emails, and voicemail transcripts become the right workflow automatically.</p>
             </div>
-            <span class="status green">Winner found</span>
+            <span class="status green">Ready to review</span>
           </div>
           <div class="row">
-            <strong>Bay Area Plumbing</strong>
-            <span>2 day timeline</span>
-            <span>$4,850</span>
-            <span class="value">Best value</span>
+            <strong>Work order</strong>
+            <span>Vendor matched</span>
+            <span>Needs approval</span>
+            <span class="value">Drafted</span>
           </div>
           <div class="row">
-            <strong>Prime Mechanical</strong>
-            <span>5 day timeline</span>
-            <span>$4,200</span>
-            <span>Lowest price</span>
+            <strong>Prospective tenant</strong>
+            <span>Email captured</span>
+            <span>Notes saved</span>
+            <span>Waiting list</span>
           </div>
           <div class="row">
-            <strong>Commercial Pros</strong>
-            <span>3 day timeline</span>
-            <span>$6,100</span>
-            <span>Fastest start</span>
+            <strong>Room booking</strong>
+            <span>Date parsed</span>
+            <span>Rent estimated</span>
+            <span>Calendar ready</span>
           </div>
         </div>
         <div class="panel">
           <div class="panel-title">
             <div>
-              <h3>Upcoming maintenance</h3>
-              <p>Recurring tasks are tracked automatically and ready for dispatch.</p>
+              <h3>Operations queue</h3>
+              <p>Maintenance, turnovers, bookings, and reports stay tied to the building record.</p>
             </div>
-            <span class="status gold">4 due soon</span>
+            <span class="status gold">6 items active</span>
           </div>
           <div class="tasks">
-            <div class="task"><span class="task-icon">HV</span><div><strong>HVAC filter replacement</strong><span>Due May 16 · Reliable HVAC</span></div><span class="status blue">Scheduled</span></div>
-            <div class="task"><span class="task-icon">FE</span><div><strong>Fire extinguisher inspection</strong><span>Due May 22 · Safety First</span></div><span class="status gold">Reminder</span></div>
-            <div class="task"><span class="task-icon">RP</span><div><strong>Roof check</strong><span>Due Jun 1 · Apex Roofing</span></div><span class="status green">Ready</span></div>
+            <div class="task"><span class="task-icon">HV</span><div><strong>Office turnover</strong><span>Paint, carpet, blinds, bulbs</span></div><span class="status blue">Scheduled</span></div>
+            <div class="task"><span class="task-icon">FE</span><div><strong>Bid request</strong><span>Three vendors invited</span></div><span class="status gold">Reminder</span></div>
+            <div class="task"><span class="task-icon">RP</span><div><strong>Owner report</strong><span>Date range and notes ready</span></div><span class="status green">Ready</span></div>
           </div>
         </div>
       </div>
@@ -697,48 +699,68 @@ footer {
 
   <div class="below-hero">
     <div class="strip" aria-label="Product outcomes">
+      <div class="metric"><strong>Any message</strong><span>can become a work order, lead, booking, or turnover task</span></div>
       <div class="metric"><strong>1 scope</strong><span>sent to every contractor bidding on the job</span></div>
-      <div class="metric"><strong>0 sheets</strong><span>needed to track PM schedules and vendor replies</span></div>
-      <div class="metric"><strong>1 report</strong><span>generated for owners from actual maintenance history</span></div>
+      <div class="metric"><strong>1 report</strong><span>generated from actual maintenance history and notes</span></div>
       <div class="metric"><strong>Full control</strong><span>manager approval before anything is dispatched</span></div>
     </div>
   </div>
-
   <section class="section" id="platform">
     <div class="wrap">
       <div class="section-head">
-        <p class="label">The platform</p>
-        <h2>The maintenance side of property management, finally in one place.</h2>
-        <p>Most property managers are not short on effort. They are stuck coordinating the same messy work across inboxes, texts, vendor calls, and spreadsheets. MaintenanceAI centralizes the flow.</p>
+        <p class="label">Updated services</p>
+        <h2>The building workflows that usually live in texts, inboxes, and spreadsheets.</h2>
+        <p>MaintenanceAI now covers the day-to-day property work that small commercial, residential, mixed-use, and HOA managers asked for: requests, bids, recurring maintenance, owner reports, leasing leads, turnovers, and room reservations.</p>
       </div>
       <div class="feature-grid">
         <article class="feature">
           <div>
             <h3>Work Orders</h3>
-            <p>Turn tenant texts, emails, or screenshots into structured work orders with category, priority, vendor match, and approval status.</p>
+            <p>Read tenant emails, texts, voicemail transcripts, and screenshots, then draft a structured work order with priority, category, vendor match, approval status, and notes.</p>
           </div>
           <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line green"></span><span class="mini-line w70"></span><span class="mini-line w52"></span></div></div>
         </article>
         <article class="feature">
           <div>
             <h3>Bid Requests</h3>
-            <p>Send one scope to multiple contractors, track every response, and generate an AI comparison across price, timeline, and value.</p>
+            <p>Create one scope, invite multiple vendors, track responses, upload bids, and compare price, exclusions, timeline, warranty, and overall value side by side.</p>
           </div>
           <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w70"></span><span class="mini-line green"></span><span class="mini-line w52"></span></div></div>
         </article>
         <article class="feature">
           <div>
             <h3>Preventive Maintenance</h3>
-            <p>Schedule recurring tasks once. MaintenanceAI tracks due dates, sends reminders, logs completions, and advances the next cycle.</p>
+            <p>Schedule recurring tasks, track due dates, log completion history, carry estimated costs, and keep the next cycle from getting lost.</p>
           </div>
           <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w52"></span><span class="mini-line w70"></span><span class="mini-line green"></span></div></div>
         </article>
         <article class="feature">
           <div>
             <h3>Owner Reports</h3>
-            <p>Maintenance history, completed PM tasks, bid outcomes, vendor activity, and costs roll into clean owner-facing reports.</p>
+            <p>Generate date-range reports with work order logs, notes, completed totals, estimated totals, preventive maintenance, bids, and booking activity.</p>
           </div>
           <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line green"></span><span class="mini-line green"></span><span class="mini-line w70"></span></div></div>
+        </article>
+        <article class="feature">
+          <div>
+            <h3>Prospective Tenant Database</h3>
+            <p>Save names, emails, phone numbers, and flexible notes for office or apartment prospects, then email everyone when a matching space becomes available.</p>
+          </div>
+          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w70"></span><span class="mini-line w52"></span><span class="mini-line green"></span></div></div>
+        </article>
+        <article class="feature">
+          <div>
+            <h3>Office &amp; Apartment Turnovers</h3>
+            <p>Select the vacant space, choose the needed work, attach photos, auto-match vendors by scope, and send clean turnover instructions for approval.</p>
+          </div>
+          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line green"></span><span class="mini-line w52"></span><span class="mini-line w70"></span></div></div>
+        </article>
+        <article class="feature">
+          <div>
+            <h3>Room Bookings</h3>
+            <p>Read room rental requests from screenshots or messages, capture renter details, rooms, dates, times, kitchen use, pricing, calendar status, and booking reports.</p>
+          </div>
+          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w52"></span><span class="mini-line green"></span><span class="mini-line w70"></span></div></div>
         </article>
       </div>
     </div>
@@ -749,32 +771,32 @@ footer {
       <div class="section-head">
         <p class="label">Core workflows</p>
         <h2>Built around the work that actually eats your week.</h2>
-        <p>Contractor coordination, recurring maintenance, and owner communication are where time disappears. These workflows are designed to remove the manual follow-up.</p>
+        <p>Contractor coordination, recurring maintenance, lead follow-up, room rentals, turnovers, and owner communication are where time disappears. These workflows are designed to remove the manual follow-up.</p>
       </div>
       <div class="flow">
         <div class="flow-nav">
-          <div class="flow-card"><h3>Send bids without rewriting emails</h3><p>Fill in the project once, choose vendors by trade, and open polished bid request emails for every contractor.</p></div>
-          <div class="flow-card"><h3>Know which vendor to pick</h3><p>When bids come in, MaintenanceAI compares price, scope, exclusions, and timeline side by side.</p></div>
-          <div class="flow-card"><h3>Keep owners current</h3><p>Reports update from logged activity, so owners see the maintenance record without a spreadsheet recap.</p></div>
+          <div class="flow-card"><h3>Capture the request once</h3><p>Upload a screenshot or paste the message, then turn it into a work order, lead, booking, or turnover record.</p></div>
+          <div class="flow-card"><h3>Send the right next step</h3><p>Choose vendors, office spaces, rooms, or owners, then open polished emails with the right details already filled in.</p></div>
+          <div class="flow-card"><h3>Keep the record clean</h3><p>Notes, dates, totals, booking rent, bid outcomes, and completion status stay available for reports.</p></div>
         </div>
         <div class="flow-demo">
           <div class="workflow-screen">
-            <h3>Roof repair bid request</h3>
-            <p>Scope sent to three roofing vendors. Two bids received, one pending.</p>
-            <div class="vendor-row"><div><strong>Apex Roofing</strong><small>Full replacement · 3 days</small></div><span class="price">$8,900</span><span class="winner">Recommended</span></div>
-            <div class="vendor-row"><div><strong>Summit Exterior</strong><small>Partial repair · 1 day</small></div><span class="price">$4,200</span><span class="status gold">Scope risk</span></div>
-            <div class="vendor-row"><div><strong>Premier Roofing</strong><small>Awaiting response</small></div><span class="price">--</span><span class="status blue">Pending</span></div>
+            <h3>Lead and request intake</h3>
+            <p>One screenshot can become the right record without retyping the whole conversation.</p>
+            <div class="vendor-row"><div><strong>Office prospect</strong><small>750-1,000 sq ft, second floor preferred</small></div><span class="price">Saved</span><span class="winner">Lead</span></div>
+            <div class="vendor-row"><div><strong>Maintenance text</strong><small>Leak under sink, access needed</small></div><span class="price">WO-1042</span><span class="status gold">Approval</span></div>
+            <div class="vendor-row"><div><strong>Room rental</strong><small>Dining Room, Saturday evening</small></div><span class="price">$450</span><span class="status blue">Calendar</span></div>
           </div>
           <div class="workflow-screen">
-            <h3>Preventive maintenance schedule</h3>
-            <p>Every recurring task has a vendor, frequency, estimated cost, due date, and completion history.</p>
-            <div class="vendor-row"><div><strong>HVAC filters</strong><small>Quarterly · next due May 16</small></div><span class="price">$150</span><span class="status green">Auto reminder</span></div>
-            <div class="vendor-row"><div><strong>Fire extinguisher inspection</strong><small>Annual · next due Jun 5</small></div><span class="price">$275</span><span class="status blue">Scheduled</span></div>
-            <div class="vendor-row"><div><strong>Plumbing flush</strong><small>Semiannual · next due Jun 18</small></div><span class="price">$325</span><span class="status gold">Due soon</span></div>
+            <h3>Turnover and maintenance plan</h3>
+            <p>Every task has a scope, vendor match, estimated cost, due date, notes, and completion status.</p>
+            <div class="vendor-row"><div><strong>Paint vacant office</strong><small>Suite 204, walls and trim</small></div><span class="price">Vendor</span><span class="status green">Ready</span></div>
+            <div class="vendor-row"><div><strong>Replace blinds</strong><small>Two windows, photos attached</small></div><span class="price">Vendor</span><span class="status blue">Drafted</span></div>
+            <div class="vendor-row"><div><strong>HVAC filters</strong><small>Quarterly, completion logged</small></div><span class="price">$150</span><span class="status gold">Due soon</span></div>
           </div>
           <div class="report">
             <strong>Owner summary</strong>
-            <p>This month included 6 completed work orders, 3 preventive maintenance tasks, and one competitive bid process. The recommended roofing vendor was selected based on warranty coverage, completion timeline, and total scope alignment.</p>
+            <p>This month included completed work orders, active estimates, turnover notes, room booking activity, preventive maintenance, and one competitive bid process. Owners see the date range they asked for, with notes and totals separated clearly.</p>
           </div>
         </div>
       </div>
@@ -791,20 +813,20 @@ footer {
         <div class="audience-card dark">
           <h3>MaintenanceAI is a fit if...</h3>
           <ul class="checklist">
-            <li><b>✓</b><span>You manage residential, commercial, or mixed portfolios.</span></li>
-            <li><b>✓</b><span>Your tenants already text, call, or email maintenance issues.</span></li>
-            <li><b>✓</b><span>You use trusted local vendors and want better coordination.</span></li>
-            <li><b>✓</b><span>You need clean owner reports without manual write-ups.</span></li>
-            <li><b>✓</b><span>You want preventive maintenance to stop falling through the cracks.</span></li>
+            <li><b>âœ“</b><span>You manage residential, commercial, or mixed portfolios.</span></li>
+            <li><b>âœ“</b><span>Your tenants, prospects, vendors, or room renters already reach out by text, email, calls, or screenshots.</span></li>
+            <li><b>âœ“</b><span>You use trusted local vendors and want better coordination.</span></li>
+            <li><b>âœ“</b><span>You need clean owner reports without manual write-ups.</span></li>
+            <li><b>âœ“</b><span>You want preventive maintenance, turnovers, bookings, and follow-up to stop falling through the cracks.</span></li>
           </ul>
         </div>
         <div class="audience-card">
           <h3>It is not trying to be...</h3>
           <ul class="checklist">
-            <li><b>—</b><span>A replacement for your accounting, rent collection, or leasing system.</span></li>
-            <li><b>—</b><span>A tenant portal that forces renters into a new habit.</span></li>
-            <li><b>—</b><span>A marketplace that pushes you away from your own vendors.</span></li>
-            <li><b>—</b><span>An enterprise platform built for thousands of units and long implementation cycles.</span></li>
+            <li><b>â€”</b><span>A replacement for your accounting, rent collection, or leasing system.</span></li>
+            <li><b>â€”</b><span>A tenant portal that forces renters into a new habit.</span></li>
+            <li><b>â€”</b><span>A marketplace that pushes you away from your own vendors.</span></li>
+            <li><b>â€”</b><span>An enterprise platform built for thousands of units and long implementation cycles.</span></li>
           </ul>
         </div>
       </div>
@@ -822,35 +844,38 @@ footer {
         <article class="price-card">
           <div class="tier">Starter</div>
           <div class="amount">$29</div>
-          <div class="per">per month · smaller portfolios</div>
+          <div class="per">per month Â· smaller portfolios</div>
           <ul>
             <li>Work order creation</li>
             <li>Vendor directory</li>
             <li>Basic PM scheduler</li>
             <li>Monthly owner report</li>
+            <li>Prospective tenant notes</li>
           </ul>
           <a class="btn secondary" href="#contact">Start beta</a>
         </article>
         <article class="price-card featured">
           <div class="tier">Professional</div>
           <div class="amount">$79</div>
-          <div class="per">per month · growing property teams</div>
+          <div class="per">per month Â· growing property teams</div>
           <ul>
             <li>Everything in Starter</li>
             <li>Bid request workflows</li>
             <li>AI bid comparison reports</li>
             <li>Advanced owner reporting</li>
+            <li>Room bookings and turnover workflows</li>
           </ul>
           <a class="btn primary" href="#contact">Request access</a>
         </article>
         <article class="price-card">
           <div class="tier">Portfolio</div>
           <div class="amount">$199</div>
-          <div class="per">per month · multi-property operators</div>
+          <div class="per">per month Â· multi-property operators</div>
           <ul>
             <li>Everything in Professional</li>
             <li>Multiple property imports</li>
             <li>Portfolio-wide reporting</li>
+            <li>Custom leasing, turnover, and booking setup</li>
             <li>Priority onboarding support</li>
           </ul>
           <a class="btn secondary" href="#contact">Talk to Matt</a>
@@ -864,7 +889,7 @@ footer {
       <div class="section-head">
         <p class="label">Get early access</p>
         <h2>Bring your maintenance workflow into one place.</h2>
-        <p>Join the beta if you manage properties and want help automating contractor coordination, recurring maintenance, and owner reporting.</p>
+        <p>Join the beta if you manage properties and want help automating contractor coordination, recurring maintenance, leasing follow-up, turnovers, room bookings, and owner reporting.</p>
         <p style="font-size:14px">Want to see the current product first? <a href="https://mattbrading14.github.io/maintenanceai_public/" style="color:var(--green);font-weight:800">Open the live demo</a>.</p>
       </div>
       <div class="contact-box">
@@ -875,7 +900,7 @@ footer {
             <div class="field full"><label for="email">Email</label><input id="email" name="email" type="email" required /></div>
             <div class="field"><label for="role">Role</label><select id="role" name="role"><option>Property manager</option><option>PM company owner</option><option>Self-managing owner</option><option>Investor / owner</option><option>HOA manager</option></select></div>
             <div class="field"><label for="units">Units managed</label><select id="units" name="units"><option>Under 25</option><option>25-50</option><option>50-200</option><option>200-500</option><option>500+</option></select></div>
-            <div class="field full"><label for="message">What maintenance workflow is most painful right now?</label><textarea id="message" name="message" placeholder="Bid requests, vendor follow-up, preventive maintenance, owner reports..."></textarea></div>
+            <div class="field full"><label for="message">What maintenance workflow is most painful right now?</label><textarea id="message" name="message" placeholder="Bid requests, vendor follow-up, preventive maintenance, owner reports, leasing leads, turnovers, room bookings..."></textarea></div>
           </div>
           <button class="btn primary" type="submit" style="width:100%">Request beta access</button>
         </form>
@@ -887,8 +912,11 @@ footer {
 <footer>
   <div class="foot">
     <div><strong>MaintenanceAI</strong><br />Maintenance operations for property managers.</div>
-    <div>Built by Matt Brading · Currently in beta</div>
+    <div>Built by Matt Brading Â· Currently in beta</div>
   </div>
 </footer>
 </body>
 </html>
+
+
+
