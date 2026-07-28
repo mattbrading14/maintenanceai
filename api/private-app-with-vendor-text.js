@@ -1,5 +1,5 @@
 const privateApp = require('./private-app-with-turnovers.js');
-const vendorTextDispatchAddon = require('./vendor-text-dispatch-addon.js');
+const vendorTextDispatchAddon = require('../addons/vendor-text-dispatch-addon.js');
 
 function appendBeforeBody(html, patch) {
   const closingBodyIndex = html.toLowerCase().lastIndexOf('</body>');
