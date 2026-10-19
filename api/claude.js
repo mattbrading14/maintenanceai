@@ -9,6 +9,12 @@ export default async function handler(req, res) {
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     
+    // Keep older app pages working after the original Sonnet 4 model retired.
+    // Configure its replacement centrally instead of updating every screenshot tool.
+    if (body.model === 'claude-sonnet-4-20250514') {
+      body.model = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-6';
+    }
+    
     // Log request size for debugging
     const bodyStr = JSON.stringify(body);
     console.log('Request body size:', bodyStr.length, 'bytes');
