@@ -16,9 +16,9 @@ function transform(html){
   html=html.replace('    window.showOfficeLeads=showOfficeLeads;','    window.maiExtraSearch=function(){return {prospects:state.prospects,offices:offices};};\n    window.showOfficeLeads=showOfficeLeads;');
   html=html.replace('    window.showTurnovers=','    window.maiTurnoverSearch=function(){return {turnovers:state.jobs};};\n    window.showTurnovers=');
   html=html.replace(/<script src="\/assets\/operations-(core|ui)\.js"><\/script>/g,'');
-  html=html.replace('</head>','<meta name="robots" content="noindex,nofollow"><script src="/assets/operations-core.js?v=20261117"></script></head>');
+  html=html.replace('</head>','<meta name="robots" content="noindex,nofollow"><script src="/assets/operations-core.js?v=20261117"></script><script src="/assets/sync-core.js?v=20261117b"></script></head>');
   const closing=html.toLowerCase().lastIndexOf('</body>');if(closing<0)throw Error('Missing application body');
-  html=html.slice(0,closing)+'<script src="/assets/operations-ui.js?v=20261117"></script>'+html.slice(closing);
+  html=html.slice(0,closing)+'<script src="/assets/operations-ui.js?v=20261117b"></script>'+html.slice(closing);
   return html;
 }
 module.exports=async function(req,res){let status=200;const capture={setHeader:(k,v)=>res.setHeader(k,v),status(n){status=n;return this;},send(body){try{if(status===200)body=transform(body);res.setHeader('Cache-Control','no-store');res.setHeader('X-Robots-Tag','noindex, nofollow');res.status(status).send(body);}catch(error){res.status(500).send('The operations update could not load. Your saved data has not been changed.');}}};return base(req,capture);};
