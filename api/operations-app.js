@@ -13,6 +13,9 @@ function transform(html){
   html=html.replace(/setTimeout\(saveContactUpdates,\s*(500|1500)\);/g,'');
   html=html.replace(/const d=new Date\(t.next\);d.setMonth[^\n]+pmTasks\[i\]\.next=[^\n]+;/g,'');
   html=html.replace(/\s*wo\.status='approved';(?=\s*(?:var|const) sl=)/g,'\n');
+  // A short random number can collide between devices and merge unrelated jobs.
+  html=html.replaceAll("'WO-'+Math.floor(1000+Math.random()*9000)","'WO-'+crypto.randomUUID()");
+  html=html.replaceAll("'+wo.estimated_time+'","'+(wo.estimated_time||'Not recorded')+'");
   html=html.replace('    window.showOfficeLeads=showOfficeLeads;','    window.maiExtraSearch=function(){return {prospects:state.prospects,offices:offices};};\n    window.showOfficeLeads=showOfficeLeads;');
   html=html.replace('    window.showTurnovers=','    window.maiTurnoverSearch=function(){return {turnovers:state.jobs};};\n    window.showTurnovers=');
   html=html.replace(/<script src="\/assets\/operations-(core|ui)\.js"><\/script>/g,'');
