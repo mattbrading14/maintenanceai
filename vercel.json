@@ -34,6 +34,11 @@
     "api/supabase-keepalive.js": {
       "memory": 128,
       "maxDuration": 10
+    },
+    "api/operations-app.js": {
+      "memory": 128,
+      "maxDuration": 10,
+      "includeFiles": "{index.html,assets/storage-recovery.js}"
     }
   },
   "crons": [
@@ -65,19 +70,19 @@
     },
     {
       "src": "/$",
-      "dest": "/api/private-app-with-turnovers.js"
+      "dest": "/api/operations-app.js"
     },
     {
       "src": "/index.html$",
-      "dest": "/api/private-app-with-turnovers.js"
+      "dest": "/api/operations-app.js"
     },
     {
       "src": "/app$",
-      "dest": "/api/private-app-with-turnovers.js"
+      "dest": "/api/operations-app.js"
     },
     {
       "src": "/146-main$",
-      "dest": "/api/private-app-with-turnovers.js"
+      "dest": "/api/operations-app.js"
     },
     {
       "src": "/website$",
