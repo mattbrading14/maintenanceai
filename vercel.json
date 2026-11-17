@@ -49,6 +49,10 @@
   ],
   "routes": [
     {
+      "src": "/api/site(?:\\.js)?/?$",
+      "dest": "/maintenanceai-website-v2.html"
+    },
+    {
       "src": "/demo(?:-app)?/?$",
       "dest": "/demo.html"
     },

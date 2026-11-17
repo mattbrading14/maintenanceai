@@ -60,7 +60,7 @@
     return result;
   }
   function reconcile(local,cloud){
-    const result={...cloud},conflicts=[];let localOnly=0;
+    const result={...local,...cloud},conflicts=[];let localOnly=0;
     const fields={workOrders:r=>r.id,pmTasks:r=>r.task,maintenanceHistory:r=>r.id||[r.task,r.date_completed,r.vendor].join('|'),TENANTS:r=>r.unit,VENDORS:r=>[r.name,r.trade].join('|'),bidJobs:r=>r.id,roomBookings:r=>r.id};
     const stable=v=>JSON.stringify(v,(k,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.keys(x).sort().reduce((o,n)=>(o[n]=x[n],o),{}):x);
     Object.entries(fields).forEach(([field,key])=>{const map=new Map((cloud[field]||[]).map(r=>[key(r),r]));(local[field]||[]).forEach(r=>{const id=key(r),other=map.get(id);if(!other){map.set(id,r);localOnly++;}else if(stable(r)!==stable(other)){const a=Date.parse(r.updatedAt||r.recordedAt||''),b=Date.parse(other.updatedAt||other.recordedAt||'');if(Number.isFinite(a)&&(!Number.isFinite(b)||a>b))map.set(id,r);else if(!(Number.isFinite(b)&&(!Number.isFinite(a)||b>a))){map.set(id,r);conflicts.push({field,id});}}});result[field]=[...map.values()];});
