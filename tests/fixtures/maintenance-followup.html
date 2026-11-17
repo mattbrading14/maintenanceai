@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta http-equiv="Content-Security-Policy" content="connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>Maintenance follow-up test</title>
+<style>body{font-family:system-ui,sans-serif;background:#f8fafc;color:#0f172a;max-width:700px;margin:24px auto;padding:0 16px}input,select,textarea,button{font:inherit;box-sizing:border-box;padding:10px;border:1px solid #94a3b8;border-radius:8px}input,select,textarea{max-width:100%;width:100%}.mai-dialog input,.mai-dialog select,.mai-dialog textarea{font-size:16px}.pm-row{background:white;padding:16px;margin:12px 0}.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn-sm{cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere}label{color:#0f172a}@media(max-width:500px){.row2{display:block}}</style>
+<script src="/assets/operations-core.js?v=20261117"></script></head><body>
+<header class="top-bar"><h1>Maintenance follow-up test</h1><p>Fictional records only. This page cannot connect to the database. Reload to reset.</p></header>
+<main><div id="pm-list"></div><div id="report-output"></div><h2>Test record</h2><pre id="test-record"></pre><p id="test-history"></p></main>
+<script>
+let workOrders=[],pmTasks=[{id:'sample-annual',task:'Sample annual sprinkler service',next:'2026-09-21',freq:'Annually',vendor:'Example Service Co.',units:'All areas'}],maintenanceHistory=[],TENANTS=[],VENDORS=[{name:'Example Service Co.'}],bidJobs=[],roomBookings=[],activeWorkOrderView='queue';
+function updateQueueCount(){}function renderHistory(){}function renderDirectory(){}function renderQueue(){}function switchTab(){}function dispatchPM(){}function exportReportPDF(){}
+function testRecord(){document.getElementById('test-record').textContent=JSON.stringify(pmTasks[0],null,2);document.getElementById('test-history').textContent=workOrders.length+' completion records; '+maintenanceHistory.length+' history entries.';}
+function renderPM(){document.getElementById('pm-list').innerHTML='<div class="pm-row"><span>Sample annual sprinkler service</span><span class="badge">Annually</span><span class="badge">Scheduled</span></div>';testRecord();}
+async function saveData(){testRecord();return true;}
+</script>
+<script src="/assets/operations-ui.js?v=20261117c"></script><script src="/assets/maintenance-followup-core.js?v=20261117c"></script><script src="/assets/maintenance-followup-ui.js?v=20261117c"></script>
+</body></html>
