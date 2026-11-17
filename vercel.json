@@ -44,6 +44,22 @@
   ],
   "routes": [
     {
+      "src": "/demo(?:-app)?/?$",
+      "dest": "/demo.html"
+    },
+    {
+      "src": "/guides/?$",
+      "dest": "/guides.html"
+    },
+    {
+      "src": "/office-turnover-checklist/?$",
+      "dest": "/office-turnover-checklist.html"
+    },
+    {
+      "src": "/hall-maintenance/?$",
+      "dest": "/hall-maintenance.html"
+    },
+    {
       "src": "/favicon.ico",
       "dest": "/assets/maintenanceai-mark.svg"
     },
@@ -73,10 +89,6 @@
     },
     {
       "src": "/public-app$",
-      "dest": "/api/public-redirect.js"
-    },
-    {
-      "src": "/demo-app$",
       "dest": "/api/public-redirect.js"
     },
     {

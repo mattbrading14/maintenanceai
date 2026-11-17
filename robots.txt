@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /website
+Allow: /guides
+Allow: /office-turnover-checklist
+Allow: /hall-maintenance
+Disallow: /api/
+Disallow: /demo-sandbox.html
+Disallow: /146-main
+Disallow: /app
+Disallow: /index.html
+Sitemap: https://maintenanceai-nblc.vercel.app/sitemap.xml
