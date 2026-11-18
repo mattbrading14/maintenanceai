@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>MaintenanceAI | Simple Maintenance Tracking for Small Property Teams</title>
-<meta name="description" content="Keep work orders, office turnovers, preventive maintenance dates, vendors, and board reports in one place. Try MaintenanceAI with fictional sample records." />
+<meta name="description" content="Explore simple maintenance records for hall associations and small property teams. Try a fictional demo and use free maintenance checklists." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap" rel="stylesheet" />
@@ -610,328 +610,40 @@ footer {
 <meta property="og:title" content="MaintenanceAI | Keep building maintenance in one place" />
 <meta property="og:description" content="Simple work orders, office turnovers, maintenance schedules, and board reports for small property teams." />
 <meta property="og:url" content="https://maintenanceai-nblc.vercel.app/website" /><meta property="og:type" content="website" />
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MaintenanceAI","applicationCategory":"BusinessApplication","operatingSystem":"Web browser","url":"https://maintenanceai-nblc.vercel.app/website","description":"A beta web application for work orders, preventive maintenance, vendor coordination, office turnovers, room bookings, and owner reports.","featureList":["Work order search","Office turnovers","Preventive maintenance completion dates","Vendor directory","Owner reports","Room bookings"]}</script>
+
 <style>.resource-links{display:flex;gap:12px;flex-wrap:wrap}.faq-list{max-width:850px}.faq-list details{border-bottom:1px solid var(--line);padding:20px 0}.faq-list summary{cursor:pointer;font-weight:700;font-size:18px}.faq-list p{line-height:1.7;color:var(--muted)}</style></head>
 <body>
-<nav class="nav" aria-label="Primary navigation">
-  <a class="brand" href="#top" aria-label="MaintenanceAI home">
-    <span class="mark">M</span>
-    <span>MaintenanceAI</span>
-  </a>
-  <div class="nav-links">
-    <a href="#platform">Services</a>
-    <a href="#workflows">Workflows</a>
-    <a href="#fit">Who it is for</a>
-    <a href="/guides">Free resources</a><a href="#pricing">Pricing</a>
-  </div>
-  <div class="nav-actions">
-    <a class="btn secondary" href="https://mattbrading14.github.io/maintenanceai_public/demo/">Open demo</a>
-    <a class="btn primary" href="#contact">Request access</a>
-  </div>
-</nav>
-
+<nav class="nav" aria-label="Primary navigation"><a class="brand" href="#top"><span class="mark">M</span>MaintenanceAI</a><div class="nav-links"><a href="#platform">Explore the beta</a><a href="#halls">Hall associations</a><a href="/guides">Free resources</a><a href="#faq">Questions</a></div><div class="nav-actions"><a class="btn primary" href="#contact">Request a walkthrough</a></div></nav>
 <main id="top">
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-inner">
-      <span class="eyebrow">Now in beta</span>
-      <h1 id="hero-title">From a tenant’s message to a finished repair.</h1>
-      <p>Keep work orders, vendors, service dates, office turnovers, and board reports in one place. Built for small landlords, property managers, and volunteer building teams who already handle requests by email, text, and phone.</p>
-      <div class="hero-actions">
-        <a class="btn primary" href="#contact">Get beta access</a>
-        <a class="btn secondary" href="https://mattbrading14.github.io/maintenanceai_public/demo/">Try the sample building</a>
-      </div>
-    </div>
-    <div class="hero-preview" aria-label="MaintenanceAI product preview">
-      <div class="preview-top">
-        <div>
-          <strong>500 Commerce Dr</strong>
-          <span style="display:block;color:var(--muted);font-size:13px;margin-top:3px">Maintenance command center</span>
-        </div>
-        <div class="preview-tabs">
-          <span class="pill dark">Work Orders</span>
-          <span class="pill">Bid Requests</span>
-          <span class="pill">Leasing Leads</span>
-          <span class="pill">Turnovers</span>
-          <span class="pill">Room Bookings</span>
-          <span class="pill">Owner Reports</span>
-        </div>
-      </div>
-      <div class="preview-grid">
-        <div class="panel">
-          <div class="panel-title">
-            <div>
-              <h3>Screenshot turned into a task</h3>
-              <p>Messages, emails, and voicemail transcripts become the right workflow automatically.</p>
-            </div>
-            <span class="status green">Ready to review</span>
-          </div>
-          <div class="row">
-            <strong>Work order</strong>
-            <span>Vendor matched</span>
-            <span>Needs approval</span>
-            <span class="value">Drafted</span>
-          </div>
-          <div class="row">
-            <strong>Prospective tenant</strong>
-            <span>Email captured</span>
-            <span>Notes saved</span>
-            <span>Waiting list</span>
-          </div>
-          <div class="row">
-            <strong>Room booking</strong>
-            <span>Date parsed</span>
-            <span>Rent estimated</span>
-            <span>Calendar ready</span>
-          </div>
-        </div>
-        <div class="panel">
-          <div class="panel-title">
-            <div>
-              <h3>Operations queue</h3>
-              <p>Maintenance, turnovers, bookings, and reports stay tied to the building record.</p>
-            </div>
-            <span class="status gold">6 items active</span>
-          </div>
-          <div class="tasks">
-            <div class="task"><span class="task-icon">HV</span><div><strong>Office turnover</strong><span>Paint, carpet, blinds, bulbs</span></div><span class="status blue">Scheduled</span></div>
-            <div class="task"><span class="task-icon">FE</span><div><strong>Bid request</strong><span>Three vendors invited</span></div><span class="status gold">Reminder</span></div>
-            <div class="task"><span class="task-icon">RP</span><div><strong>Owner report</strong><span>Date range and notes ready</span></div><span class="status green">Ready</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="below-hero">
-    <div class="strip" aria-label="Product outcomes">
-      <div class="metric"><strong>Any message</strong><span>can become a work order, lead, booking, or turnover task</span></div>
-      <div class="metric"><strong>1 scope</strong><span>sent to every contractor bidding on the job</span></div>
-      <div class="metric"><strong>1 report</strong><span>generated from actual maintenance history and notes</span></div>
-      <div class="metric"><strong>Full control</strong><span>manager approval before anything is dispatched</span></div>
-    </div>
-  </div>
-  <section class="section" id="platform">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="label">Updated services</p>
-        <h2>The building workflows that usually live in texts, inboxes, and spreadsheets.</h2>
-        <p>Start with the work your building needs: requests, bids, recurring maintenance, owner reports, office leads, office turnovers, and room reservations. The current beta grew out of hands-on management of a small office building.</p>
-      </div>
-      <div class="feature-grid">
-        <article class="feature">
-          <div>
-            <h3>Work Orders</h3>
-            <p>Upload a screenshot of a tenant email or text, or log a call. Review the issue, location, priority, vendor, and notes before preparing the next step.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line green"></span><span class="mini-line w70"></span><span class="mini-line w52"></span></div></div>
-        </article>
-        <article class="feature">
-          <div>
-            <h3>Bid Requests</h3>
-            <p>Create one scope, invite multiple vendors, track responses, upload bids, and compare price, exclusions, timeline, warranty, and overall value side by side.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w70"></span><span class="mini-line green"></span><span class="mini-line w52"></span></div></div>
-        </article>
-        <article class="feature">
-          <div>
-            <h3>Preventive Maintenance</h3>
-            <p>In the latest beta preview, record the actual service date and optional time—even when you are logging it later. Link the existing work order, correct completion details, and review the next due date.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w52"></span><span class="mini-line w70"></span><span class="mini-line green"></span></div></div>
-        </article>
-        <article class="feature">
-          <div>
-            <h3>Owner Reports</h3>
-            <p>In the latest beta preview, generate maintenance reports by date range, with completed work counted by service date, status notes, estimated costs, and the next preventive maintenance dates. Room rental reports are available separately.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line green"></span><span class="mini-line green"></span><span class="mini-line w70"></span></div></div>
-        </article>
-        <article class="feature">
-          <div>
-            <h3>Office Leads</h3>
-            <p>Keep office prospects and their preferences together, then prepare an availability email for your review when a space opens up.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w70"></span><span class="mini-line w52"></span><span class="mini-line green"></span></div></div>
-        </article>
-        <article class="feature">
-          <div>
-            <h3>Office Turnovers</h3>
-            <p>Choose an office, select painting, carpet, cleaning, locks, blinds, or other work, add photos, and review vendor assignments and email drafts. Keep the turnover scope together through completion.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line green"></span><span class="mini-line w52"></span><span class="mini-line w70"></span></div></div>
-        </article>
-        <article class="feature">
-          <div>
-            <h3>Room Bookings</h3>
-            <p>Review room rental requests, renter details, dates, times, kitchen use, pricing, and booking reports. Calendar synchronization depends on the property’s configured connection.</p>
-          </div>
-          <div class="mini-screen"><div class="mini-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div><div class="mini-body"><span class="mini-line w52"></span><span class="mini-line green"></span><span class="mini-line w70"></span></div></div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <section class="section alt" id="find-records"><div class="wrap"><div class="section-head"><p class="label">Latest beta preview</p><h2>Find last month’s work order without making another one.</h2><p>Search saved work orders across every status, along with tenants, offices, vendors, maintenance history, bids, bookings, leads, and turnovers. Open the matching record, use Back to return, and undo recent supported edits.</p></div><a class="btn primary" href="https://mattbrading14.github.io/maintenanceai_public/demo/">Try search in the demo</a></div></section>
-  <section class="section alt" id="workflows">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="label">Core workflows</p>
-        <h2>Built around the work that actually eats your week.</h2>
-        <p>Contractor coordination, recurring maintenance, lead follow-up, room rentals, turnovers, and owner communication are where time disappears. These workflows are designed to remove the manual follow-up.</p>
-      </div>
-      <div class="flow">
-        <div class="flow-nav">
-          <div class="flow-card"><h3>Capture the request once</h3><p>Upload a screenshot or enter notes from a call, then review the details in the relevant work order, lead, booking, or turnover form.</p></div>
-          <div class="flow-card"><h3>Send the right next step</h3><p>Choose vendors, office spaces, rooms, or owners, then open polished emails with the right details already filled in.</p></div>
-          <div class="flow-card"><h3>Keep the record clean</h3><p>Notes, dates, totals, booking rent, bid outcomes, and completion status stay available for reports.</p></div>
-        </div>
-        <div class="flow-demo">
-          <div class="workflow-screen">
-            <h3>Lead and request intake</h3>
-            <p>One screenshot can become the right record without retyping the whole conversation.</p>
-            <div class="vendor-row"><div><strong>Office prospect</strong><small>750-1,000 sq ft, second floor preferred</small></div><span class="price">Saved</span><span class="winner">Lead</span></div>
-            <div class="vendor-row"><div><strong>Maintenance text</strong><small>Leak under sink, access needed</small></div><span class="price">WO-1042</span><span class="status gold">Approval</span></div>
-            <div class="vendor-row"><div><strong>Room rental</strong><small>Dining Room, Saturday evening</small></div><span class="price">$450</span><span class="status blue">Calendar</span></div>
-          </div>
-          <div class="workflow-screen">
-            <h3>Turnover and maintenance plan</h3>
-            <p>Every task has a scope, vendor match, estimated cost, due date, notes, and completion status.</p>
-            <div class="vendor-row"><div><strong>Paint vacant office</strong><small>Suite 204, walls and trim</small></div><span class="price">Vendor</span><span class="status green">Ready</span></div>
-            <div class="vendor-row"><div><strong>Replace blinds</strong><small>Two windows, photos attached</small></div><span class="price">Vendor</span><span class="status blue">Drafted</span></div>
-            <div class="vendor-row"><div><strong>HVAC filters</strong><small>Quarterly, completion logged</small></div><span class="price">$150</span><span class="status gold">Due soon</span></div>
-          </div>
-          <div class="report">
-            <strong>Owner summary</strong>
-            <p>This month included completed work orders, active estimates, turnover notes, room booking activity, preventive maintenance, and one competitive bid process. Owners see the date range they asked for, with notes and totals separated clearly.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="fit">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="label">Who it is for</p>
-        <h2>For managers who need maintenance under control, not another giant system.</h2>
-      </div>
-      <div class="audience">
-        <div class="audience-card dark">
-          <h3>MaintenanceAI is a fit if...</h3>
-          <ul class="checklist">
-            <li><b>&#10003;</b><span>You manage residential, commercial, or mixed portfolios.</span></li>
-            <li><b>&#10003;</b><span>Your tenants, prospects, vendors, or room renters already reach out by text, email, calls, or screenshots.</span></li>
-            <li><b>&#10003;</b><span>You use trusted local vendors and want better coordination.</span></li>
-            <li><b>&#10003;</b><span>You need clean owner reports without manual write-ups.</span></li>
-            <li><b>&#10003;</b><span>You want preventive maintenance, turnovers, bookings, and follow-up to stop falling through the cracks.</span></li>
-          </ul>
-        </div>
-        <div class="audience-card">
-          <h3>It is not trying to be...</h3>
-          <ul class="checklist">
-            <li><b>&mdash;</b><span>A replacement for your accounting, rent collection, or leasing system.</span></li>
-            <li><b>&mdash;</b><span>A tenant portal that forces renters into a new habit.</span></li>
-            <li><b>&mdash;</b><span>A marketplace that pushes you away from your own vendors.</span></li>
-            <li><b>&mdash;</b><span>An enterprise platform built for thousands of units and long implementation cycles.</span></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section alt" id="pricing">
-    <div class="wrap">
-      <div class="section-head">
-        <p class="label">Beta pricing</p>
-        <h2>Simple plans while the product is still young.</h2>
-        <p>Start with the workflow that hurts most, then expand into the full maintenance operations system as your team adopts it.</p>
-      </div>
-      <div class="pricing">
-        <article class="price-card">
-          <div class="tier">Starter</div>
-          <div class="amount">$29</div>
-          <div class="per">per month &middot; smaller portfolios</div>
-          <ul>
-            <li>Work order creation</li>
-            <li>Vendor directory</li>
-            <li>Basic PM scheduler</li>
-            <li>Monthly owner report</li>
-            <li>Prospective tenant notes</li>
-          </ul>
-          <a class="btn secondary" href="#contact">Start beta</a>
-        </article>
-        <article class="price-card featured">
-          <div class="tier">Professional</div>
-          <div class="amount">$79</div>
-          <div class="per">per month &middot; growing property teams</div>
-          <ul>
-            <li>Everything in Starter</li>
-            <li>Bid request workflows</li>
-            <li>AI bid comparison reports</li>
-            <li>Advanced owner reporting</li>
-            <li>Room bookings and turnover workflows</li>
-          </ul>
-          <a class="btn primary" href="#contact">Request access</a>
-        </article>
-        <article class="price-card">
-          <div class="tier">Portfolio · Planned pilot</div>
-          <div class="amount">$199</div>
-          <div class="per">per month &middot; multi-property operators</div>
-          <ul>
-            <li>Everything in Professional</li>
-            <li>Multi-property requirements review</li>
-            <li>Portfolio reporting scoping for a future pilot</li>
-            <li>Custom leasing, turnover, and booking setup</li>
-            <li>Priority onboarding support</li>
-          </ul>
-          <a class="btn secondary" href="#contact">Talk to Matt</a>
-        </article>
-      </div>
-    </div>
-  </section>
-
-<section class="section" id="resources"><div class="wrap"><div class="section-head"><p class="label">Practical resources</p><h2>A useful starting point for your next building task.</h2><p>Free checklists you can use now, with or without the app.</p></div><div class="resource-links"><a class="btn secondary" href="/office-turnover-checklist">Office turnover checklist</a><a class="btn secondary" href="/hall-maintenance">Hall maintenance &amp; board reporting</a><a class="btn secondary" href="/guides">All resources</a></div></div></section>
-<section class="section alt" id="faq"><div class="wrap faq-list"><p class="label">Common questions</p><h2>How MaintenanceAI fits your building.</h2>
-<details open><summary>What is MaintenanceAI?</summary><p>MaintenanceAI is a beta web app for organizing building maintenance. It brings together work orders, vendors, preventive maintenance, office turnover tasks, room bookings, and maintenance reports.</p></details>
-<details><summary>Do tenants need to install an app?</summary><p>No. Tenants can keep contacting the manager by text, email, or phone. The manager uploads a screenshot or enters the request in MaintenanceAI and reviews the details.</p></details>
-<details><summary>Can I record maintenance after it has already happened?</summary><p>Yes. Record the actual completion date, add an optional time and notes, link the existing work order, and confirm the next due date. Regenerate the owner report to include the correction.</p></details>
-<details><summary>Can I share a demo without sharing tenant information?</summary><p>Yes. The public sample-building demo uses fictional records in an isolated browser frame. It has no connection to the live property database, and changes reset when the page reloads.</p></details>
-<details><summary>Does it automatically send messages or replace accounting software?</summary><p>Vendor workflows prepare email or text drafts for manager review. It is not a full accounting system. Booked rental amounts and estimated maintenance costs should not be treated as collected revenue or paid expenses.</p></details>
-<details><summary>Can a group of buildings report to one central team?</summary><p>That is a proposed pilot capability. It would require property-specific permissions, consistent data definitions, and a central reporting dashboard. It is not an existing statewide deployment or an endorsement by any organization.</p></details>
+<section class="hero"><div class="hero-inner"><span class="eyebrow">MaintenanceAI · In beta</span><h1>Keep building maintenance moving.</h1><p>A simpler way to organize work orders, service dates, and maintenance reports. Built around the day-to-day needs of volunteer hall managers and small property teams.</p><div class="hero-actions"><a class="btn primary" href="https://mattbrading14.github.io/maintenanceai_public/demo/">Try the sample building</a><a class="btn secondary" href="#contact">Request a walkthrough</a></div><p style="font-size:15px;margin-top:20px">Fictional records. No account needed. Demo changes reset when you reload.</p></div></section>
+<section class="section" id="platform"><div class="wrap"><div class="section-head"><p class="label">Explore the beta</p><h2>Find the record. Log the work. Review the report.</h2><p>The sample building lets you explore selected workflows before discussing whether MaintenanceAI fits your building.</p></div><div class="feature-grid">
+<article class="feature"><div><h3>Find a work order</h3><p>Search the sample records, open a matching work order, and review its details and status.</p></div><a href="https://mattbrading14.github.io/maintenanceai_public/demo/">Try record search →</a></article>
+<article class="feature"><div><h3>Record completed service</h3><p>Enter the actual service date, add notes, and review the next due date. A scheduled visit and completed work are separate facts.</p></div><a href="https://mattbrading14.github.io/maintenanceai_public/demo/">Explore service dates →</a></article>
+<article class="feature"><div><h3>Review turnover tasks</h3><p>Explore a sample office turnover with tasks such as painting, cleaning, and a final inspection.</p></div><a href="/office-turnover-checklist">Get the turnover checklist →</a></article>
+<article class="feature"><div><h3>Prepare a maintenance report</h3><p>See a sample owner report showing work-order status, recorded completion dates, and upcoming preventive maintenance.</p></div><a href="https://mattbrading14.github.io/maintenanceai_public/demo/">Explore the sample report →</a></article>
+</div><p style="line-height:1.7;margin-top:24px">The demo also displays a sample room booking. Screenshot extraction and document uploads are not included in this demonstration. It illustrates selected workflows, not a complete production or multi-property system.</p></div></section>
+<section class="section alt" id="halls"><div class="wrap"><div class="section-head"><p class="label">For hall associations</p><h2>Keep the building’s history when volunteers change.</h2><p>Give the next manager a clear record of what needs attention, who is following up, and when work was completed. Start with a practical checklist you can use on paper or in a spreadsheet.</p></div><div class="audience">
+<article class="audience-card"><h3>After a building assessment</h3><p>Turn findings into assigned work. Keep service dates, outstanding documents, and board decisions together in a repeatable routine.</p><a class="btn primary" href="/hall-maintenance#assessment-follow-through">Use the assessment checklist</a></article>
+<article class="audience-card"><h3>For owners and small property teams</h3><p>Use the same approach for a walkthrough, recurring service, or a vacant-office turnover. Each open item needs an owner and a next action.</p><a class="btn secondary" href="/guides">Browse free resources</a></article>
+</div><p style="line-height:1.7">Central reporting across participating buildings is a proposed future capability. MaintenanceAI is not an existing Grand Lodge deployment and has no claimed Grand Lodge endorsement or SnapRISK integration.</p></div></section>
+<section class="section" id="resources"><div class="wrap"><div class="section-head"><p class="label">Free practical resources</p><h2>Useful before you choose an app.</h2><p>Clear steps for the next building task, available without signing up.</p></div><div class="resource-links"><a class="btn secondary" href="/hall-maintenance#assessment-follow-through">Hall assessment follow-through</a><a class="btn secondary" href="/hall-maintenance">Maintenance &amp; board reporting</a><a class="btn secondary" href="/office-turnover-checklist">Office turnover checklist</a><a class="btn secondary" href="/guides">All resources</a></div></div></section>
+<section class="section alt" id="faq"><div class="wrap faq-list"><p class="label">Common questions</p><h2>Know what you’re trying.</h2>
+<details open><summary>What can I try today?</summary><p>The fictional demo includes record search, work-order edits, maintenance completion dates, turnover tasks, and a sample owner report. It also displays sample directory and room-booking information. Use fictional information only.</p></details>
+<details><summary>What happens when a maintenance date passes?</summary><p>The current beta has in-app follow-up choices to record completion, leave work overdue, or postpone the prompt. Recording completion asks for the actual service date. These are in-app prompts, not text or push notifications.</p></details>
+<details><summary>Can I upload service reports and invoices?</summary><p>Private document uploads are not yet enabled. Keep those files in your organization’s approved records location. Document reading and storage are part of the development work, not a capability to rely on in the public demo.</p></details>
+<details><summary>Can Grand Lodge or another central team see every building?</summary><p>A shared portfolio dashboard is planned. It requires property-specific permissions and consistent reporting definitions before a pilot can support central access. The demo’s portfolio tab is explicitly a concept.</p></details>
+<details><summary>Does a booked amount mean payment was received?</summary><p>No. Bookings, estimates, invoices, and confirmed payments are different records. MaintenanceAI is not a replacement for accounting or payment reconciliation.</p></details>
+<details><summary>How do we discuss fit and pricing?</summary><p>Request a walkthrough and describe your building’s needs. Scope, availability, and pricing should be confirmed before any commitment; a request does not start a subscription.</p></details>
 </div></section>
-  <section class="section" id="contact">
-    <div class="wrap contact">
-      <div class="section-head">
-        <p class="label">Get early access</p>
-        <h2>Bring your maintenance workflow into one place.</h2>
-        <p>Join the beta if you manage properties and want help automating contractor coordination, recurring maintenance, leasing follow-up, turnovers, room bookings, and owner reporting.</p>
-        <p style="font-size:14px">Want to see the current product first? <a href="https://mattbrading14.github.io/maintenanceai_public/demo/" style="color:var(--green);font-weight:800">Open the live demo</a>.</p>
-      </div>
-      <div class="contact-box">
-        <form action="https://formspree.io/f/xreoepky" method="POST">
+<section class="section" id="contact"><div class="wrap contact"><div class="section-head"><p class="label">Talk with Matt</p><h2>Start with your building’s next task.</h2><p>Tell us what you manage and what takes the most time: finding old work, following up on service, preparing board reports, or organizing turnovers.</p><p>We can discuss fit and what a future pilot would need. Please do not include tenant details, access codes, or confidential documents.</p><p><a href="https://mattbrading14.github.io/maintenanceai_public/demo/">Explore the fictional demo first →</a></p></div><div class="contact-box"><form action="https://formspree.io/f/xreoepky" method="POST">
           <div class="form-grid">
             <div class="field"><label for="first">First name</label><input id="first" name="first_name" required /></div>
             <div class="field"><label for="last">Last name</label><input id="last" name="last_name" required /></div>
             <div class="field full"><label for="email">Email</label><input id="email" name="email" type="email" required /></div>
             <div class="field"><label for="role">Role</label><select id="role" name="role"><option>Property manager</option><option>PM company owner</option><option>Self-managing owner</option><option>Investor / owner</option><option>HOA manager</option><option>Hall association / volunteer building manager</option></select></div>
             <div class="field"><label for="units">Units managed</label><select id="units" name="units"><option>Under 25</option><option>25-50</option><option>50-200</option><option>200-500</option><option>500+</option></select></div>
-            <div class="field full"><label for="message">What maintenance workflow is most painful right now?</label><textarea id="message" name="message" placeholder="Bid requests, vendor follow-up, preventive maintenance, owner reports, leasing leads, turnovers, room bookings..."></textarea></div>
+            <div class="field full"><label for="message">What maintenance workflow is most painful right now?</label><textarea id="message" name="message" placeholder="Tell us about your building and the work you want to simplify."></textarea></div>
           </div>
-          <button class="btn primary" type="submit" style="width:100%">Request beta access</button>
-        </form>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="foot">
-    <div><strong>MaintenanceAI</strong><br />Maintenance operations for property managers.</div>
-    <div>Built by Matt Brading &middot; Currently in beta</div>
-  </div>
-</footer>
-</body>
-</html>
-
-
-
+          <button class="btn primary" type="submit" style="width:100%">Request a walkthrough</button>
+        </form></div></div></section>
+</main><footer><div class="foot"><div><strong>MaintenanceAI</strong><br>For hall associations and small property teams.</div><div>Built by Matt Brading · In beta</div></div></footer></body></html>
