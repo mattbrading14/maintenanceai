@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to Turn a Tenant Text Into a Maintenance Work Order | MaintenanceAI</title>
+<meta name="description" content="Turn a tenant text or email screenshot into a draft maintenance work order. See what to capture, what to verify, and download an editable template.">
+<link rel="canonical" href="https://maintenanceai-nblc.vercel.app/tenant-text-to-work-order">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to Turn a Tenant Text Into a Maintenance Work Order | MaintenanceAI">
+<meta property="og:description" content="Turn a tenant text or email screenshot into a draft maintenance work order. See what to capture, what to verify, and download an editable template.">
+<meta property="og:url" content="https://maintenanceai-nblc.vercel.app/tenant-text-to-work-order">
+<style>*{box-sizing:border-box}body{margin:0;font:17px/1.7 system-ui;color:#193b32;background:#f7f9f6}header,main,footer{max-width:950px;margin:auto;padding:28px}nav{display:flex;gap:22px;flex-wrap:wrap}a{color:#17654b}h1{font-size:clamp(32px,6vw,52px);line-height:1.12;letter-spacing:-1.5px}h2{margin-top:38px;font-size:26px}p{max-width:760px}section{background:white;border:1px solid #dce5de;border-radius:16px;padding:26px;margin:24px 0}table{width:100%;border-collapse:collapse;font-size:15px}td,th{border-bottom:1px solid #dce5de;text-align:left;vertical-align:top;padding:12px}small{color:#5e7066}.button{display:inline-block;padding:12px 20px;background:#1a5947;color:white;text-decoration:none;border-radius:8px}.label{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#5e7066}@media(max-width:600px){main,header{padding:20px}section{padding:16px}table{font-size:13px}td,th{padding:7px}}
+.examples{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.examples article{min-width:0;border:1px solid #dce5de;padding:18px;border-radius:12px;background:#f7f9f6}
+.examples h3{margin:0 0 12px;font-size:18px}
+blockquote{margin:0;padding:12px;border-radius:12px;background:#dfebe3}
+dt{font-weight:700}dd{margin:0 0 10px}
+li{margin-bottom:8px}
+a:focus-visible{outline:3px solid #17654b;outline-offset:3px}
+@media(max-width:650px){.examples{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><nav aria-label="Main navigation"><a href="/website"><strong>MaintenanceAI</strong></a><a href="/guides">Resources</a><a href="https://mattbrading14.github.io/maintenanceai_public/demo/">Try the demo</a></nav></header>
+<main>
+<p class="label">Maintenance requests</p>
+<h1>How to turn a tenant text into a maintenance work order</h1>
+<p>Start with the message you already have. Record the property and unit, what the tenant noticed, and when they reported it. Verify the priority and arrange access before assigning the job. Leave unknown details blank rather than guessing.</p>
+<p><a class="button" href="/resources/tenant-work-order-template.csv" download>Download the editable work-order template</a></p>
+<section>
+<h2>What to capture before you assign the work</h2>
+<ol>
+<li><strong>Save only what you need.</strong> If you take a screenshot, crop out unrelated messages and redact access codes and other sensitive information. Give the vendor the information needed for the job, not the full conversation.</li>
+<li><strong>Write down what the tenant reported.</strong> Log the property, suite or unit, exact location, observed issue, and when the message arrived. Record when the issue started only if the tenant said when.</li>
+<li><strong>Review and assign.</strong> Confirm urgency using your building’s procedures. Arrange access separately, pick the right trade, and ask the vendor to inspect the reported issue rather than presenting a guess as a diagnosis.</li>
+<li><strong>Close the loop.</strong> Confirm the work was done, record the actual completion date and outcome, and keep the service report or invoice with your building records.</li>
+</ol>
+<p>For an active emergency, follow your building’s emergency procedures immediately rather than waiting for a software draft.</p>
+</section>
+<section>
+<h2>Example: From tenant message to draft work order</h2>
+<p>This example uses fictional details.</p>
+<div class="examples">
+<article><h3>Tenant text</h3><blockquote>“The break-room sink in Suite 204 leaks underneath when we run the faucet.”</blockquote></article>
+<article><h3>Draft work order · review before sending</h3><dl>
+<dt>Location</dt><dd>Suite 204 break room. Confirm the property.</dd>
+<dt>Reported issue</dt><dd>Water leaks under the sink when the faucet runs.</dd>
+<dt>Next action</dt><dd>Confirm access with the tenant, then ask a plumber to inspect and identify the source.</dd>
+<dt>Still to verify</dt><dd>When it started, whether it leaks with the faucet off, and whether nearby materials are affected.</dd>
+</dl></article>
+</div>
+</section>
+<h2>Can I start from a screenshot?</h2>
+<p>Yes. The MaintenanceAI beta helps small property managers and landlords draft work-order details from a tenant text or email screenshot. Review the result before you use it. The public demo reads text in your browser and suggests basic fields for a draft. It does not update live property records or send anything to a vendor.</p>
+<p><a class="button" href="https://mattbrading14.github.io/maintenanceai_public/demo/">Try a fictional maintenance request</a></p>
+<p>Use the built-in sample or a redacted screenshot, not real tenant information. <a href="/guides">Browse more building maintenance resources</a>.</p>
+</main>
+<footer><small>MaintenanceAI · Updated November 20, 2026 · MaintenanceAI is in beta.</small></footer>
+</body>
+</html>

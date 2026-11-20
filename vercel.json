@@ -65,6 +65,10 @@
       "dest": "/office-turnover-checklist.html"
     },
     {
+      "src": "/tenant-text-to-work-order/?$",
+      "dest": "/tenant-text-to-work-order.html"
+    },
+    {
       "src": "/hall-maintenance/?$",
       "dest": "/hall-maintenance.html"
     },
