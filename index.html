@@ -465,8 +465,11 @@ textarea:focus,input:focus,select:focus{outline:none;border-color:#94a3b8}
         <select id="pm-freq"><option>Monthly</option><option>Quarterly</option><option selected>Bi-annually</option><option>Annually</option></select>
       </div>
       <div class="row2"><select id="pm-vendor-select"></select><input id="pm-unit" placeholder="Unit(s) or 'All units'"/></div>
-      <div class="row2">
-        <input id="pm-next" type="date"/>
+      <div class="row2" style="align-items:end">
+        <div>
+          <label class="section-label" for="pm-next" style="display:block">Next due date (required)</label>
+          <input id="pm-next" type="date"/>
+        </div>
         <input id="pm-cost" placeholder="Est. cost (e.g. $250)"/>
       </div>
       <button class="btn-primary" onclick="addPM()" style="margin-top:0">Add to schedule</button>
