@@ -31,7 +31,7 @@ function harness(responses,directory=[suite,other,far]){
   });
   vm.runInContext(script,context);
   const el=id=>document.getElementById(id);
-  const selected=()=>el('screenshot-result').innerHTML.match(/<option value="(\d+)" selected>/)?.[1]??'';
+  const selected=()=>el('screenshot-result').innerHTML.match(/<select id="screenshot-tenant-choice">([\s\S]*?)<\/select>/)?.[1].match(/<option value="(\d+)" selected>/)?.[1]??'';
   const vendorChoice=i=>el('screenshot-result').innerHTML.match(new RegExp('<select id="screenshot-vendor-choice-'+i+'">([\\s\\S]*?)</select>'))?.[1].match(/<option value="([^"]*)" selected>/)?.[1]??'';
   return {run:()=>context.handleScreenshot({}),submit(choice=selected(),choices=[]){el('screenshot-tenant-choice').value=choice;for(let i=0;i<3;i++)el('screenshot-vendor-choice-'+i).value=choices[i]??vendorChoice(i);el('screenshot-add-queue').events.click();},selected,el,context,workOrders,requests,saves:()=>saveCount,queueView:()=>queueView};
 }
@@ -109,6 +109,7 @@ test('post-save screenshot card can change vendor without making another order o
   const wo=h.workOrders[0];
   assert.equal(wo.vendor.name,vendorOne.name);
   const vendor=h.el('active-wo-vendor-screenshot-'+wo.id);
+  h.context.VENDORS.reverse();
   vendor.value='1';vendor.events.change();
   assert.equal(h.workOrders.length,1);assert.equal(wo.vendor.email,vendorTwo.email);
   assert.equal(wo.status,'pending');assert.equal(h.requests.length,1);

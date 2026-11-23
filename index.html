@@ -820,10 +820,10 @@ function screenshotSuggestedVendor(category,vendors){
   return trade?vendors.find(v=>String(v.trade??'').trim().toLowerCase()===trade.toLowerCase())??null:null;
 }
 function activeWorkOrderCanChangeVendor(wo){return !!wo&&!['completed','denied','deleted'].includes(wo.status);}
-function setActiveWorkOrderVendor(id,value,ctx){
+function setActiveWorkOrderVendor(id,value,ctx,vendors=eligibleWorkOrderVendors()){
   const wo=workOrders.find(w=>w.id===id);
   if(!activeWorkOrderCanChangeVendor(wo)||value==='current')return;
-  const vendor=value===''?unassignedWorkOrderVendor():eligibleWorkOrderVendors()[Number(value)];
+  const vendor=value===''?unassignedWorkOrderVendor():vendors[Number(value)];
   if(!vendor)return;
   if(wo.status==='emailed'&&workOrderVendorIsUnassigned(wo.vendor)){
     wo.status='pending';
@@ -850,8 +850,9 @@ function renderInlineWorkOrderVendor(wo,ctx){
     (wo.status==='emailed'&&workOrderVendorIsUnassigned(wo.vendor)?'<div style="font-size:12px">No vendor was contacted. Choose a vendor to move this back to pending approval.</div>':'')+'</div>';
 }
 function bindInlineWorkOrderVendors(root){
+  const vendors=eligibleWorkOrderVendors();
   root.querySelectorAll('select[data-wo-vendor-id]').forEach(select=>{
-    select.addEventListener('change',()=>setActiveWorkOrderVendor(select.dataset.woVendorId,select.value,select.dataset.woVendorContext));
+    select.addEventListener('change',()=>setActiveWorkOrderVendor(select.dataset.woVendorId,select.value,select.dataset.woVendorContext,vendors));
   });
 }
 let screenshotResultIds=[];
@@ -1129,7 +1130,8 @@ function renderQueue(view){
     const sid=wo.id.replace('-','_');
     const unknown=wo.tenant==='Unknown'||wo.unit==='Unknown';
     const tOpts=TENANTS.map(t=>'<option value="'+t.unit+'"'+(wo.unit===t.unit?' selected':'')+'>'+t.contact+' — Unit '+t.unit+' ('+t.business+')</option>').join('');
-    const vOpts=[...new Set(VENDORS.map(v=>v.name))].map(n=>'<option value="'+n+'"'+(wo.vendor&&wo.vendor.name===n?' selected':'')+'>'+n+'</option>').join('');
+    const vendorNames=[...new Set(eligibleWorkOrderVendors().map(v=>v.name))];
+    const vOpts='<option value="">No change / unassigned</option>'+vendorNames.map(n=>'<option value="'+escapeHtml(n)+'"'+(wo.vendor&&wo.vendor.name===n?' selected':'')+'>'+escapeHtml(n)+'</option>').join('');
     const isDeleted=wo.status==='deleted';
     const isDenied=wo.status==='denied';
     const isCompleted=wo.status==='completed';
@@ -1193,8 +1195,17 @@ function saveWOEdit(id){
   if(!t){alert('Please enter a title.');return;}
   wo.issue_summary=t;wo.description=document.getElementById('ed-'+s).value.trim();wo.priority=document.getElementById('ep-'+s).value;wo.recommended_action=wo.description||t;
   const nu=document.getElementById('eten-'+s).value;if(nu){const tn=TENANTS.find(t=>t.unit===nu);if(tn){wo.tenant=tn.contact;wo.unit=tn.unit;wo.business=tn.business;wo.tenant_email=tn.email;wo.tenant_phone=tenantPhone(tn);}}
-  const nv=document.getElementById('ev-'+s).value;if(nv){const vn=VENDORS.find(v=>v.name===nv);if(vn)wo.vendor=vn;}
-  saveData();renderQueue();
+  const nv=document.getElementById('ev-'+s).value;
+  if(nv){
+    const vn=eligibleWorkOrderVendors().find(v=>v.name===nv);
+    if(vn){
+      if(wo.source==='Screenshot'&&wo.status==='emailed'&&workOrderVendorIsUnassigned(wo.vendor)){
+        wo.status='pending';delete wo.vendorDispatchMethod;
+      }
+      if(wo.vendor?.name!==nv)wo.vendor={...vn};
+    }
+  }
+  saveData();updateQueueCount();renderQueue(wo.status==='pending'&&activeWorkOrderView==='approved'?'queue':undefined);
 }
 function deleteWO(id){
   const wo=workOrders.find(w=>w.id===id);if(!wo)return;
