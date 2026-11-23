@@ -252,6 +252,10 @@ const TENANT_ACCESS_PATCH = String.raw`
     window.emailWO=function(id,ctx){
       var wo=getWorkOrders().find(function(w){return w.id===id;});
       if(!wo)return;
+      if(typeof workOrderVendorCanDispatch==='function'&&!workOrderVendorCanDispatch(wo.vendor,'email')){
+        alert('Choose a vendor with a valid email address before opening an email.');
+        return;
+      }
       syncTenantAccessContact(wo);
       wo.status='emailed';
       try{if(typeof updateQueueCount==='function')updateQueueCount();}catch(error){}

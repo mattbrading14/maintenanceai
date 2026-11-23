@@ -339,8 +339,8 @@ const VENDOR_TEXT_DISPATCH_ADDON = String.raw`
       var wo=findWorkOrder(id);
       if(!wo)return;
       var phone=clean(wo.vendor&&wo.vendor.phone);
-      if(!smsNumber(phone)){
-        alert('This vendor does not have a phone number saved yet.');
+      if(!smsNumber(phone)||(typeof workOrderVendorCanDispatch==='function'&&!workOrderVendorCanDispatch(wo.vendor,'text'))){
+        alert('Choose a vendor with a valid phone number before opening a text.');
         return;
       }
       if(typeof syncTenantAccessContact==='function')syncTenantAccessContact(wo);
@@ -409,7 +409,12 @@ const VENDOR_TEXT_DISPATCH_ADDON = String.raw`
       var originalEmailWO=window.emailWO;
       window.emailWO=function(id,ctx){
         var wo=findWorkOrder(id);
-        if(wo)wo.vendorDispatchMethod='email';
+        if(!wo)return;
+        if(typeof workOrderVendorCanDispatch==='function'&&!workOrderVendorCanDispatch(wo.vendor,'email')){
+          alert('Choose a vendor with a valid email address before opening an email.');
+          return;
+        }
+        wo.vendorDispatchMethod='email';
         return originalEmailWO.apply(this,arguments);
       };
       window.emailWO.__vendorTextAware=true;
