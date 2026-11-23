@@ -164,3 +164,45 @@ test('assigning a vendor does not reset genuine Approved records or legacy compo
     assert.equal(wo.status,prior.status);assert.equal(wo.vendor.name,vendorTwo.name);
   }
 });
+
+test('a bad model category does not lose a clear active heater failure or select another trade',async()=>{
+  for(const [label,excerpt] of [['Heater is not working', ''],['Maintenance request','Heater is not working'],['Maintenance request','No heat in Suite 100']]){
+    const h=harness([{reported_units:['100'],issues:[{title:label,description:'Please address this',active_request_excerpt:excerpt,category:'general'}]}]);
+    await h.run();
+    assert.match(h.el('screenshot-result').innerHTML,/Suggested: Example HVAC/);
+    assert.equal(h.saves(),0);
+    h.submit();
+    assert.equal(h.workOrders[0].category,'hvac');assert.equal(h.workOrders[0].vendor.name,vendorTwo.name);
+  }
+});
+test('water heater, old quoted messages and repaired equipment do not route to HVAC',async()=>{
+  for(const [issueData,expected] of [
+    [{title:'Heater is not working',active_request_excerpt:'Water heater is not working',category:'hvac'},'Example Plumber'],
+    [{title:'Parking gate problem',description:'Gate sticks.\nOn Tuesday, Alex wrote:\nHeater is not working.',category:'general'},'Unassigned'],
+    [{title:'Heater is not working',active_request_excerpt:'Heater is working',category:'hvac'},'Unassigned'],
+    [{title:'Heat request',active_request_excerpt:'Heater and water heater are not working; no heat',category:'hvac'},'Unassigned']
+  ]){
+    const h=harness([{reported_units:['100'],issues:[issueData]}]);await h.run();h.submit();
+    assert.equal(h.workOrders[0].vendor.name,expected);
+  }
+});
+test('multiple matched HVAC vendors appear first but are unassigned; selecting one uses its real directory index',async()=>{
+  const h=harness([{reported_units:['Suite 100'],issues:[{title:'Heater is not working',category:'general'}]}]);
+  const another={...vendorTwo,name:'Second HVAC vendor',email:'another@example.invalid'};
+  h.context.VENDORS.push(another);await h.run();
+  const markup=h.el('screenshot-result').innerHTML;
+  assert.match(markup,/Several matches: Example HVAC, Second HVAC vendor/);
+  assert.match(markup,/<option value="" selected>Unassigned/);
+  assert(markup.indexOf('Second HVAC vendor')<markup.indexOf('Example Plumber'));
+  h.submit('0',['3']);assert.equal(h.workOrders[0].vendor.email,another.email);
+});
+test('an explicit unique preferred vendor can be preselected but override or leaving unassigned still wins',async()=>{
+  const h=harness([{issues:[{title:'Heater is not working',category:'general'}]}]);
+  h.context.VENDORS.push({...vendorTwo,name:'Preferred Service',preferred:true,email:'preferred@example.invalid'});
+  await h.run();assert.match(h.el('screenshot-result').innerHTML,/Suggested: Preferred Service/);
+  h.submit('',['0']);assert.equal(h.workOrders[0].vendor.name,vendorOne.name);
+  const empty=harness([{issues:[{title:'Heater is not working',category:'general'}]}]);
+  empty.context.VENDORS=empty.context.VENDORS.filter(v=>v.trade!=='HVAC');await empty.run();
+  assert.match(empty.el('screenshot-result').innerHTML,/No vendor suggested/);
+  empty.submit();assert.equal(empty.workOrders[0].vendor.name,'Unassigned');
+});
