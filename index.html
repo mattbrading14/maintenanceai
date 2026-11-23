@@ -820,12 +820,15 @@ function screenshotSuggestedVendor(category,vendors){
   return trade?vendors.find(v=>String(v.trade??'').trim().toLowerCase()===trade.toLowerCase())??null:null;
 }
 function activeWorkOrderCanChangeVendor(wo){return !!wo&&!['completed','denied','deleted'].includes(wo.status);}
+function hasLegacyPlaceholderDispatch(wo){
+  return wo.source==='Screenshot'&&wo.status==='emailed'&&wo.vendorDispatchMethod==='email'&&workOrderVendorIsUnassigned(wo.vendor)&&!String(wo.vendor?.email??'').trim();
+}
 function setActiveWorkOrderVendor(id,value,ctx,vendors=eligibleWorkOrderVendors()){
   const wo=workOrders.find(w=>w.id===id);
   if(!activeWorkOrderCanChangeVendor(wo)||value==='current')return;
   const vendor=value===''?unassignedWorkOrderVendor():vendors[Number(value)];
   if(!vendor)return;
-  if(wo.status==='emailed'&&workOrderVendorIsUnassigned(wo.vendor)){
+  if(hasLegacyPlaceholderDispatch(wo)){
     wo.status='pending';
     delete wo.vendorDispatchMethod;
   }
@@ -847,7 +850,7 @@ function renderInlineWorkOrderVendor(wo,ctx){
   return '<div style="margin:8px 0"><label class="section-label" for="'+escapeHtml(id)+'">Vendor</label>'+
     '<select id="'+escapeHtml(id)+'" data-wo-vendor-id="'+escapeHtml(wo.id)+'" data-wo-vendor-context="'+ctx+'">'+
     renderWorkOrderVendorOptions(wo.vendor,eligibleWorkOrderVendors())+'</select>'+
-    (wo.status==='emailed'&&workOrderVendorIsUnassigned(wo.vendor)?'<div style="font-size:12px">No vendor was contacted. Choose a vendor to move this back to pending approval.</div>':'')+'</div>';
+    (hasLegacyPlaceholderDispatch(wo)?'<div style="font-size:12px">No vendor was contacted. Choose a vendor to move this back to pending approval.</div>':'')+'</div>';
 }
 function bindInlineWorkOrderVendors(root){
   const vendors=eligibleWorkOrderVendors();
@@ -1199,7 +1202,7 @@ function saveWOEdit(id){
   if(nv){
     const vn=eligibleWorkOrderVendors().find(v=>v.name===nv);
     if(vn){
-      if(wo.source==='Screenshot'&&wo.status==='emailed'&&workOrderVendorIsUnassigned(wo.vendor)){
+      if(hasLegacyPlaceholderDispatch(wo)){
         wo.status='pending';delete wo.vendorDispatchMethod;
       }
       if(wo.vendor?.name!==nv)wo.vendor={...vn};

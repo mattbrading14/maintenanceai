@@ -155,3 +155,12 @@ test('live wrapper dispatch guards run before status and opener side effects',()
   h.context.textWO(wo.id,'screenshot');
   assert.equal(wo.status,'emailed');assert.equal(wo.vendorDispatchMethod,'text');assert.equal(opened,1);assert.equal(saved,1);
 });
+
+test('assigning a vendor does not reset genuine Approved records or legacy composer with a stored address',()=>{
+  const h=harness([]);
+  for(const [j,prior] of [{source:'Screenshot',status:'approved',vendor:{name:'Unassigned'}},{source:'Screenshot',status:'emailed',vendorDispatchMethod:'email',vendor:{name:'TBD',email:vendorOne.email}},{source:'Phone call',status:'emailed',vendorDispatchMethod:'email',vendor:{name:'TBD',email:''}}].entries()){
+    const wo={id:'WO-safe-'+j,...prior};
+    h.workOrders.push(wo);h.context.setActiveWorkOrderVendor(wo.id,'1','approved');
+    assert.equal(wo.status,prior.status);assert.equal(wo.vendor.name,vendorTwo.name);
+  }
+});
