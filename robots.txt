@@ -3,6 +3,11 @@ Allow: /website
 Allow: /guides
 Allow: /office-turnover-checklist
 Allow: /hall-maintenance
+Allow: /tenant-text-to-work-order
+Allow: /blog-post-6.html
+Disallow: /$
+Disallow: /demo
+Disallow: /public-app
 Disallow: /api/
 Disallow: /demo-sandbox.html
 Disallow: /146-main
